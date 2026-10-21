@@ -1,0 +1,15 @@
+{
+  "name": "ammadeo",
+  "owner": { "name": "ammadeo", "url": "https://github.com/ammadeo" },
+  "metadata": {
+    "description": "ammadeo's agent skills"
+  },
+  "plugins": [
+    {
+      "name": "ammadeo",
+      "source": "./",
+      "description": "Personal agent workflows: orchestrate multi-agent work, review PRs with reviewer subagents, and oversee open PRs and agent sessions.",
+      "version": "0.1.0"
+    }
+  ]
+}
