@@ -9,6 +9,7 @@ other agent that reads the format.
 | [`orchestrate`](skills/orchestrate/SKILL.md) | Lead a task that is too big for one agent: split by deliverable and dependency, brief strong-model subagents with disjoint ownership, integrate and verify from real diffs. |
 | [`review-pr`](skills/review-pr/SKILL.md) | Review one PR or a batch of related PRs (a rollout across repos) with parallel read-only reviewers, report at behaviour level, post comment/approve reviews on request. |
 | [`overseer-draft`](skills/overseer-draft/SKILL.md) | *Draft.* Oversee your open PRs and agent sessions: one-call status report grouped by who holds the ball, session triage, routing fixes to the owning session, reviewer proposals, merges you name. |
+| [`prototype`](skills/prototype/SKILL.md) | Turn an idea into a clickable throwaway demo fast: mocked data, no tests or specs, iterate on stakeholder feedback, hand over a demo script and a what-is-faked note. |
 
 Requirements: [`gh`](https://cli.github.com) signed in, for `review-pr` and
 `overseer-draft`. Subagent support helps but is optional; without it the

@@ -1,10 +1,10 @@
 {
   "name": "ammadeo",
-  "version": "0.1.0",
-  "description": "Personal agent workflows: orchestrate multi-agent work, review PRs with reviewer subagents, and oversee open PRs and agent sessions.",
+  "version": "0.2.0",
+  "description": "Personal agent workflows: orchestrate multi-agent work, review PRs with reviewer subagents, oversee open PRs and agent sessions, and build throwaway prototypes for stakeholder feedback.",
   "author": { "name": "ammadeo", "url": "https://github.com/ammadeo" },
   "homepage": "https://github.com/ammadeo/skills",
   "repository": "https://github.com/ammadeo/skills",
   "license": "MIT",
-  "keywords": ["skills", "agents", "orchestration", "code-review", "pull-requests"]
+  "keywords": ["skills", "agents", "orchestration", "code-review", "pull-requests", "prototyping"]
 }

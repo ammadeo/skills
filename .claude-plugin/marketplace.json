@@ -8,8 +8,8 @@
     {
       "name": "ammadeo",
       "source": "./",
-      "description": "Personal agent workflows: orchestrate multi-agent work, review PRs with reviewer subagents, and oversee open PRs and agent sessions.",
-      "version": "0.1.0"
+      "description": "Personal agent workflows: orchestrate multi-agent work, review PRs with reviewer subagents, oversee open PRs and agent sessions, and build throwaway prototypes for stakeholder feedback.",
+      "version": "0.2.0"
     }
   ]
 }
