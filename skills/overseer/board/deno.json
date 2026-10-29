@@ -1,0 +1,24 @@
+{
+  "nodeModulesDir": "auto",
+  "tasks": {
+    "dev": "deno run -A npm:vite",
+    "build": "deno run -A npm:vite build"
+  },
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "deno.ns"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "jsxImportSourceTypes": "@types/react",
+    "types": ["vite/client"]
+  },
+  "imports": {
+    "vite": "npm:vite@8.3.5",
+    "react": "npm:react@19.3.1",
+    "react/": "npm:/react@19.3.1/",
+    "react-dom": "npm:react-dom@19.3.1",
+    "react-dom/": "npm:/react-dom@19.3.1/",
+    "@vitejs/plugin-react": "npm:@vitejs/plugin-react@6.1.2",
+    "@types/react": "npm:@types/react@19.3.0",
+    "@types/react-dom": "npm:@types/react-dom@19.3.0"
+  }
+}
