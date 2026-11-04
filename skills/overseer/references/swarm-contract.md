@@ -177,14 +177,23 @@ A Vite plugin (dev server middleware) serves `GET /api/state` by running
 returning its stdout, watches `$SWARM_HOME/work`, `decisions.md` and
 `runs.md` and sends a `swarm:update` custom HMR event on change; the client
 refetches on that event. `SWARM_STATE_FIXTURE=<file>` makes the middleware
-serve that JSON instead (for development without the CLI). Read-only: the
-board never writes to the swarm repo in the spike.
+serve that JSON instead (for development without the CLI).
 
-Layout: a "Needs you" strip on top (every open question with options and the
-recommendation, plus the `swarm answer` command to copy), then columns by
-state in the order of §2, cards showing id, title, repo, PR link, CI, threads,
-review, owner (running or not), last log line, a stuck marker. Below: changes
-since the last run, the last runs, the decisions.
+Writes go through the same CLI, never through the files: `POST /api/answer`
+and `POST /api/log` (`{id, text}`) run `swarm answer` / `swarm log`;
+`POST /api/new` (`{title, repo, role, brief}`) runs `swarm new`. Each reply
+carries the equivalent `swarm …` command; with a fixture the server answers
+409 and the user runs that command by hand.
+
+Layout: two panes. Left, "Needs you": every item in `needs-decision`,
+`blocked` or stuck, with its latest log line, the brief on demand, the
+question with the recommended option proposed and pre-selected, and a free
+text reply (a different idea or a follow-up question) that becomes the
+answer; blocked and stuck items take a note that is logged on the item. Below
+it, a form to queue new work, and the collapsed history (changes since the
+last run, decisions, runs). Right, "Active work": one line per item under its
+state, with a running marker and the current log line while the session is
+running; details (PR, CI, threads, log, findings, brief) open on click.
 
 ## 6. Reporting contract (pasted into every role brief)
 

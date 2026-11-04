@@ -1,21 +1,26 @@
 import { useCallback, useEffect, useState } from "react";
-import { STATES, type SwarmState } from "./types.ts";
-import { NeedsYou } from "./NeedsYou.tsx";
-import { Card } from "./Card.tsx";
-import { History } from "./History.tsx";
+import type { SwarmState } from "./types.ts";
+import { Inbox } from "./Inbox.tsx";
+import { Work } from "./Work.tsx";
+import { Recent } from "./Recent.tsx";
 
 export function App() {
   const [data, setData] = useState<SwarmState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loadedAt, setLoadedAt] = useState("");
-  const [showArchived, setShowArchived] = useState(false);
-  const [open, setOpen] = useState<Set<string>>(new Set());
+  const [railOpen, setRailOpen] = useState(false);
 
   const load = useCallback(async () => {
     try {
       const res = await fetch("/api/state", { cache: "no-store" });
       const text = await res.text();
-      if (!res.ok) throw new Error(text || `HTTP ${res.status}`);
+      if (!res.ok) {
+        let msg = text || `HTTP ${res.status}`;
+        try {
+          msg = (JSON.parse(text) as { error?: string }).error ?? msg;
+        } catch { /* plain text */ }
+        throw new Error(msg);
+      }
       setData(JSON.parse(text) as SwarmState);
       setError(null);
       setLoadedAt(new Date().toLocaleTimeString());
@@ -26,84 +31,45 @@ export function App() {
 
   useEffect(() => {
     load();
-    const onUpdate = () => {
-      console.log("[swarm] swarm:update received, refetching");
-      load();
-    };
-    import.meta.hot?.on("swarm:update", onUpdate);
-    return () => import.meta.hot?.off("swarm:update", onUpdate);
+    import.meta.hot?.on("swarm:update", load);
+    return () => import.meta.hot?.off("swarm:update", load);
   }, [load]);
 
-  const toggle = (id: string) =>
-    setOpen((s) => {
-      const n = new Set(s);
-      if (n.has(id)) n.delete(id);
-      else n.add(id);
-      return n;
-    });
-
-  const reveal = (id: string) => {
-    setOpen((s) => new Set(s).add(id));
-    if (id.startsWith("W") && data?.work.find((w) => w.id === id)?.state === "archived") setShowArchived(true);
-    requestAnimationFrame(() => document.getElementById(`card-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }));
-  };
-
   const work = data?.work ?? [];
-  const known = new Set<string>(STATES);
-  const extra = [...new Set(work.map((w) => w.state).filter((s) => !known.has(s)))];
-  const columns = [...STATES.filter((s) => s !== "archived" || showArchived), ...extra];
-  const stateOf = new Map(work.map((w) => [w.id, w.state]));
-  const count = (s: string) => work.filter((w) => w.state === s).length;
+  const attention = work.filter((w) => w.state === "needs-decision" || w.state === "blocked" || w.stuck);
+  const running = work.filter((w) => w.session_running).length;
 
   return (
     <div className="app">
       <header className="top">
-        <h1>Swarm board</h1>
+        <h1>Swarm</h1>
         {data && (
-          <span className="meta">
-            {data.home} · generated {data.generated} · loaded {loadedAt}
-          </span>
+          <p className="meta">
+            <span>{data.home}</span>
+            <span>{running} session{running === 1 ? "" : "s"} running</span>
+            <span>state {data.generated}</span>
+            <span>loaded {loadedAt}</span>
+          </p>
         )}
-        <label className="toggle">
-          <input type="checkbox" checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} />
-          show archived ({count("archived")})
-        </label>
       </header>
 
       {error && (
-        <div className="error" role="alert">
-          <strong>Could not load /api/state</strong>
-          {data && <span> (showing the last good state)</span>}
+        <div className="alert" role="alert">
+          <strong>Could not load the swarm state.</strong>
+          {data && <span> Showing the last good state.</span>}
           <pre>{error}</pre>
         </div>
       )}
 
       {data && (
         <>
-          <NeedsYou work={work} onReveal={reveal} />
-          <main className="columns">
-            {columns.map((s) => {
-              const items = work.filter((w) => w.state === s);
-              return (
-                <section key={s} className={`column state-${s}${items.length ? "" : " empty"}`}>
-                  <h2>
-                    {s} <span className="count">{items.length}</span>
-                  </h2>
-                  {items.map((w) => (
-                    <Card
-                      key={w.id}
-                      item={w}
-                      open={open.has(w.id)}
-                      onToggle={() => toggle(w.id)}
-                      stateOf={stateOf}
-                      onReveal={reveal}
-                    />
-                  ))}
-                </section>
-              );
-            })}
+          <main className="pane inbox-pane">
+            <Inbox items={attention} onChanged={load} />
+            <Recent data={data} />
           </main>
-          <History data={data} onReveal={reveal} />
+          <aside className="pane work-pane" data-expanded={railOpen} aria-label="Active work">
+            <Work work={work} expanded={railOpen} onToggle={() => setRailOpen((v) => !v)} />
+          </aside>
         </>
       )}
       {!data && !error && <p className="muted">Loading…</p>}
