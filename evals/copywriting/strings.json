@@ -1,0 +1,1832 @@
+{
+ "master": {
+  "SharedStrings.settings": {
+   "en": "Settings",
+   "pl": "Ustawienia"
+  },
+  "SharedStrings.breaks": {
+   "en": "Breaks",
+   "pl": "Przerwy"
+  },
+  "SharedStrings.shortEvery": {
+   "en": "Take a short break every",
+   "pl": "Zrób krótką przerwę co"
+  },
+  "SharedStrings.shortLast": {
+   "en": "Short break will last",
+   "pl": "Krótka przerwa będzie trwała"
+  },
+  "SharedStrings.longEvery": {
+   "en": "Take a long break every",
+   "pl": "Zrób długą przerwę co"
+  },
+  "SharedStrings.longLast": {
+   "en": "Long break will last",
+   "pl": "Długa przerwa będzie trwała"
+  },
+  "SharedStrings.soundUi": {
+   "en": "Play sounds",
+   "pl": "Odtwarzaj dźwięki"
+  },
+  "SharedStrings.language": {
+   "en": "Language",
+   "pl": "Język"
+  },
+  "SharedStrings.createdBy": {
+   "en": "Created by",
+   "pl": "Stworzona przez"
+  },
+  "SharedStrings.author": {
+   "en": "Ammadeo",
+   "pl": "Amadeusza Chomiaka"
+  },
+  "SharedStrings.thanksTo": {
+   "en": "Thanks to",
+   "pl": "Dzięki"
+  },
+  "SharedStrings.thanksFor": {
+   "en": "for awesome drawings",
+   "pl": "za świetne rysunki"
+  },
+  "SharedStrings.coffee": {
+   "en": "Buy me a coffee",
+   "pl": "Zamów mi kawę"
+  },
+  "SharedStrings.fixing": {
+   "en": "Fixing settings",
+   "pl": "Poprawiam ustawienia"
+  },
+  "SharedStrings.saved": {
+   "en": "Settings saved",
+   "pl": "Zapisano ustawienia"
+  },
+  "SharedStrings.saveFailed": {
+   "en": "Could not save settings",
+   "pl": "Nie udało się zapisać ustawień"
+  },
+  "SharedStrings.revert": {
+   "en": "Revert",
+   "pl": "Cofnij"
+  },
+  "SharedStrings.title": {
+   "en": "Stop protection",
+   "pl": "Wstrzymaj ochronę"
+  },
+  "SharedStrings.stopFor": {
+   "en": "Stop protection for",
+   "pl": "Wstrzymaj ochronę na"
+  },
+  "SharedStrings.turnOffTitle": {
+   "en": "Turn off protection",
+   "pl": "Wyłącz ochronę"
+  },
+  "SharedStrings.turnOffContent": {
+   "en": "Turn off for this session",
+   "pl": "Wyłącz podczas tej sesji"
+  },
+  "SharedStrings.turnOffInfo": {
+   "en": "App will start again with your computer",
+   "pl": "Aplikacja uruchomi się, gdy ponownie włączysz komputer"
+  },
+  "MenuSettingsPane.meetings": {
+   "en": "Meetings",
+   "pl": "Spotkania"
+  },
+  "MenuSettingsPane.toggle": {
+   "en": "Don't break during meetings",
+   "pl": "Bez przerw w trakcie spotkań"
+  },
+  "MenuSettingsPane.calls": {
+   "en": "Don't break during calls",
+   "pl": "Bez przerw w trakcie rozmów"
+  },
+  "MenuSettingsPane.callsDetail": {
+   "en": "A call means an app is using your camera or microphone. Save My Eyes only knows that they are on: it can't see, hear or record anything.",
+   "pl": "Za rozmowę uznajemy użycie kamery lub mikrofonu przez dowolną aplikację. Save My Eyes wie tylko, że są włączone: nie może niczego zobaczyć, usłyszeć ani nagrać."
+  },
+  "MenuSettingsPane.grace": {
+   "en": "Pause breaks after a call ends",
+   "pl": "Wstrzymaj przerwy po zakończeniu rozmowy"
+  },
+  "MenuSettingsPane.graceZero": {
+   "en": "Immediately",
+   "pl": "Od razu"
+  },
+  "MenuSettingsPane.hint": {
+   "en": "A break that falls during an event from the Calendar app waits until the event ends. For Google Calendar, add your Google account in System Settings › Internet Accounts.",
+   "pl": "Przerwa wypadająca w trakcie wydarzenia z aplikacji Kalendarz poczeka do jego końca. Aby użyć Kalendarza Google, dodaj konto Google w Ustawieniach systemowych › Konta internetowe."
+  },
+  "SettingsForm.shortEvery": {
+   "en": "short break every",
+   "pl": "czas między krótkimi przerwami"
+  },
+  "SettingsForm.shortLast": {
+   "en": "short break length",
+   "pl": "długość krótkiej przerwy"
+  },
+  "SettingsForm.longEvery": {
+   "en": "long break every",
+   "pl": "czas między długimi przerwami"
+  },
+  "SettingsForm.longLast": {
+   "en": "long break length",
+   "pl": "długość długiej przerwy"
+  },
+  "SettingsForm.calendarGrace": {
+   "en": "pause after a call",
+   "pl": "wstrzymanie po rozmowie"
+  },
+  "CalendarAccessWarning.title": {
+   "en": "Breaks aren't held during meetings",
+   "pl": "Przerwy nie czekają na koniec spotkań"
+  },
+  "CalendarAccessWarning.detail": {
+   "en": "Save My Eyes can't read your calendar.",
+   "pl": "Save My Eyes nie może odczytać kalendarza."
+  },
+  "CalendarAccessWarning.allow": {
+   "en": "Allow…",
+   "pl": "Zezwól…"
+  },
+  "CalendarAccessWarning.openSettings": {
+   "en": "Open Privacy Settings…",
+   "pl": "Otwórz ustawienia prywatności…"
+  },
+  "CalendarAccessWarning.turnOff": {
+   "en": "Turn off",
+   "pl": "Wyłącz"
+  },
+  "CalendarAccessWarning.turnOffHint": {
+   "en": "Turns off Don't break during meetings",
+   "pl": "Wyłącza Bez przerw w trakcie spotkań"
+  },
+  "IdeaCard.title": {
+   "en": "Try this break idea",
+   "pl": "Zainspiruj się"
+  },
+  "IdeaCard.donationAlt": {
+   "en": "Spread love",
+   "pl": "Podziel się miłością"
+  },
+  "IdeaCard.donationTitle": {
+   "en": "Like what you see?",
+   "pl": "Podoba Ci się aplikacja?"
+  },
+  "IdeaCard.donationText": {
+   "en": "Consider supporting development of this project",
+   "pl": "Rozważ wsparcie rozwoju tego projektu"
+  },
+  "IdeaCard.donationLink": {
+   "en": "Buy me a coffee",
+   "pl": "Zamów mi kawę"
+  },
+  "IdeaCard.donationNote": {
+   "en": "Will open your default browser",
+   "pl": "Otworzy się w Twojej przeglądarce"
+  },
+  "IdeaCard.long.title[0]": {
+   "en": "Do some exercises",
+   "pl": "Poćwicz chwilę"
+  },
+  "IdeaCard.long.alt[0]": {
+   "en": "Woman dancing",
+   "pl": "Tańcząca kobieta"
+  },
+  "IdeaCard.long.content[0]": {
+   "en": "A few minutes of workout will help you relax from sitting position",
+   "pl": "Kilka minut ćwiczeń pomoże ci się zrelaksować"
+  },
+  "IdeaCard.long.title[1]": {
+   "en": "Go outside",
+   "pl": "Wyjdź na świeże powietrze"
+  },
+  "IdeaCard.long.alt[1]": {
+   "en": "Woman walk through a forest",
+   "pl": "Kobieta idzie przez las"
+  },
+  "IdeaCard.long.content[1]": {
+   "en": "Go out to a park or a forest. Being close to nature will help you relax",
+   "pl": "Pójdź na spacer do parku. Kontakt z naturą pomoże ci się zrelaksować"
+  },
+  "IdeaCard.long.title[2]": {
+   "en": "Relax a bit",
+   "pl": "Zrelaksuj się"
+  },
+  "IdeaCard.long.alt[2]": {
+   "en": "Woman meditating in front of ancient temple",
+   "pl": "Kobieta medytuje przed świątynią"
+  },
+  "IdeaCard.long.content[2]": {
+   "en": "Do what you do to relax. It could be drinking tea, meditating or whatever you like. But remember not to use your phone or computer now",
+   "pl": "Zrób to co zwykle, gdy potrzebujesz się odprężyć. Przykładowo wypij herbatę, bądź pomedytuj. Pamiętaj, żeby nie używać do tego komputera, ani telefonu"
+  },
+  "IdeaCard.short.title[0]": {
+   "en": "Look out the window",
+   "pl": "Wyjrzyj przez okno"
+  },
+  "IdeaCard.short.alt[0]": {
+   "en": "Woman looks out the window",
+   "pl": "Kobieta spogląda przez okno"
+  },
+  "IdeaCard.short.content[0]": {
+   "en": "Look far away through a window to help your eyes relax",
+   "pl": "Patrzenie w dal pomoże Ci uniknąć krótkowzroczności"
+  },
+  "IdeaCard.short.title[1]": {
+   "en": "Look at plants",
+   "pl": "Popatrz na rośliny"
+  },
+  "IdeaCard.short.alt[1]": {
+   "en": "Man is sitting in front of flowers",
+   "pl": "Mężczyzna siedzi przy kwiatach"
+  },
+  "IdeaCard.short.content[1]": {
+   "en": "Green plants will help relax your eyes",
+   "pl": "Spojrzenie na rośliny pomoże Ci zrelaksować oczy i odprężyć umysł"
+  },
+  "IdeaCard.short.title[2]": {
+   "en": "Blink your eyes",
+   "pl": "Pomrugaj oczami"
+  },
+  "IdeaCard.short.alt[2]": {
+   "en": "Man looks at the darkness",
+   "pl": "Mężczyzna patrzy w ciemność"
+  },
+  "IdeaCard.short.content[2]": {
+   "en": "Blink a few times to clean your eyes",
+   "pl": "Mrugnij kilka razy, aby oczyścić oczy"
+  }
+ },
+ "base-1": {
+  "SharedStrings.settings": {
+   "en": "Settings",
+   "pl": "Ustawienia"
+  },
+  "SharedStrings.breaks": {
+   "en": "Breaks",
+   "pl": "Przerwy"
+  },
+  "SharedStrings.shortEvery": {
+   "en": "Break every",
+   "pl": "Przerwa co"
+  },
+  "SharedStrings.shortLast": {
+   "en": "Short break lasts",
+   "pl": "Krótka przerwa trwa"
+  },
+  "SharedStrings.longEvery": {
+   "en": "Long break every",
+   "pl": "Długa przerwa co"
+  },
+  "SharedStrings.longLast": {
+   "en": "Long break lasts",
+   "pl": "Długa przerwa trwa"
+  },
+  "SharedStrings.soundUi": {
+   "en": "Play a sound when a break starts and ends",
+   "pl": "Dźwięk na początku i na końcu przerwy"
+  },
+  "SharedStrings.language": {
+   "en": "Language",
+   "pl": "Język"
+  },
+  "SharedStrings.createdBy": {
+   "en": "Created by",
+   "pl": "Stworzona przez"
+  },
+  "SharedStrings.author": {
+   "en": "Ammadeo",
+   "pl": "Amadeusza Chomiaka"
+  },
+  "SharedStrings.thanksTo": {
+   "en": "Thanks to",
+   "pl": "Dzięki"
+  },
+  "SharedStrings.thanksFor": {
+   "en": "for the illustrations",
+   "pl": "za ilustracje"
+  },
+  "SharedStrings.coffee": {
+   "en": "Buy me a coffee",
+   "pl": "Zamów mi kawę"
+  },
+  "SharedStrings.fixing": {
+   "en": "Fixing settings",
+   "pl": "Poprawiam ustawienia"
+  },
+  "SharedStrings.saved": {
+   "en": "Settings saved",
+   "pl": "Zapisano ustawienia"
+  },
+  "SharedStrings.saveFailed": {
+   "en": "Could not save settings",
+   "pl": "Nie udało się zapisać ustawień"
+  },
+  "SharedStrings.revert": {
+   "en": "Revert",
+   "pl": "Cofnij"
+  },
+  "SharedStrings.title": {
+   "en": "Stop protection",
+   "pl": "Wstrzymaj ochronę"
+  },
+  "SharedStrings.stopFor": {
+   "en": "Stop protection for",
+   "pl": "Wstrzymaj ochronę na"
+  },
+  "SharedStrings.turnOffTitle": {
+   "en": "Turn off protection",
+   "pl": "Wyłącz ochronę"
+  },
+  "SharedStrings.turnOffContent": {
+   "en": "Turn off for this session",
+   "pl": "Wyłącz podczas tej sesji"
+  },
+  "SharedStrings.turnOffInfo": {
+   "en": "App will start again with your computer",
+   "pl": "Aplikacja uruchomi się, gdy ponownie włączysz komputer"
+  },
+  "MenuSettingsPane.meetings": {
+   "en": "Meetings and calls",
+   "pl": "Spotkania i rozmowy"
+  },
+  "MenuSettingsPane.toggle": {
+   "en": "Delay breaks during calendar events",
+   "pl": "Odkładaj przerwy w trakcie wydarzeń z kalendarza"
+  },
+  "MenuSettingsPane.calls": {
+   "en": "Delay breaks while a camera or microphone is on",
+   "pl": "Odkładaj przerwy, gdy kamera lub mikrofon są włączone"
+  },
+  "MenuSettingsPane.callsDetail": {
+   "en": "Any app counts. Save My Eyes only checks whether they're on: it can't see, hear or record anything.",
+   "pl": "Liczy się każda aplikacja. Save My Eyes sprawdza tylko, czy są włączone: nie może niczego zobaczyć, usłyszeć ani nagrać."
+  },
+  "MenuSettingsPane.grace": {
+   "en": "Wait after a meeting or call ends",
+   "pl": "Odczekaj po spotkaniu lub rozmowie"
+  },
+  "MenuSettingsPane.graceZero": {
+   "en": "No wait",
+   "pl": "Bez czekania"
+  },
+  "MenuSettingsPane.hint": {
+   "en": "Events from the Calendar app count when they have a set time and show you as busy. All-day, free, declined and canceled events don't. To use Google Calendar, add your Google account in System Settings › Internet Accounts.",
+   "pl": "Liczą się wydarzenia z aplikacji Kalendarz, które mają określoną godzinę i status „zajęty”. Wydarzenia całodniowe, wolne, odrzucone i odwołane są pomijane. Aby użyć Kalendarza Google, dodaj konto Google w Ustawieniach systemowych › Konta internetowe."
+  },
+  "SettingsForm.shortEvery": {
+   "en": "time between breaks",
+   "pl": "czas między przerwami"
+  },
+  "SettingsForm.shortLast": {
+   "en": "short break length",
+   "pl": "długość krótkiej przerwy"
+  },
+  "SettingsForm.longEvery": {
+   "en": "long break every",
+   "pl": "czas między długimi przerwami"
+  },
+  "SettingsForm.longLast": {
+   "en": "long break length",
+   "pl": "długość długiej przerwy"
+  },
+  "SettingsForm.calendarGrace": {
+   "en": "wait after a meeting or call",
+   "pl": "czekanie po spotkaniu lub rozmowie"
+  },
+  "CalendarAccessWarning.title": {
+   "en": "Breaks aren't held during meetings",
+   "pl": "Przerwy nie czekają na koniec spotkań"
+  },
+  "CalendarAccessWarning.detail": {
+   "en": "Save My Eyes can't read your calendar.",
+   "pl": "Save My Eyes nie może odczytać kalendarza."
+  },
+  "CalendarAccessWarning.allow": {
+   "en": "Allow…",
+   "pl": "Zezwól…"
+  },
+  "CalendarAccessWarning.openSettings": {
+   "en": "Open Privacy Settings…",
+   "pl": "Otwórz ustawienia prywatności…"
+  },
+  "CalendarAccessWarning.turnOff": {
+   "en": "Turn off",
+   "pl": "Wyłącz"
+  },
+  "CalendarAccessWarning.turnOffHint": {
+   "en": "Turns off Delay breaks during calendar events",
+   "pl": "Wyłącza Odkładaj przerwy w trakcie wydarzeń z kalendarza"
+  },
+  "IdeaCard.title": {
+   "en": "Try this break idea",
+   "pl": "Zainspiruj się"
+  },
+  "IdeaCard.donationAlt": {
+   "en": "Spread love",
+   "pl": "Podziel się miłością"
+  },
+  "IdeaCard.donationTitle": {
+   "en": "Like what you see?",
+   "pl": "Podoba Ci się aplikacja?"
+  },
+  "IdeaCard.donationText": {
+   "en": "Consider supporting development of this project",
+   "pl": "Rozważ wsparcie rozwoju tego projektu"
+  },
+  "IdeaCard.donationLink": {
+   "en": "Buy me a coffee",
+   "pl": "Zamów mi kawę"
+  },
+  "IdeaCard.donationNote": {
+   "en": "Will open your default browser",
+   "pl": "Otworzy się w Twojej przeglądarce"
+  },
+  "IdeaCard.long.title[0]": {
+   "en": "Move your body",
+   "pl": "Rusz się"
+  },
+  "IdeaCard.long.alt[0]": {
+   "en": "Woman dancing",
+   "pl": "Tańcząca kobieta"
+  },
+  "IdeaCard.long.content[0]": {
+   "en": "Stand up and stretch your back, neck and legs, or do a few squats. A few minutes of movement makes up for a lot of sitting.",
+   "pl": "Wstań i rozciągnij plecy, szyję i nogi albo zrób kilka przysiadów. Kilka minut ruchu dobrze robi po długim siedzeniu."
+  },
+  "IdeaCard.long.title[1]": {
+   "en": "Step outside",
+   "pl": "Wyjdź na zewnątrz"
+  },
+  "IdeaCard.long.alt[1]": {
+   "en": "Woman walk through a forest",
+   "pl": "Kobieta idzie przez las"
+  },
+  "IdeaCard.long.content[1]": {
+   "en": "Take a short walk or stand by an open window. Rest your eyes on things far away: trees, rooftops, the sky.",
+   "pl": "Przejdź się kawałek albo stań przy otwartym oknie. Daj oczom odpocząć na tym, co daleko: drzewach, dachach, niebie."
+  },
+  "IdeaCard.long.title[2]": {
+   "en": "Rest without a screen",
+   "pl": "Odpocznij bez ekranu"
+  },
+  "IdeaCard.long.alt[2]": {
+   "en": "Woman meditating in front of ancient temple",
+   "pl": "Kobieta medytuje przed świątynią"
+  },
+  "IdeaCard.long.content[2]": {
+   "en": "Make some tea, close your eyes or just sit for a while. Leave your phone too: it's a screen as well.",
+   "pl": "Zrób herbatę, zamknij oczy albo po prostu chwilę posiedź. Odłóż też telefon: to także ekran."
+  },
+  "IdeaCard.short.title[0]": {
+   "en": "Look out the window",
+   "pl": "Wyjrzyj przez okno"
+  },
+  "IdeaCard.short.alt[0]": {
+   "en": "Woman looks out the window",
+   "pl": "Kobieta spogląda przez okno"
+  },
+  "IdeaCard.short.content[0]": {
+   "en": "Look far away through a window to help your eyes relax",
+   "pl": "Patrzenie w dal pomoże Ci uniknąć krótkowzroczności"
+  },
+  "IdeaCard.short.title[1]": {
+   "en": "Look at plants",
+   "pl": "Popatrz na rośliny"
+  },
+  "IdeaCard.short.alt[1]": {
+   "en": "Man is sitting in front of flowers",
+   "pl": "Mężczyzna siedzi przy kwiatach"
+  },
+  "IdeaCard.short.content[1]": {
+   "en": "Green plants will help relax your eyes",
+   "pl": "Spojrzenie na rośliny pomoże Ci zrelaksować oczy i odprężyć umysł"
+  },
+  "IdeaCard.short.title[2]": {
+   "en": "Blink your eyes",
+   "pl": "Pomrugaj oczami"
+  },
+  "IdeaCard.short.alt[2]": {
+   "en": "Man looks at the darkness",
+   "pl": "Mężczyzna patrzy w ciemność"
+  },
+  "IdeaCard.short.content[2]": {
+   "en": "Blink a few times to clean your eyes",
+   "pl": "Mrugnij kilka razy, aby oczyścić oczy"
+  },
+  "HEADLINE": {
+   "en": "Every 20 minutes, a 20-second break for your eyes.",
+   "pl": ""
+  }
+ },
+ "base-2": {
+  "SharedStrings.settings": {
+   "en": "Settings",
+   "pl": "Ustawienia"
+  },
+  "SharedStrings.breaks": {
+   "en": "Breaks",
+   "pl": "Przerwy"
+  },
+  "SharedStrings.shortEvery": {
+   "en": "Break every",
+   "pl": "Przerwa co"
+  },
+  "SharedStrings.shortLast": {
+   "en": "Short break length",
+   "pl": "Długość krótkiej przerwy"
+  },
+  "SharedStrings.longEvery": {
+   "en": "Long break every",
+   "pl": "Długa przerwa co"
+  },
+  "SharedStrings.longLast": {
+   "en": "Long break length",
+   "pl": "Długość długiej przerwy"
+  },
+  "SharedStrings.soundUi": {
+   "en": "Sound when a break starts and ends",
+   "pl": "Dźwięk na początku i na końcu przerwy"
+  },
+  "SharedStrings.language": {
+   "en": "Language",
+   "pl": "Język"
+  },
+  "SharedStrings.createdBy": {
+   "en": "Created by",
+   "pl": "Stworzona przez"
+  },
+  "SharedStrings.author": {
+   "en": "Ammadeo",
+   "pl": "Amadeusza Chomiaka"
+  },
+  "SharedStrings.thanksTo": {
+   "en": "Thanks to",
+   "pl": "Dzięki"
+  },
+  "SharedStrings.thanksFor": {
+   "en": "for awesome drawings",
+   "pl": "za świetne rysunki"
+  },
+  "SharedStrings.coffee": {
+   "en": "Buy me a coffee",
+   "pl": "Zamów mi kawę"
+  },
+  "SharedStrings.fixing": {
+   "en": "Saved with corrections",
+   "pl": "Zapisano z poprawkami"
+  },
+  "SharedStrings.saved": {
+   "en": "Settings saved",
+   "pl": "Zapisano ustawienia"
+  },
+  "SharedStrings.saveFailed": {
+   "en": "Could not save settings",
+   "pl": "Nie udało się zapisać ustawień"
+  },
+  "SharedStrings.revert": {
+   "en": "Undo changes",
+   "pl": "Cofnij zmiany"
+  },
+  "SharedStrings.title": {
+   "en": "Stop protection",
+   "pl": "Wstrzymaj ochronę"
+  },
+  "SharedStrings.stopFor": {
+   "en": "Stop protection for",
+   "pl": "Wstrzymaj ochronę na"
+  },
+  "SharedStrings.turnOffTitle": {
+   "en": "Turn off protection",
+   "pl": "Wyłącz ochronę"
+  },
+  "SharedStrings.turnOffContent": {
+   "en": "Turn off for this session",
+   "pl": "Wyłącz podczas tej sesji"
+  },
+  "SharedStrings.turnOffInfo": {
+   "en": "App will start again with your computer",
+   "pl": "Aplikacja uruchomi się, gdy ponownie włączysz komputer"
+  },
+  "MenuSettingsPane.meetings": {
+   "en": "Meetings and calls",
+   "pl": "Spotkania i rozmowy"
+  },
+  "MenuSettingsPane.toggle": {
+   "en": "Hold breaks during calendar meetings",
+   "pl": "Wstrzymuj przerwy w trakcie spotkań z kalendarza"
+  },
+  "MenuSettingsPane.calls": {
+   "en": "Hold breaks during calls",
+   "pl": "Wstrzymuj przerwy w trakcie rozmów"
+  },
+  "MenuSettingsPane.callsDetail": {
+   "en": "A call is any app using your camera or microphone, even one your calendar doesn't show. Save My Eyes only knows they're on: it can't see, hear or record anything.",
+   "pl": "Rozmowa to dowolna aplikacja, która używa kamery lub mikrofonu, także gdy nie ma jej w kalendarzu. Save My Eyes wie tylko, że są włączone: nie może niczego zobaczyć, usłyszeć ani nagrać."
+  },
+  "MenuSettingsPane.grace": {
+   "en": "Wait after a meeting or call",
+   "pl": "Odczekaj po spotkaniu lub rozmowie"
+  },
+  "MenuSettingsPane.graceZero": {
+   "en": "No wait",
+   "pl": "Bez czekania"
+  },
+  "MenuSettingsPane.hint": {
+   "en": "Meetings come from the Calendar app. All-day events, events shown as free and ones you declined don't hold breaks. For Google Calendar, add your Google account in System Settings › Internet Accounts.",
+   "pl": "Spotkania pochodzą z aplikacji Kalendarz. Wydarzenia całodniowe, oznaczone jako wolny czas i te, które odrzucono, nie wstrzymują przerw. Aby użyć Kalendarza Google, dodaj konto Google w Ustawieniach systemowych › Konta internetowe."
+  },
+  "SettingsForm.shortEvery": {
+   "en": "break every",
+   "pl": "czas między przerwami"
+  },
+  "SettingsForm.shortLast": {
+   "en": "short break length",
+   "pl": "długość krótkiej przerwy"
+  },
+  "SettingsForm.longEvery": {
+   "en": "long break every",
+   "pl": "czas między długimi przerwami"
+  },
+  "SettingsForm.longLast": {
+   "en": "long break length",
+   "pl": "długość długiej przerwy"
+  },
+  "SettingsForm.calendarGrace": {
+   "en": "wait after a meeting or call",
+   "pl": "czas oczekiwania po spotkaniu lub rozmowie"
+  },
+  "CalendarAccessWarning.title": {
+   "en": "Breaks aren't held during meetings",
+   "pl": "Przerwy nie są wstrzymywane w trakcie spotkań"
+  },
+  "CalendarAccessWarning.detail": {
+   "en": "Save My Eyes can't read your calendar.",
+   "pl": "Save My Eyes nie może odczytać kalendarza."
+  },
+  "CalendarAccessWarning.allow": {
+   "en": "Allow…",
+   "pl": "Zezwól…"
+  },
+  "CalendarAccessWarning.openSettings": {
+   "en": "Open Privacy Settings…",
+   "pl": "Otwórz ustawienia prywatności…"
+  },
+  "CalendarAccessWarning.turnOff": {
+   "en": "Turn off",
+   "pl": "Wyłącz"
+  },
+  "CalendarAccessWarning.turnOffHint": {
+   "en": "Turns off Hold breaks during calendar meetings",
+   "pl": "Wyłącza Wstrzymuj przerwy w trakcie spotkań z kalendarza"
+  },
+  "IdeaCard.title": {
+   "en": "Try this break idea",
+   "pl": "Zainspiruj się"
+  },
+  "IdeaCard.donationAlt": {
+   "en": "Spread love",
+   "pl": "Podziel się miłością"
+  },
+  "IdeaCard.donationTitle": {
+   "en": "Like what you see?",
+   "pl": "Podoba Ci się aplikacja?"
+  },
+  "IdeaCard.donationText": {
+   "en": "Consider supporting development of this project",
+   "pl": "Rozważ wsparcie rozwoju tego projektu"
+  },
+  "IdeaCard.donationLink": {
+   "en": "Buy me a coffee",
+   "pl": "Zamów mi kawę"
+  },
+  "IdeaCard.donationNote": {
+   "en": "Will open your default browser",
+   "pl": "Otworzy się w Twojej przeglądarce"
+  },
+  "IdeaCard.long.title[0]": {
+   "en": "Move your body",
+   "pl": "Rusz się"
+  },
+  "IdeaCard.long.alt[0]": {
+   "en": "Woman dancing",
+   "pl": "Tańcząca kobieta"
+  },
+  "IdeaCard.long.content[0]": {
+   "en": "Stand up and stretch, roll your shoulders or do a few squats. Your body has been still for as long as your eyes have been on the screen.",
+   "pl": "Wstań i się przeciągnij, pokręć ramionami albo zrób kilka przysiadów. Twoje ciało siedzi bez ruchu tak długo, jak oczy patrzą w ekran."
+  },
+  "IdeaCard.long.title[1]": {
+   "en": "Step outside",
+   "pl": "Wyjdź na zewnątrz"
+  },
+  "IdeaCard.long.alt[1]": {
+   "en": "Woman walk through a forest",
+   "pl": "Kobieta idzie przez las"
+  },
+  "IdeaCard.long.content[1]": {
+   "en": "Take a short walk or stand on the balcony. Outdoors your eyes can rest on things far away.",
+   "pl": "Przejdź się albo wyjdź na balkon. Na zewnątrz wzrok odpocznie, patrząc na to, co daleko."
+  },
+  "IdeaCard.long.title[2]": {
+   "en": "Slow down",
+   "pl": "Zwolnij"
+  },
+  "IdeaCard.long.alt[2]": {
+   "en": "Woman meditating in front of ancient temple",
+   "pl": "Kobieta medytuje przed świątynią"
+  },
+  "IdeaCard.long.content[2]": {
+   "en": "Make some tea, sit with your eyes closed or just breathe. Leave your phone where it is: it's a screen too.",
+   "pl": "Zrób herbatę, posiedź z zamkniętymi oczami albo po prostu pooddychaj. Odłóż telefon: to też ekran."
+  },
+  "IdeaCard.short.title[0]": {
+   "en": "Look out the window",
+   "pl": "Wyjrzyj przez okno"
+  },
+  "IdeaCard.short.alt[0]": {
+   "en": "Woman looks out the window",
+   "pl": "Kobieta spogląda przez okno"
+  },
+  "IdeaCard.short.content[0]": {
+   "en": "Look far away through a window to help your eyes relax",
+   "pl": "Patrzenie w dal pomoże Ci uniknąć krótkowzroczności"
+  },
+  "IdeaCard.short.title[1]": {
+   "en": "Look at plants",
+   "pl": "Popatrz na rośliny"
+  },
+  "IdeaCard.short.alt[1]": {
+   "en": "Man is sitting in front of flowers",
+   "pl": "Mężczyzna siedzi przy kwiatach"
+  },
+  "IdeaCard.short.content[1]": {
+   "en": "Green plants will help relax your eyes",
+   "pl": "Spojrzenie na rośliny pomoże Ci zrelaksować oczy i odprężyć umysł"
+  },
+  "IdeaCard.short.title[2]": {
+   "en": "Blink your eyes",
+   "pl": "Pomrugaj oczami"
+  },
+  "IdeaCard.short.alt[2]": {
+   "en": "Man looks at the darkness",
+   "pl": "Mężczyzna patrzy w ciemność"
+  },
+  "IdeaCard.short.content[2]": {
+   "en": "Blink a few times to clean your eyes",
+   "pl": "Mrugnij kilka razy, aby oczyścić oczy"
+  },
+  "HEADLINE": {
+   "en": "A break for your eyes every 20 minutes, never in the middle of a call.",
+   "pl": ""
+  }
+ },
+ "base-3": {
+  "SharedStrings.settings": {
+   "en": "Settings",
+   "pl": "Ustawienia"
+  },
+  "SharedStrings.breaks": {
+   "en": "Breaks",
+   "pl": "Przerwy"
+  },
+  "SharedStrings.shortEvery": {
+   "en": "Time between breaks",
+   "pl": "Czas między przerwami"
+  },
+  "SharedStrings.shortLast": {
+   "en": "Short break length",
+   "pl": "Długość krótkiej przerwy"
+  },
+  "SharedStrings.longEvery": {
+   "en": "Time between long breaks",
+   "pl": "Czas między długimi przerwami"
+  },
+  "SharedStrings.longLast": {
+   "en": "Long break length",
+   "pl": "Długość długiej przerwy"
+  },
+  "SharedStrings.soundUi": {
+   "en": "Sound when a break starts and ends",
+   "pl": "Dźwięk na początku i na końcu przerwy"
+  },
+  "SharedStrings.language": {
+   "en": "Language",
+   "pl": "Język"
+  },
+  "SharedStrings.createdBy": {
+   "en": "Created by",
+   "pl": "Stworzona przez"
+  },
+  "SharedStrings.author": {
+   "en": "Ammadeo",
+   "pl": "Amadeusza Chomiaka"
+  },
+  "SharedStrings.thanksTo": {
+   "en": "Thanks to",
+   "pl": "Dzięki"
+  },
+  "SharedStrings.thanksFor": {
+   "en": "for awesome drawings",
+   "pl": "za świetne rysunki"
+  },
+  "SharedStrings.coffee": {
+   "en": "Buy me a coffee",
+   "pl": "Zamów mi kawę"
+  },
+  "SharedStrings.fixing": {
+   "en": "Settings adjusted",
+   "pl": "Dostosowano ustawienia"
+  },
+  "SharedStrings.saved": {
+   "en": "Settings saved",
+   "pl": "Zapisano ustawienia"
+  },
+  "SharedStrings.saveFailed": {
+   "en": "Could not save settings",
+   "pl": "Nie udało się zapisać ustawień"
+  },
+  "SharedStrings.revert": {
+   "en": "Revert",
+   "pl": "Cofnij"
+  },
+  "SharedStrings.title": {
+   "en": "Stop protection",
+   "pl": "Wstrzymaj ochronę"
+  },
+  "SharedStrings.stopFor": {
+   "en": "Stop protection for",
+   "pl": "Wstrzymaj ochronę na"
+  },
+  "SharedStrings.turnOffTitle": {
+   "en": "Turn off protection",
+   "pl": "Wyłącz ochronę"
+  },
+  "SharedStrings.turnOffContent": {
+   "en": "Turn off for this session",
+   "pl": "Wyłącz podczas tej sesji"
+  },
+  "SharedStrings.turnOffInfo": {
+   "en": "App will start again with your computer",
+   "pl": "Aplikacja uruchomi się, gdy ponownie włączysz komputer"
+  },
+  "MenuSettingsPane.meetings": {
+   "en": "Meetings and calls",
+   "pl": "Spotkania i rozmowy"
+  },
+  "MenuSettingsPane.toggle": {
+   "en": "Hold breaks during calendar meetings",
+   "pl": "Wstrzymuj przerwy w trakcie spotkań z kalendarza"
+  },
+  "MenuSettingsPane.calls": {
+   "en": "Hold breaks during calls",
+   "pl": "Wstrzymuj przerwy w trakcie rozmów"
+  },
+  "MenuSettingsPane.callsDetail": {
+   "en": "Any app using the camera or microphone counts as a call. Save My Eyes only checks whether they are on: it can't see, hear or record anything.",
+   "pl": "Za rozmowę uznajemy użycie kamery lub mikrofonu przez dowolną aplikację. Save My Eyes sprawdza tylko, czy są włączone: nie może niczego zobaczyć, usłyszeć ani nagrać."
+  },
+  "MenuSettingsPane.grace": {
+   "en": "Delay after a meeting or call",
+   "pl": "Opóźnienie po spotkaniu lub rozmowie"
+  },
+  "MenuSettingsPane.graceZero": {
+   "en": "None",
+   "pl": "Brak"
+  },
+  "MenuSettingsPane.hint": {
+   "en": "Meetings come from the Calendar app. All-day, cancelled and declined events, and events marked as free, don't count. To include Google Calendar, add your Google account in System Settings › Internet Accounts.",
+   "pl": "Spotkania pochodzą z aplikacji Kalendarz. Nie liczą się wydarzenia całodniowe, odwołane, odrzucone ani oznaczone jako wolne. Aby uwzględnić Kalendarz Google, dodaj konto Google w Ustawieniach systemowych › Konta internetowe."
+  },
+  "SettingsForm.shortEvery": {
+   "en": "time between breaks",
+   "pl": "czas między przerwami"
+  },
+  "SettingsForm.shortLast": {
+   "en": "short break length",
+   "pl": "długość krótkiej przerwy"
+  },
+  "SettingsForm.longEvery": {
+   "en": "time between long breaks",
+   "pl": "czas między długimi przerwami"
+  },
+  "SettingsForm.longLast": {
+   "en": "long break length",
+   "pl": "długość długiej przerwy"
+  },
+  "SettingsForm.calendarGrace": {
+   "en": "delay after a meeting or call",
+   "pl": "opóźnienie po spotkaniu lub rozmowie"
+  },
+  "CalendarAccessWarning.title": {
+   "en": "Breaks aren't held during meetings",
+   "pl": "Przerwy nie czekają na koniec spotkań"
+  },
+  "CalendarAccessWarning.detail": {
+   "en": "Save My Eyes can't read your calendar.",
+   "pl": "Save My Eyes nie może odczytać kalendarza."
+  },
+  "CalendarAccessWarning.allow": {
+   "en": "Allow…",
+   "pl": "Zezwól…"
+  },
+  "CalendarAccessWarning.openSettings": {
+   "en": "Open Privacy Settings…",
+   "pl": "Otwórz ustawienia prywatności…"
+  },
+  "CalendarAccessWarning.turnOff": {
+   "en": "Turn off",
+   "pl": "Wyłącz"
+  },
+  "CalendarAccessWarning.turnOffHint": {
+   "en": "Turns off Hold breaks during calendar meetings",
+   "pl": "Wyłącza Wstrzymuj przerwy w trakcie spotkań z kalendarza"
+  },
+  "IdeaCard.title": {
+   "en": "Try this break idea",
+   "pl": "Zainspiruj się"
+  },
+  "IdeaCard.donationAlt": {
+   "en": "Spread love",
+   "pl": "Podziel się miłością"
+  },
+  "IdeaCard.donationTitle": {
+   "en": "Like what you see?",
+   "pl": "Podoba Ci się aplikacja?"
+  },
+  "IdeaCard.donationText": {
+   "en": "Consider supporting development of this project",
+   "pl": "Rozważ wsparcie rozwoju tego projektu"
+  },
+  "IdeaCard.donationLink": {
+   "en": "Buy me a coffee",
+   "pl": "Zamów mi kawę"
+  },
+  "IdeaCard.donationNote": {
+   "en": "Will open your default browser",
+   "pl": "Otworzy się w Twojej przeglądarce"
+  },
+  "IdeaCard.long.title[0]": {
+   "en": "Get moving",
+   "pl": "Rusz się"
+  },
+  "IdeaCard.long.alt[0]": {
+   "en": "Woman dancing",
+   "pl": "Tańcząca kobieta"
+  },
+  "IdeaCard.long.content[0]": {
+   "en": "Stand up, stretch your back and neck, do a few squats or dance to a song. Your body has sat still for as long as your eyes have been on the screen.",
+   "pl": "Wstań, rozciągnij plecy i kark, zrób kilka przysiadów albo zatańcz do piosenki. Ciało przesiedziało w bezruchu tyle samo, co oczy przed ekranem."
+  },
+  "IdeaCard.long.title[1]": {
+   "en": "Step outside",
+   "pl": "Wyjdź na zewnątrz"
+  },
+  "IdeaCard.long.alt[1]": {
+   "en": "Woman walk through a forest",
+   "pl": "Kobieta idzie przez las"
+  },
+  "IdeaCard.long.content[1]": {
+   "en": "Walk around the block or out onto the balcony. Daylight and a view into the distance give your eyes the rest a screen can't.",
+   "pl": "Przejdź się dookoła budynku albo wyjdź na balkon. Światło dzienne i widok w dal dadzą oczom odpoczynek, którego nie da ekran."
+  },
+  "IdeaCard.long.title[2]": {
+   "en": "Rest without a screen",
+   "pl": "Odpocznij bez ekranu"
+  },
+  "IdeaCard.long.alt[2]": {
+   "en": "Woman meditating in front of ancient temple",
+   "pl": "Kobieta medytuje przed świątynią"
+  },
+  "IdeaCard.long.content[2]": {
+   "en": "Make a cup of tea, close your eyes or just sit and breathe for a while. Leave your phone where it is: it's a screen too.",
+   "pl": "Zrób herbatę, zamknij oczy albo po prostu posiedź i pooddychaj. Zostaw telefon tam, gdzie leży: to też ekran."
+  },
+  "IdeaCard.short.title[0]": {
+   "en": "Look out the window",
+   "pl": "Wyjrzyj przez okno"
+  },
+  "IdeaCard.short.alt[0]": {
+   "en": "Woman looks out the window",
+   "pl": "Kobieta spogląda przez okno"
+  },
+  "IdeaCard.short.content[0]": {
+   "en": "Look far away through a window to help your eyes relax",
+   "pl": "Patrzenie w dal pomoże Ci uniknąć krótkowzroczności"
+  },
+  "IdeaCard.short.title[1]": {
+   "en": "Look at plants",
+   "pl": "Popatrz na rośliny"
+  },
+  "IdeaCard.short.alt[1]": {
+   "en": "Man is sitting in front of flowers",
+   "pl": "Mężczyzna siedzi przy kwiatach"
+  },
+  "IdeaCard.short.content[1]": {
+   "en": "Green plants will help relax your eyes",
+   "pl": "Spojrzenie na rośliny pomoże Ci zrelaksować oczy i odprężyć umysł"
+  },
+  "IdeaCard.short.title[2]": {
+   "en": "Blink your eyes",
+   "pl": "Pomrugaj oczami"
+  },
+  "IdeaCard.short.alt[2]": {
+   "en": "Man looks at the darkness",
+   "pl": "Mężczyzna patrzy w ciemność"
+  },
+  "IdeaCard.short.content[2]": {
+   "en": "Blink a few times to clean your eyes",
+   "pl": "Mrugnij kilka razy, aby oczyścić oczy"
+  },
+  "HEADLINE": {
+   "en": "Every so often, your Mac covers the screen so your eyes can rest.",
+   "pl": ""
+  }
+ },
+ "skill-1": {
+  "SharedStrings.settings": {
+   "en": "Settings",
+   "pl": "Ustawienia"
+  },
+  "SharedStrings.breaks": {
+   "en": "Breaks",
+   "pl": "Przerwy"
+  },
+  "SharedStrings.shortEvery": {
+   "en": "Take a short break every",
+   "pl": "Zrób krótką przerwę co"
+  },
+  "SharedStrings.shortLast": {
+   "en": "Short break lasts",
+   "pl": "Krótka przerwa trwa"
+  },
+  "SharedStrings.longEvery": {
+   "en": "Take a long break every",
+   "pl": "Zrób długą przerwę co"
+  },
+  "SharedStrings.longLast": {
+   "en": "Long break lasts at least",
+   "pl": "Długa przerwa trwa co najmniej"
+  },
+  "SharedStrings.soundUi": {
+   "en": "Play a sound when a break starts and ends",
+   "pl": "Odtwarzaj dźwięk na początku i na końcu przerwy"
+  },
+  "SharedStrings.language": {
+   "en": "Language",
+   "pl": "Język"
+  },
+  "SharedStrings.createdBy": {
+   "en": "Created by",
+   "pl": "Stworzona przez"
+  },
+  "SharedStrings.author": {
+   "en": "Ammadeo",
+   "pl": "Amadeusza Chomiaka"
+  },
+  "SharedStrings.thanksTo": {
+   "en": "Thanks to",
+   "pl": "Dzięki"
+  },
+  "SharedStrings.thanksFor": {
+   "en": "for awesome drawings",
+   "pl": "za świetne rysunki"
+  },
+  "SharedStrings.coffee": {
+   "en": "Buy me a coffee",
+   "pl": "Zamów mi kawę"
+  },
+  "SharedStrings.fixing": {
+   "en": "Fixing settings",
+   "pl": "Poprawiam ustawienia"
+  },
+  "SharedStrings.saved": {
+   "en": "Settings saved",
+   "pl": "Zapisano ustawienia"
+  },
+  "SharedStrings.saveFailed": {
+   "en": "Could not save settings",
+   "pl": "Nie udało się zapisać ustawień"
+  },
+  "SharedStrings.revert": {
+   "en": "Revert",
+   "pl": "Cofnij"
+  },
+  "SharedStrings.title": {
+   "en": "Stop protection",
+   "pl": "Wstrzymaj ochronę"
+  },
+  "SharedStrings.stopFor": {
+   "en": "Stop protection for",
+   "pl": "Wstrzymaj ochronę na"
+  },
+  "SharedStrings.turnOffTitle": {
+   "en": "Turn off protection",
+   "pl": "Wyłącz ochronę"
+  },
+  "SharedStrings.turnOffContent": {
+   "en": "Turn off for this session",
+   "pl": "Wyłącz podczas tej sesji"
+  },
+  "SharedStrings.turnOffInfo": {
+   "en": "App will start again with your computer",
+   "pl": "Aplikacja uruchomi się, gdy ponownie włączysz komputer"
+  },
+  "MenuSettingsPane.meetings": {
+   "en": "Meetings and calls",
+   "pl": "Spotkania i rozmowy"
+  },
+  "MenuSettingsPane.toggle": {
+   "en": "Pause breaks during calendar meetings",
+   "pl": "Wstrzymuj przerwy w trakcie spotkań z kalendarza"
+  },
+  "MenuSettingsPane.calls": {
+   "en": "Pause breaks during calls",
+   "pl": "Wstrzymuj przerwy w trakcie rozmów"
+  },
+  "MenuSettingsPane.callsDetail": {
+   "en": "A call means an app is using your camera or microphone. Save My Eyes only knows that they are on: it can't see, hear or record anything.",
+   "pl": "Za rozmowę uznajemy użycie kamery lub mikrofonu przez dowolną aplikację. Save My Eyes wie tylko, że są włączone: nie może niczego zobaczyć, usłyszeć ani nagrać."
+  },
+  "MenuSettingsPane.grace": {
+   "en": "Delay the break after a meeting or call",
+   "pl": "Opóźnij przerwę po spotkaniu lub rozmowie"
+  },
+  "MenuSettingsPane.graceZero": {
+   "en": "No delay",
+   "pl": "Bez opóźnienia"
+  },
+  "MenuSettingsPane.hint": {
+   "en": "Meetings come from the Calendar app, except all-day events and ones marked free or declined. For Google Calendar, add your Google account in System Settings › Internet Accounts.",
+   "pl": "Spotkania pochodzą z aplikacji Kalendarz, z wyjątkiem całodniowych oraz oznaczonych jako wolne lub odrzuconych. Aby użyć Kalendarza Google, dodaj konto Google w Ustawieniach systemowych › Konta internetowe."
+  },
+  "SettingsForm.shortEvery": {
+   "en": "short break every",
+   "pl": "czas między krótkimi przerwami"
+  },
+  "SettingsForm.shortLast": {
+   "en": "short break length",
+   "pl": "długość krótkiej przerwy"
+  },
+  "SettingsForm.longEvery": {
+   "en": "long break every",
+   "pl": "czas między długimi przerwami"
+  },
+  "SettingsForm.longLast": {
+   "en": "long break length",
+   "pl": "długość długiej przerwy"
+  },
+  "SettingsForm.calendarGrace": {
+   "en": "delay after a meeting or call",
+   "pl": "opóźnienie po spotkaniu lub rozmowie"
+  },
+  "CalendarAccessWarning.title": {
+   "en": "Breaks aren't paused during meetings",
+   "pl": "Przerwy nie są wstrzymywane w trakcie spotkań"
+  },
+  "CalendarAccessWarning.detail": {
+   "en": "Save My Eyes can't read your calendar.",
+   "pl": "Save My Eyes nie może odczytać kalendarza."
+  },
+  "CalendarAccessWarning.allow": {
+   "en": "Allow…",
+   "pl": "Zezwól…"
+  },
+  "CalendarAccessWarning.openSettings": {
+   "en": "Open Privacy Settings…",
+   "pl": "Otwórz ustawienia prywatności…"
+  },
+  "CalendarAccessWarning.turnOff": {
+   "en": "Turn off",
+   "pl": "Wyłącz"
+  },
+  "CalendarAccessWarning.turnOffHint": {
+   "en": "Turns off Pause breaks during calendar meetings",
+   "pl": "Wyłącza Wstrzymuj przerwy w trakcie spotkań z kalendarza"
+  },
+  "IdeaCard.title": {
+   "en": "Try this break idea",
+   "pl": "Zainspiruj się"
+  },
+  "IdeaCard.donationAlt": {
+   "en": "Spread love",
+   "pl": "Podziel się miłością"
+  },
+  "IdeaCard.donationTitle": {
+   "en": "Like what you see?",
+   "pl": "Podoba Ci się aplikacja?"
+  },
+  "IdeaCard.donationText": {
+   "en": "Consider supporting development of this project",
+   "pl": "Rozważ wsparcie rozwoju tego projektu"
+  },
+  "IdeaCard.donationLink": {
+   "en": "Buy me a coffee",
+   "pl": "Zamów mi kawę"
+  },
+  "IdeaCard.donationNote": {
+   "en": "Will open your default browser",
+   "pl": "Otworzy się w Twojej przeglądarce"
+  },
+  "IdeaCard.long.title[0]": {
+   "en": "Get moving",
+   "pl": "Rusz się"
+  },
+  "IdeaCard.long.alt[0]": {
+   "en": "Woman dancing",
+   "pl": "Tańcząca kobieta"
+  },
+  "IdeaCard.long.content[0]": {
+   "en": "Stand up, roll your shoulders, reach for the ceiling, do ten squats. Or dance to a song you like",
+   "pl": "Wstań, rozruszaj barki, sięgnij do sufitu, zrób dziesięć przysiadów. Albo zatańcz do ulubionej piosenki"
+  },
+  "IdeaCard.long.title[1]": {
+   "en": "Go outside",
+   "pl": "Wyjdź na świeże powietrze"
+  },
+  "IdeaCard.long.alt[1]": {
+   "en": "Woman walk through a forest",
+   "pl": "Kobieta idzie przez las"
+  },
+  "IdeaCard.long.content[1]": {
+   "en": "Walk to the nearest trees and back. The break waits until you return and finish it",
+   "pl": "Dojdź do najbliższych drzew i wróć. Przerwa poczeka, aż wrócisz i ją zakończysz"
+  },
+  "IdeaCard.long.title[2]": {
+   "en": "Rest away from screens",
+   "pl": "Odpocznij od ekranów"
+  },
+  "IdeaCard.long.alt[2]": {
+   "en": "Woman meditating in front of ancient temple",
+   "pl": "Kobieta medytuje przed świątynią"
+  },
+  "IdeaCard.long.content[2]": {
+   "en": "Make tea, lie on the sofa or sit with your eyes closed. Anything, as long as it isn't your phone",
+   "pl": "Zrób herbatę, połóż się na kanapie albo posiedź z zamkniętymi oczami. Cokolwiek, byle nie telefon"
+  },
+  "IdeaCard.short.title[0]": {
+   "en": "Look out the window",
+   "pl": "Wyjrzyj przez okno"
+  },
+  "IdeaCard.short.alt[0]": {
+   "en": "Woman looks out the window",
+   "pl": "Kobieta spogląda przez okno"
+  },
+  "IdeaCard.short.content[0]": {
+   "en": "Look far away through a window to help your eyes relax",
+   "pl": "Patrzenie w dal pomoże Ci uniknąć krótkowzroczności"
+  },
+  "IdeaCard.short.title[1]": {
+   "en": "Look at plants",
+   "pl": "Popatrz na rośliny"
+  },
+  "IdeaCard.short.alt[1]": {
+   "en": "Man is sitting in front of flowers",
+   "pl": "Mężczyzna siedzi przy kwiatach"
+  },
+  "IdeaCard.short.content[1]": {
+   "en": "Green plants will help relax your eyes",
+   "pl": "Spojrzenie na rośliny pomoże Ci zrelaksować oczy i odprężyć umysł"
+  },
+  "IdeaCard.short.title[2]": {
+   "en": "Blink your eyes",
+   "pl": "Pomrugaj oczami"
+  },
+  "IdeaCard.short.alt[2]": {
+   "en": "Man looks at the darkness",
+   "pl": "Mężczyzna patrzy w ciemność"
+  },
+  "IdeaCard.short.content[2]": {
+   "en": "Blink a few times to clean your eyes",
+   "pl": "Mrugnij kilka razy, aby oczyścić oczy"
+  },
+  "HEADLINE": {
+   "en": "Every 20 minutes, your Mac covers the screen for 20 seconds so you actually look away.",
+   "pl": ""
+  }
+ },
+ "skill-2": {
+  "SharedStrings.settings": {
+   "en": "Settings",
+   "pl": "Ustawienia"
+  },
+  "SharedStrings.breaks": {
+   "en": "Breaks",
+   "pl": "Przerwy"
+  },
+  "SharedStrings.shortEvery": {
+   "en": "Take a break every",
+   "pl": "Zrób przerwę co"
+  },
+  "SharedStrings.shortLast": {
+   "en": "Short break will last",
+   "pl": "Krótka przerwa będzie trwała"
+  },
+  "SharedStrings.longEvery": {
+   "en": "Take a long break every",
+   "pl": "Zrób długą przerwę co"
+  },
+  "SharedStrings.longLast": {
+   "en": "Long break will last",
+   "pl": "Długa przerwa będzie trwała"
+  },
+  "SharedStrings.soundUi": {
+   "en": "Play a sound when a break starts and ends",
+   "pl": "Odtwarzaj dźwięk na początku i na końcu przerwy"
+  },
+  "SharedStrings.language": {
+   "en": "Language",
+   "pl": "Język"
+  },
+  "SharedStrings.createdBy": {
+   "en": "Created by",
+   "pl": "Stworzona przez"
+  },
+  "SharedStrings.author": {
+   "en": "Ammadeo",
+   "pl": "Amadeusza Chomiaka"
+  },
+  "SharedStrings.thanksTo": {
+   "en": "Thanks to",
+   "pl": "Dzięki"
+  },
+  "SharedStrings.thanksFor": {
+   "en": "for awesome drawings",
+   "pl": "za świetne rysunki"
+  },
+  "SharedStrings.coffee": {
+   "en": "Buy me a coffee",
+   "pl": "Zamów mi kawę"
+  },
+  "SharedStrings.fixing": {
+   "en": "Fixing settings",
+   "pl": "Poprawiam ustawienia"
+  },
+  "SharedStrings.saved": {
+   "en": "Settings saved",
+   "pl": "Zapisano ustawienia"
+  },
+  "SharedStrings.saveFailed": {
+   "en": "Could not save settings",
+   "pl": "Nie udało się zapisać ustawień"
+  },
+  "SharedStrings.revert": {
+   "en": "Revert",
+   "pl": "Cofnij"
+  },
+  "SharedStrings.title": {
+   "en": "Stop protection",
+   "pl": "Wstrzymaj ochronę"
+  },
+  "SharedStrings.stopFor": {
+   "en": "Stop protection for",
+   "pl": "Wstrzymaj ochronę na"
+  },
+  "SharedStrings.turnOffTitle": {
+   "en": "Turn off protection",
+   "pl": "Wyłącz ochronę"
+  },
+  "SharedStrings.turnOffContent": {
+   "en": "Turn off for this session",
+   "pl": "Wyłącz podczas tej sesji"
+  },
+  "SharedStrings.turnOffInfo": {
+   "en": "App will start again with your computer",
+   "pl": "Aplikacja uruchomi się, gdy ponownie włączysz komputer"
+  },
+  "MenuSettingsPane.meetings": {
+   "en": "Meetings",
+   "pl": "Spotkania"
+  },
+  "MenuSettingsPane.toggle": {
+   "en": "Hold breaks until a meeting ends",
+   "pl": "Wstrzymuj przerwy do końca spotkania"
+  },
+  "MenuSettingsPane.calls": {
+   "en": "Hold breaks until a call ends",
+   "pl": "Wstrzymuj przerwy do końca rozmowy"
+  },
+  "MenuSettingsPane.callsDetail": {
+   "en": "A call means an app is using your camera or microphone. Save My Eyes only knows that they are on: it can't see, hear or record anything.",
+   "pl": "Za rozmowę uznajemy użycie kamery lub mikrofonu przez dowolną aplikację. Save My Eyes wie tylko, że są włączone: nie może niczego zobaczyć, usłyszeć ani nagrać."
+  },
+  "MenuSettingsPane.grace": {
+   "en": "Hold breaks after a meeting or call ends",
+   "pl": "Wstrzymuj przerwy po zakończeniu spotkania lub rozmowy"
+  },
+  "MenuSettingsPane.graceZero": {
+   "en": "Off",
+   "pl": "Nie"
+  },
+  "MenuSettingsPane.hint": {
+   "en": "A meeting is any timed event in the Calendar app that you haven't declined and that isn't shown as free. For Google Calendar, add your Google account in System Settings › Internet Accounts.",
+   "pl": "Spotkanie to każde wydarzenie z godziną w aplikacji Kalendarz, które nie zostało odrzucone ani oznaczone jako wolny czas. Aby użyć Kalendarza Google, dodaj konto Google w Ustawieniach systemowych › Konta internetowe."
+  },
+  "SettingsForm.shortEvery": {
+   "en": "break every",
+   "pl": "czas między przerwami"
+  },
+  "SettingsForm.shortLast": {
+   "en": "short break length",
+   "pl": "długość krótkiej przerwy"
+  },
+  "SettingsForm.longEvery": {
+   "en": "long break every",
+   "pl": "czas między długimi przerwami"
+  },
+  "SettingsForm.longLast": {
+   "en": "long break length",
+   "pl": "długość długiej przerwy"
+  },
+  "SettingsForm.calendarGrace": {
+   "en": "hold after a meeting or call",
+   "pl": "wstrzymanie po spotkaniu lub rozmowie"
+  },
+  "CalendarAccessWarning.title": {
+   "en": "Breaks aren't held during meetings",
+   "pl": "Przerwy nie czekają na koniec spotkań"
+  },
+  "CalendarAccessWarning.detail": {
+   "en": "Save My Eyes can't read your calendar.",
+   "pl": "Save My Eyes nie może odczytać kalendarza."
+  },
+  "CalendarAccessWarning.allow": {
+   "en": "Allow…",
+   "pl": "Zezwól…"
+  },
+  "CalendarAccessWarning.openSettings": {
+   "en": "Open Privacy Settings…",
+   "pl": "Otwórz ustawienia prywatności…"
+  },
+  "CalendarAccessWarning.turnOff": {
+   "en": "Turn off",
+   "pl": "Wyłącz"
+  },
+  "CalendarAccessWarning.turnOffHint": {
+   "en": "Turns off Hold breaks until a meeting ends",
+   "pl": "Wyłącza Wstrzymuj przerwy do końca spotkania"
+  },
+  "IdeaCard.title": {
+   "en": "Try this break idea",
+   "pl": "Zainspiruj się"
+  },
+  "IdeaCard.donationAlt": {
+   "en": "Spread love",
+   "pl": "Podziel się miłością"
+  },
+  "IdeaCard.donationTitle": {
+   "en": "Like what you see?",
+   "pl": "Podoba Ci się aplikacja?"
+  },
+  "IdeaCard.donationText": {
+   "en": "Consider supporting development of this project",
+   "pl": "Rozważ wsparcie rozwoju tego projektu"
+  },
+  "IdeaCard.donationLink": {
+   "en": "Buy me a coffee",
+   "pl": "Zamów mi kawę"
+  },
+  "IdeaCard.donationNote": {
+   "en": "Will open your default browser",
+   "pl": "Otworzy się w Twojej przeglądarce"
+  },
+  "IdeaCard.long.title[0]": {
+   "en": "Stand up and move",
+   "pl": "Wstań i się poruszaj"
+  },
+  "IdeaCard.long.alt[0]": {
+   "en": "Woman dancing",
+   "pl": "Tańcząca kobieta"
+  },
+  "IdeaCard.long.content[0]": {
+   "en": "Stretch your back, neck and legs, or dance to one song. Give your body a break from the chair, not just your eyes",
+   "pl": "Rozciągnij plecy, szyję i nogi albo zatańcz do jednej piosenki. Niech od krzesła odpocznie całe ciało, nie tylko oczy"
+  },
+  "IdeaCard.long.title[1]": {
+   "en": "Step outside",
+   "pl": "Wyjdź na zewnątrz"
+  },
+  "IdeaCard.long.alt[1]": {
+   "en": "Woman walk through a forest",
+   "pl": "Kobieta idzie przez las"
+  },
+  "IdeaCard.long.content[1]": {
+   "en": "Walk around the block or stand on a balcony. Outside, everything you look at is farther away than your screen",
+   "pl": "Obejdź blok albo wyjdź na balkon. Na zewnątrz wszystko, na co patrzysz, jest dalej niż ekran"
+  },
+  "IdeaCard.long.title[2]": {
+   "en": "Rest without a screen",
+   "pl": "Odpocznij bez ekranu"
+  },
+  "IdeaCard.long.alt[2]": {
+   "en": "Woman meditating in front of ancient temple",
+   "pl": "Kobieta medytuje przed świątynią"
+  },
+  "IdeaCard.long.content[2]": {
+   "en": "Make a cup of tea, sit by a window or close your eyes and breathe slowly. Leave your phone alone: it's a screen too",
+   "pl": "Zrób herbatę, usiądź przy oknie albo zamknij oczy i oddychaj powoli. Telefon odłóż: to też ekran"
+  },
+  "IdeaCard.short.title[0]": {
+   "en": "Look out the window",
+   "pl": "Wyjrzyj przez okno"
+  },
+  "IdeaCard.short.alt[0]": {
+   "en": "Woman looks out the window",
+   "pl": "Kobieta spogląda przez okno"
+  },
+  "IdeaCard.short.content[0]": {
+   "en": "Look far away through a window to help your eyes relax",
+   "pl": "Patrzenie w dal pomoże Ci uniknąć krótkowzroczności"
+  },
+  "IdeaCard.short.title[1]": {
+   "en": "Look at plants",
+   "pl": "Popatrz na rośliny"
+  },
+  "IdeaCard.short.alt[1]": {
+   "en": "Man is sitting in front of flowers",
+   "pl": "Mężczyzna siedzi przy kwiatach"
+  },
+  "IdeaCard.short.content[1]": {
+   "en": "Green plants will help relax your eyes",
+   "pl": "Spojrzenie na rośliny pomoże Ci zrelaksować oczy i odprężyć umysł"
+  },
+  "IdeaCard.short.title[2]": {
+   "en": "Blink your eyes",
+   "pl": "Pomrugaj oczami"
+  },
+  "IdeaCard.short.alt[2]": {
+   "en": "Man looks at the darkness",
+   "pl": "Mężczyzna patrzy w ciemność"
+  },
+  "IdeaCard.short.content[2]": {
+   "en": "Blink a few times to clean your eyes",
+   "pl": "Mrugnij kilka razy, aby oczyścić oczy"
+  },
+  "HEADLINE": {
+   "en": "Every 20 minutes, your screen covers itself for 20 seconds so your eyes can rest.",
+   "pl": ""
+  }
+ },
+ "skill-3": {
+  "SharedStrings.settings": {
+   "en": "Settings",
+   "pl": "Ustawienia"
+  },
+  "SharedStrings.breaks": {
+   "en": "Breaks",
+   "pl": "Przerwy"
+  },
+  "SharedStrings.shortEvery": {
+   "en": "Short break starts every",
+   "pl": "Krótka przerwa wypada co"
+  },
+  "SharedStrings.shortLast": {
+   "en": "Short break lasts",
+   "pl": "Krótka przerwa trwa"
+  },
+  "SharedStrings.longEvery": {
+   "en": "Long break starts every",
+   "pl": "Długa przerwa wypada co"
+  },
+  "SharedStrings.longLast": {
+   "en": "Long break lasts",
+   "pl": "Długa przerwa trwa"
+  },
+  "SharedStrings.soundUi": {
+   "en": "Play a sound when a break starts and ends",
+   "pl": "Odtwarzaj dźwięk na początku i na końcu przerwy"
+  },
+  "SharedStrings.language": {
+   "en": "Language",
+   "pl": "Język"
+  },
+  "SharedStrings.createdBy": {
+   "en": "Created by",
+   "pl": "Stworzona przez"
+  },
+  "SharedStrings.author": {
+   "en": "Ammadeo",
+   "pl": "Amadeusza Chomiaka"
+  },
+  "SharedStrings.thanksTo": {
+   "en": "Thanks to",
+   "pl": "Dzięki"
+  },
+  "SharedStrings.thanksFor": {
+   "en": "for awesome drawings",
+   "pl": "za świetne rysunki"
+  },
+  "SharedStrings.coffee": {
+   "en": "Buy me a coffee",
+   "pl": "Zamów mi kawę"
+  },
+  "SharedStrings.fixing": {
+   "en": "Fixing settings",
+   "pl": "Poprawiam ustawienia"
+  },
+  "SharedStrings.saved": {
+   "en": "Settings saved",
+   "pl": "Zapisano ustawienia"
+  },
+  "SharedStrings.saveFailed": {
+   "en": "Could not save settings",
+   "pl": "Nie udało się zapisać ustawień"
+  },
+  "SharedStrings.revert": {
+   "en": "Revert",
+   "pl": "Cofnij"
+  },
+  "SharedStrings.title": {
+   "en": "Stop protection",
+   "pl": "Wstrzymaj ochronę"
+  },
+  "SharedStrings.stopFor": {
+   "en": "Stop protection for",
+   "pl": "Wstrzymaj ochronę na"
+  },
+  "SharedStrings.turnOffTitle": {
+   "en": "Turn off protection",
+   "pl": "Wyłącz ochronę"
+  },
+  "SharedStrings.turnOffContent": {
+   "en": "Turn off for this session",
+   "pl": "Wyłącz podczas tej sesji"
+  },
+  "SharedStrings.turnOffInfo": {
+   "en": "App will start again with your computer",
+   "pl": "Aplikacja uruchomi się, gdy ponownie włączysz komputer"
+  },
+  "MenuSettingsPane.meetings": {
+   "en": "Meetings and calls",
+   "pl": "Spotkania i rozmowy"
+  },
+  "MenuSettingsPane.toggle": {
+   "en": "Hold breaks during meetings",
+   "pl": "Przerwy czekają na koniec spotkania"
+  },
+  "MenuSettingsPane.calls": {
+   "en": "Hold breaks during calls",
+   "pl": "Przerwy czekają na koniec rozmowy"
+  },
+  "MenuSettingsPane.callsDetail": {
+   "en": "A call means an app is using your camera or microphone. Save My Eyes only knows that they are on: it can't see, hear or record anything.",
+   "pl": "Za rozmowę uznajemy użycie kamery lub mikrofonu przez dowolną aplikację. Save My Eyes wie tylko, że są włączone: nie może niczego zobaczyć, usłyszeć ani nagrać."
+  },
+  "MenuSettingsPane.grace": {
+   "en": "Hold breaks after a meeting or call ends",
+   "pl": "Przerwy czekają po zakończeniu spotkania lub rozmowy"
+  },
+  "MenuSettingsPane.graceZero": {
+   "en": "Off",
+   "pl": "Nie"
+  },
+  "MenuSettingsPane.hint": {
+   "en": "A break that falls during an event from the Calendar app waits until the event ends. All-day, declined and cancelled events and those shown as free don't count. For Google Calendar, add your Google account in System Settings › Internet Accounts.",
+   "pl": "Przerwa wypadająca w trakcie wydarzenia z aplikacji Kalendarz poczeka do jego końca. Wydarzenia całodniowe, odrzucone, odwołane i oznaczone jako wolne się nie liczą. Aby użyć Kalendarza Google, dodaj konto Google w Ustawieniach systemowych › Konta internetowe."
+  },
+  "SettingsForm.shortEvery": {
+   "en": "short break every",
+   "pl": "czas między krótkimi przerwami"
+  },
+  "SettingsForm.shortLast": {
+   "en": "short break length",
+   "pl": "długość krótkiej przerwy"
+  },
+  "SettingsForm.longEvery": {
+   "en": "long break every",
+   "pl": "czas między długimi przerwami"
+  },
+  "SettingsForm.longLast": {
+   "en": "long break length",
+   "pl": "długość długiej przerwy"
+  },
+  "SettingsForm.calendarGrace": {
+   "en": "hold after a meeting or call",
+   "pl": "czekanie po spotkaniu lub rozmowie"
+  },
+  "CalendarAccessWarning.title": {
+   "en": "Breaks aren't held during meetings",
+   "pl": "Przerwy nie czekają na koniec spotkań"
+  },
+  "CalendarAccessWarning.detail": {
+   "en": "Save My Eyes can't read your calendar.",
+   "pl": "Save My Eyes nie może odczytać kalendarza."
+  },
+  "CalendarAccessWarning.allow": {
+   "en": "Allow…",
+   "pl": "Zezwól…"
+  },
+  "CalendarAccessWarning.openSettings": {
+   "en": "Open Privacy Settings…",
+   "pl": "Otwórz ustawienia prywatności…"
+  },
+  "CalendarAccessWarning.turnOff": {
+   "en": "Turn off",
+   "pl": "Wyłącz"
+  },
+  "CalendarAccessWarning.turnOffHint": {
+   "en": "Turns off Hold breaks during meetings",
+   "pl": "Wyłącza Przerwy czekają na koniec spotkania"
+  },
+  "IdeaCard.title": {
+   "en": "Try this break idea",
+   "pl": "Zainspiruj się"
+  },
+  "IdeaCard.donationAlt": {
+   "en": "Spread love",
+   "pl": "Podziel się miłością"
+  },
+  "IdeaCard.donationTitle": {
+   "en": "Like what you see?",
+   "pl": "Podoba Ci się aplikacja?"
+  },
+  "IdeaCard.donationText": {
+   "en": "Consider supporting development of this project",
+   "pl": "Rozważ wsparcie rozwoju tego projektu"
+  },
+  "IdeaCard.donationLink": {
+   "en": "Buy me a coffee",
+   "pl": "Zamów mi kawę"
+  },
+  "IdeaCard.donationNote": {
+   "en": "Will open your default browser",
+   "pl": "Otworzy się w Twojej przeglądarce"
+  },
+  "IdeaCard.long.title[0]": {
+   "en": "Stand up and move",
+   "pl": "Wstań i się poruszaj"
+  },
+  "IdeaCard.long.alt[0]": {
+   "en": "Woman dancing",
+   "pl": "Tańcząca kobieta"
+  },
+  "IdeaCard.long.content[0]": {
+   "en": "Stretch your back, roll your shoulders, do ten squats or dance to one song",
+   "pl": "Rozciągnij plecy, pokręć ramionami, zrób dziesięć przysiadów albo zatańcz do jednej piosenki"
+  },
+  "IdeaCard.long.title[1]": {
+   "en": "Step outside",
+   "pl": "Wyjdź na zewnątrz"
+  },
+  "IdeaCard.long.alt[1]": {
+   "en": "Woman walk through a forest",
+   "pl": "Kobieta idzie przez las"
+  },
+  "IdeaCard.long.content[1]": {
+   "en": "Walk around the block or stand on a balcony, and look at the farthest thing you can see",
+   "pl": "Przejdź się wokół budynku albo stań na balkonie i popatrz na najdalszy punkt, jaki widzisz"
+  },
+  "IdeaCard.long.title[2]": {
+   "en": "Rest without a screen",
+   "pl": "Odpocznij bez ekranu"
+  },
+  "IdeaCard.long.alt[2]": {
+   "en": "Woman meditating in front of ancient temple",
+   "pl": "Kobieta medytuje przed świątynią"
+  },
+  "IdeaCard.long.content[2]": {
+   "en": "Make a cup of tea, close your eyes or just sit still. Leave your phone alone: it's a screen too",
+   "pl": "Zrób herbatę, zamknij oczy albo po prostu posiedź w spokoju. Odłóż telefon: to też ekran"
+  },
+  "IdeaCard.short.title[0]": {
+   "en": "Look out the window",
+   "pl": "Wyjrzyj przez okno"
+  },
+  "IdeaCard.short.alt[0]": {
+   "en": "Woman looks out the window",
+   "pl": "Kobieta spogląda przez okno"
+  },
+  "IdeaCard.short.content[0]": {
+   "en": "Look far away through a window to help your eyes relax",
+   "pl": "Patrzenie w dal pomoże Ci uniknąć krótkowzroczności"
+  },
+  "IdeaCard.short.title[1]": {
+   "en": "Look at plants",
+   "pl": "Popatrz na rośliny"
+  },
+  "IdeaCard.short.alt[1]": {
+   "en": "Man is sitting in front of flowers",
+   "pl": "Mężczyzna siedzi przy kwiatach"
+  },
+  "IdeaCard.short.content[1]": {
+   "en": "Green plants will help relax your eyes",
+   "pl": "Spojrzenie na rośliny pomoże Ci zrelaksować oczy i odprężyć umysł"
+  },
+  "IdeaCard.short.title[2]": {
+   "en": "Blink your eyes",
+   "pl": "Pomrugaj oczami"
+  },
+  "IdeaCard.short.alt[2]": {
+   "en": "Man looks at the darkness",
+   "pl": "Mężczyzna patrzy w ciemność"
+  },
+  "IdeaCard.short.content[2]": {
+   "en": "Blink a few times to clean your eyes",
+   "pl": "Mrugnij kilka razy, aby oczyścić oczy"
+  },
+  "HEADLINE": {
+   "en": "Every 20 minutes, your Mac covers the screen so your eyes can rest.",
+   "pl": ""
+  }
+ }
+}

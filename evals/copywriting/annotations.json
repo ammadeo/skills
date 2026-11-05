@@ -1,0 +1,363 @@
+{
+ "eyebrow": "Eval round 2 · Save My Eyes · 3 runs per arm",
+ "h1": "Does the copywriting skill change what an agent writes?",
+ "sub": "Six unsupervised instances rewrote the Settings labels and the long-break ideas of Save My Eyes and wrote a headline. Three had the copywriting skill with its new interface-text reference. Three did not.",
+ "verdict": [
+  {
+   "kind": "win",
+   "head": "The slider label keeps its meaning: 3 of 3 with the skill, 0 of 3 without",
+   "body": "Every skill run still says what is being delayed: breaks. Every baseline run dropped it, the same failure as round one."
+  },
+  {
+   "kind": "win",
+   "head": "The skill arm leaves passing text alone",
+   "body": "Baseline runs changed 16 to 17 settings strings each, including a button, a notice title, the credits and a helper text nobody asked about. Skill runs changed 10 to 13 and none of those."
+  },
+  {
+   "kind": "loss",
+   "head": "The baseline caught one accuracy issue more often",
+   "body": "The first slider sets the gap between all breaks, not only short ones. 3 of 3 baseline runs fixed that. Only 1 of 3 skill runs did."
+  },
+  {
+   "kind": "win",
+   "head": "Verbs and house style survive with the skill",
+   "body": "The sound switch kept its verb in 3 of 3 skill runs against 1 of 3. Skill runs kept the ideas' no-period style and roughly their length; baseline ideas grew about 30% and gained periods the short-break ideas do not have."
+  },
+  {
+   "kind": "tie",
+   "head": "Headlines: safer and more uniform with the skill",
+   "body": "All three skill headlines share one shape built on the default numbers and the screen cover. The baseline ranged wider, including one promise that only holds after a switch is turned on."
+  },
+  {
+   "kind": "tie",
+   "head": "Small sample, and the baseline was not skill-free",
+   "body": "Three runs per arm is enough to see a pattern, not to measure one. Two of the three baseline runs invoked the installed design:ux-copy skill on their own."
+  }
+ ],
+ "focus": {
+  "title": "The label that started this: “Pause breaks after a call ends”",
+  "lede": "In round one both arms shortened it into a vague noun phrase. The skill now carries an interface-text reference with a keep-every-slot rule. Each rewrite below is checked for the three things a reader needs, plus whether it matches what the code covers.",
+  "truth": "After a calendar meeting or a call ends, the app keeps holding a due break for this many more minutes. At zero the break starts right away.",
+  "key": "MenuSettingsPane.grace",
+  "zero_key": "MenuSettingsPane.graceZero",
+  "slots": [
+   "Verb: what the app does",
+   "Object: breaks",
+   "When: after it ends",
+   "Covers meetings and calls"
+  ],
+  "has": {
+   "master": [
+    "Verb: what the app does",
+    "Object: breaks",
+    "When: after it ends"
+   ],
+   "base-1": [
+    "Verb: what the app does",
+    "When: after it ends",
+    "Covers meetings and calls"
+   ],
+   "base-2": [
+    "Verb: what the app does",
+    "When: after it ends",
+    "Covers meetings and calls"
+   ],
+   "base-3": [
+    "When: after it ends",
+    "Covers meetings and calls"
+   ],
+   "skill-1": [
+    "Verb: what the app does",
+    "Object: breaks",
+    "When: after it ends",
+    "Covers meetings and calls"
+   ],
+   "skill-2": [
+    "Verb: what the app does",
+    "Object: breaks",
+    "When: after it ends",
+    "Covers meetings and calls"
+   ],
+   "skill-3": [
+    "Verb: what the app does",
+    "Object: breaks",
+    "When: after it ends",
+    "Covers meetings and calls"
+   ]
+  },
+  "after": "All six runs saw in the code that the wait also applies after calendar meetings, and said so. The difference is the object: no baseline run says what waits, every skill run does. Baseline run 3 also reads as a noun (“Delay: None”). Between “Hold breaks after a meeting or call ends” with “Off” at zero and “Delay the break after a meeting or call” with “No delay”, the choice is yours; both keep every slot."
+ },
+ "names": {
+  "SharedStrings.shortEvery": {
+   "name": "Slider: time between breaks",
+   "ctx": "value shown next to it: 20 min.",
+   "note": "The code uses this value as the gap before every break, and every third break is long. All three baseline runs corrected “short”; one skill run did, one kept the label, one reworded it but kept “short”. A point for the baseline, although two of its three versions lost the verb."
+  },
+  "SharedStrings.shortLast": {
+   "name": "Slider: short break length",
+   "ctx": "20 sec."
+  },
+  "SharedStrings.longEvery": {
+   "name": "Slider: time between long breaks",
+   "ctx": "60 min."
+  },
+  "SharedStrings.longLast": {
+   "name": "Slider: long break length",
+   "ctx": "5 min."
+  },
+  "MenuSettingsPane.meetings": {
+   "name": "Section header above the meeting switches"
+  },
+  "MenuSettingsPane.toggle": {
+   "name": "Switch: hold breaks during calendar meetings",
+   "note": "Both arms replaced the negative “Don't break…” with a positive verb. Skill runs 2 and 3 then use that same verb, Hold, on the slider below; skill run 1 chose Pause here and Delay there on purpose. Baseline runs all switch verb between the switches and the slider (Hold then Wait, Hold then Delay, Delay then Wait)."
+  },
+  "MenuSettingsPane.calls": {
+   "name": "Switch: hold breaks during calls"
+  },
+  "MenuSettingsPane.callsDetail": {
+   "name": "Helper text under the calls switch",
+   "note": "Not a label, and already clear. All three baseline runs rewrote it. All three skill runs left it."
+  },
+  "MenuSettingsPane.hint": {
+   "name": "Footnote under the meetings group"
+  },
+  "SharedStrings.soundUi": {
+   "name": "Switch: sounds",
+   "note": "All six runs found in the code when the sound plays and said it. The skill arm kept the verb in 3 of 3 (“Play a sound…”); the baseline in 1 of 3."
+  },
+  "SharedStrings.revert": {
+   "name": "Button: discard unsaved changes"
+  },
+  "SharedStrings.fixing": {
+   "name": "Notice title when a saved value was out of range",
+   "note": "The task was the Settings labels. Baseline runs also reworded this notice (2 runs), the Revert button (1) and the credits line (1). No skill run touched any of them."
+  },
+  "SharedStrings.thanksFor": {
+   "name": "Credits line"
+  },
+  "SettingsForm.shortEvery": {
+   "name": "Setting name inside the “Fixing … from A to B” notice",
+   "ctx": "time between breaks"
+  },
+  "SettingsForm.longEvery": {
+   "name": "Setting name inside the notice",
+   "ctx": "time between long breaks"
+  },
+  "SettingsForm.calendarGrace": {
+   "name": "Setting name inside the notice",
+   "ctx": "wait after a meeting or call"
+  },
+  "CalendarAccessWarning.title": {
+   "name": "Warning title when calendar access is missing"
+  },
+  "CalendarAccessWarning.turnOffHint": {
+   "name": "Accessibility hint on the warning's Turn off button"
+  },
+  "IdeaCard.long.title[0]": {
+   "name": "Idea 1: title"
+  },
+  "IdeaCard.long.content[0]": {
+   "name": "Idea 1: description",
+   "note": "Both arms swapped the vague original for concrete moves. Baseline descriptions add a sentence of justification and a final period, which the short-break ideas on the same card do not have. Skill runs kept the no-period style and averaged 96 characters against the baseline's 116 (master: 90)."
+  },
+  "IdeaCard.long.title[1]": {
+   "name": "Idea 2: title"
+  },
+  "IdeaCard.long.content[1]": {
+   "name": "Idea 2: description",
+   "note": "Five runs point the walk at distance vision. Skill run 1 instead tells the reader the break waits until they come back, which it took from how the long break ends in the code."
+  },
+  "IdeaCard.long.title[2]": {
+   "name": "Idea 3: title"
+  },
+  "IdeaCard.long.content[2]": {
+   "name": "Idea 3: description"
+  }
+ },
+ "marks": {
+  "base-2|SharedStrings.revert": [
+   "warn",
+   "not asked for"
+  ],
+  "base-2|SharedStrings.fixing": [
+   "warn",
+   "not asked for"
+  ],
+  "base-3|SharedStrings.fixing": [
+   "warn",
+   "not asked for"
+  ],
+  "base-1|SharedStrings.thanksFor": [
+   "warn",
+   "not asked for"
+  ],
+  "skill-1|SharedStrings.longLast": [
+   "warn",
+   "run's reading of the code, not re-checked"
+  ],
+  "skill-3|SharedStrings.shortEvery": [
+   "warn",
+   "still says “short”"
+  ],
+  "base-1|SharedStrings.shortEvery": [
+   "good",
+   "accuracy fixed"
+  ],
+  "base-2|SharedStrings.shortEvery": [
+   "good",
+   "accuracy fixed"
+  ],
+  "base-3|SharedStrings.shortEvery": [
+   "good",
+   "accuracy fixed"
+  ],
+  "skill-2|SharedStrings.shortEvery": [
+   "good",
+   "accuracy fixed, verb kept"
+  ],
+  "skill-1|IdeaCard.long.content[1]": [
+   "good",
+   "fact from the code"
+  ]
+ },
+ "sections": [
+  {
+   "id": "settings",
+   "title": "Settings labels",
+   "lede": "Every string on the Settings pane that at least one run changed, in screen order. The delay slider is in the section above.",
+   "keys": [
+    "SharedStrings.shortEvery",
+    "SharedStrings.shortLast",
+    "SharedStrings.longEvery",
+    "SharedStrings.longLast",
+    "MenuSettingsPane.meetings",
+    "MenuSettingsPane.toggle",
+    "MenuSettingsPane.calls",
+    "MenuSettingsPane.callsDetail",
+    "MenuSettingsPane.hint",
+    "SharedStrings.soundUi",
+    "SharedStrings.revert",
+    "SharedStrings.fixing",
+    "SharedStrings.thanksFor"
+   ]
+  },
+  {
+   "id": "follow",
+   "title": "Text that had to follow the labels",
+   "lede": "Strings elsewhere that quote a label. Both arms kept these in step and updated the tests that assert on them.",
+   "keys": [
+    "SettingsForm.shortEvery",
+    "SettingsForm.longEvery",
+    "SettingsForm.calendarGrace",
+    "CalendarAccessWarning.title",
+    "CalendarAccessWarning.turnOffHint"
+   ]
+  },
+  {
+   "id": "ideas",
+   "title": "Long-break ideas",
+   "lede": "The three suggestions shown on the cover during a long break.",
+   "keys": [
+    "IdeaCard.long.title[0]",
+    "IdeaCard.long.content[0]",
+    "IdeaCard.long.title[1]",
+    "IdeaCard.long.content[1]",
+    "IdeaCard.long.title[2]",
+    "IdeaCard.long.content[2]"
+   ]
+  }
+ ],
+ "headline": {
+  "title": "Headline for the app",
+  "lede": "Each instance got only a general description of the app, was told to read the code, and was kept away from the README and the product docs.",
+  "note": "The three skill runs converged on one shape: a number from the default settings, the mechanism (the screen gets covered) and the benefit. Every claim in them holds with default settings. The baseline varied more: one tight line, one that promises something that is off by default, one with no number. For range to pick from, the baseline gave more. For a line that is safe to ship unreviewed, the skill arm did."
+ },
+ "headline_notes": {
+  "base-1": "9 words. Built on the default interval and break length.",
+  "base-2": "15 words. The second half is only true once the user turns on a switch that is off by default; the run said so itself.",
+  "base-3": "13 words. Names the mechanism, but “every so often” gives no number.",
+  "skill-1": "16 words. Default numbers plus the mechanism; “actually” gives it an edge.",
+  "skill-2": "15 words. Same shape; “covers itself” is slightly odd.",
+  "skill-3": "13 words. Same shape without the break length."
+ },
+ "score": {
+  "title": "Run by run",
+  "lede": "Counts come from each worktree's diff against master.",
+  "cols": [
+   "Settings strings changed",
+   "Non-label text reworded",
+   "Slider keeps “breaks”",
+   "Idea text, avg. characters",
+   "Ideas keep no-period style",
+   "Tests, as the run reported",
+   "Other skill it invoked"
+  ],
+  "rows": {
+   "base-1": [
+    16,
+    3,
+    "no",
+    109,
+    "no",
+    "90 pass",
+    "design:ux-copy"
+   ],
+   "base-2": [
+    17,
+    4,
+    "no",
+    110,
+    "no",
+    "90 pass",
+    "design:ux-copy"
+   ],
+   "base-3": [
+    17,
+    3,
+    "no",
+    130,
+    "no",
+    "90 pass",
+    "none"
+   ],
+   "skill-1": [
+    12,
+    1,
+    "yes",
+    91,
+    "yes",
+    "90 pass",
+    "none"
+   ],
+   "skill-2": [
+    10,
+    1,
+    "yes",
+    112,
+    "yes",
+    "90 pass",
+    "none"
+   ],
+   "skill-3": [
+    13,
+    1,
+    "yes",
+    85,
+    "yes",
+    "90 pass",
+    "none"
+   ]
+  }
+ },
+ "method": [
+  "Six fresh instances on the same model and effort, each in its own detached worktree of save-my-eyes at e82f144, the latest master on GitHub. The prompt was identical; the skill arm additionally loaded the copywriting skill by reading its files, because the installed plugin does not include it yet.",
+  "Each instance did all three tasks in one go, so one task may have coloured the next inside an instance.",
+  "Instances were told to learn the app from the Swift sources and not to read the README, PRODUCT.md, DESIGN.md or docs.",
+  "Everything shown comes from the git diff of each worktree. The main checkout and the other worktrees were verified unchanged afterwards. Test results are what each run reported; they were not re-run.",
+  "“Non-label text reworded” counts the helper text, footnote, Revert button, notice title and credits line. All six runs reworded the footnote.",
+  "Skill run 2 put its build folder beside its worktree instead of inside it. Nothing else left the worktrees.",
+  "The interface-text reference was written against the round-one failure on this very label, using an invented example from another domain. The slider result shows the fix works here; it does not show it generalises.",
+  "The kept and lost judgements and the key-difference notes are the evaluator's reading, not a measurement."
+ ]
+}

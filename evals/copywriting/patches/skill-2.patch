@@ -1,0 +1,152 @@
+diff --git a/SaveMyEyes/Sources/Core/AppModel.swift b/SaveMyEyes/Sources/Core/AppModel.swift
+index 1b9f600..590fb48 100644
+--- a/SaveMyEyes/Sources/Core/AppModel.swift
++++ b/SaveMyEyes/Sources/Core/AppModel.swift
+@@ -217,7 +217,7 @@ final class AppModel {
+ 
+     // MARK: Calls
+ 
+-    /// Turn "no breaks during calls" (a camera or microphone in use) on or off. Applies at
++    /// Turn "Hold breaks until a call ends" (a camera or microphone in use) on or off. Applies at
+     /// once, not on Save; no permission is involved.
+     @discardableResult
+     func setCallsEnabled(_ enabled: Bool) -> CallStatus {
+diff --git a/SaveMyEyes/Sources/Views/CalendarAccessWarning.swift b/SaveMyEyes/Sources/Views/CalendarAccessWarning.swift
+index 6f1b92d..0425dad 100644
+--- a/SaveMyEyes/Sources/Views/CalendarAccessWarning.swift
++++ b/SaveMyEyes/Sources/Views/CalendarAccessWarning.swift
+@@ -1,4 +1,4 @@
+-// The persistent warning shown while "Don't break during meetings" is on but Save My Eyes
++// The persistent warning shown while "Hold breaks until a meeting ends" is on but Save My Eyes
+ // cannot read the calendar (`CalendarStatus.needsAccess`): in the menu's main pane and in
+ // the Meetings settings section. Inline, never a modal, and it stays until access is back or
+ // the switch is turned off. Its re-enable button is, with the switch itself, the only thing
+@@ -12,7 +12,7 @@ private enum T {
+     static let allow = L("Allow…", "Zezwól…")
+     static let openSettings = L("Open Privacy Settings…", "Otwórz ustawienia prywatności…")
+     static let turnOff = L("Turn off", "Wyłącz")
+-    static let turnOffHint = L("Turns off Don't break during meetings", "Wyłącza Bez przerw w trakcie spotkań")
++    static let turnOffHint = L("Turns off Hold breaks until a meeting ends", "Wyłącza Wstrzymuj przerwy do końca spotkania")
+ }
+ 
+ /// Row content without its own group: the main pane wraps it in a `GlassGroup`, the
+diff --git a/SaveMyEyes/Sources/Views/IdeaCard.swift b/SaveMyEyes/Sources/Views/IdeaCard.swift
+index 8c963c6..ba50eb0 100644
+--- a/SaveMyEyes/Sources/Views/IdeaCard.swift
++++ b/SaveMyEyes/Sources/Views/IdeaCard.swift
+@@ -19,18 +19,18 @@ struct Idea {
+     let content: L
+ 
+     static let long: [Idea] = [
+-        Idea(title: L("Do some exercises", "Poćwicz chwilę"), image: "workout",
++        Idea(title: L("Stand up and move", "Wstań i się poruszaj"), image: "workout",
+              alt: L("Woman dancing", "Tańcząca kobieta"),
+-             content: L("A few minutes of workout will help you relax from sitting position",
+-                        "Kilka minut ćwiczeń pomoże ci się zrelaksować")),
+-        Idea(title: L("Go outside", "Wyjdź na świeże powietrze"), image: "outside",
++             content: L("Stretch your back, neck and legs, or dance to one song. Give your body a break from the chair, not just your eyes",
++                        "Rozciągnij plecy, szyję i nogi albo zatańcz do jednej piosenki. Niech od krzesła odpocznie całe ciało, nie tylko oczy")),
++        Idea(title: L("Step outside", "Wyjdź na zewnątrz"), image: "outside",
+              alt: L("Woman walk through a forest", "Kobieta idzie przez las"),
+-             content: L("Go out to a park or a forest. Being close to nature will help you relax",
+-                        "Pójdź na spacer do parku. Kontakt z naturą pomoże ci się zrelaksować")),
+-        Idea(title: L("Relax a bit", "Zrelaksuj się"), image: "mindfulness",
++             content: L("Walk around the block or stand on a balcony. Outside, everything you look at is farther away than your screen",
++                        "Obejdź blok albo wyjdź na balkon. Na zewnątrz wszystko, na co patrzysz, jest dalej niż ekran")),
++        Idea(title: L("Rest without a screen", "Odpocznij bez ekranu"), image: "mindfulness",
+              alt: L("Woman meditating in front of ancient temple", "Kobieta medytuje przed świątynią"),
+-             content: L("Do what you do to relax. It could be drinking tea, meditating or whatever you like. But remember not to use your phone or computer now",
+-                        "Zrób to co zwykle, gdy potrzebujesz się odprężyć. Przykładowo wypij herbatę, bądź pomedytuj. Pamiętaj, żeby nie używać do tego komputera, ani telefonu")),
++             content: L("Make a cup of tea, sit by a window or close your eyes and breathe slowly. Leave your phone alone: it's a screen too",
++                        "Zrób herbatę, usiądź przy oknie albo zamknij oczy i oddychaj powoli. Telefon odłóż: to też ekran")),
+     ]
+ 
+     static let short: [Idea] = [
+diff --git a/SaveMyEyes/Sources/Views/MenuSettingsPane.swift b/SaveMyEyes/Sources/Views/MenuSettingsPane.swift
+index e058477..c1d334f 100644
+--- a/SaveMyEyes/Sources/Views/MenuSettingsPane.swift
++++ b/SaveMyEyes/Sources/Views/MenuSettingsPane.swift
+@@ -6,16 +6,16 @@ import SwiftUI
+ 
+ private enum T {
+     static let meetings = L("Meetings", "Spotkania")
+-    static let toggle = L("Don't break during meetings", "Bez przerw w trakcie spotkań")
+-    static let calls = L("Don't break during calls", "Bez przerw w trakcie rozmów")
++    static let toggle = L("Hold breaks until a meeting ends", "Wstrzymuj przerwy do końca spotkania")
++    static let calls = L("Hold breaks until a call ends", "Wstrzymuj przerwy do końca rozmowy")
+     static let callsDetail = L(
+         "A call means an app is using your camera or microphone. Save My Eyes only knows that they are on: it can't see, hear or record anything.",
+         "Za rozmowę uznajemy użycie kamery lub mikrofonu przez dowolną aplikację. Save My Eyes wie tylko, że są włączone: nie może niczego zobaczyć, usłyszeć ani nagrać.")
+-    static let grace = L("Pause breaks after a call ends", "Wstrzymaj przerwy po zakończeniu rozmowy")
+-    static let graceZero = L("Immediately", "Od razu")
++    static let grace = L("Hold breaks after a meeting or call ends", "Wstrzymuj przerwy po zakończeniu spotkania lub rozmowy")
++    static let graceZero = L("Off", "Nie")
+     static let hint = L(
+-        "A break that falls during an event from the Calendar app waits until the event ends. For Google Calendar, add your Google account in System Settings › Internet Accounts.",
+-        "Przerwa wypadająca w trakcie wydarzenia z aplikacji Kalendarz poczeka do jego końca. Aby użyć Kalendarza Google, dodaj konto Google w Ustawieniach systemowych › Konta internetowe.")
++        "A meeting is any timed event in the Calendar app that you haven't declined and that isn't shown as free. For Google Calendar, add your Google account in System Settings › Internet Accounts.",
++        "Spotkanie to każde wydarzenie z godziną w aplikacji Kalendarz, które nie zostało odrzucone ani oznaczone jako wolny czas. Aby użyć Kalendarza Google, dodaj konto Google w Ustawieniach systemowych › Konta internetowe.")
+ }
+ 
+ struct MenuSettingsPane: View {
+diff --git a/SaveMyEyes/Sources/Views/SettingsForm.swift b/SaveMyEyes/Sources/Views/SettingsForm.swift
+index deb6e4b..f1a8722 100644
+--- a/SaveMyEyes/Sources/Views/SettingsForm.swift
++++ b/SaveMyEyes/Sources/Views/SettingsForm.swift
+@@ -105,11 +105,11 @@ enum SettingsFormRules {
+     }
+ 
+     private static let names: [FixCode: L] = [
+-        .shortEvery: L("short break every", "czas między krótkimi przerwami"),
++        .shortEvery: L("break every", "czas między przerwami"),
+         .shortLast: L("short break length", "długość krótkiej przerwy"),
+         .longEvery: L("long break every", "czas między długimi przerwami"),
+         .longLast: L("long break length", "długość długiej przerwy"),
+-        .calendarGrace: L("pause after a call", "wstrzymanie po rozmowie"),
++        .calendarGrace: L("hold after a meeting or call", "wstrzymanie po spotkaniu lub rozmowie"),
+     ]
+ 
+     private static func formatSeconds(_ value: Int, lang: Lang) -> String {
+diff --git a/SaveMyEyes/Sources/Views/SharedStrings.swift b/SaveMyEyes/Sources/Views/SharedStrings.swift
+index 7d92720..e078734 100644
+--- a/SaveMyEyes/Sources/Views/SharedStrings.swift
++++ b/SaveMyEyes/Sources/Views/SharedStrings.swift
+@@ -6,11 +6,11 @@ import Foundation
+ enum SettingsStrings {
+     static let settings = L("Settings", "Ustawienia")
+     static let breaks = L("Breaks", "Przerwy")
+-    static let shortEvery = L("Take a short break every", "Zrób krótką przerwę co")
++    static let shortEvery = L("Take a break every", "Zrób przerwę co")
+     static let shortLast = L("Short break will last", "Krótka przerwa będzie trwała")
+     static let longEvery = L("Take a long break every", "Zrób długą przerwę co")
+     static let longLast = L("Long break will last", "Długa przerwa będzie trwała")
+-    static let soundUi = L("Play sounds", "Odtwarzaj dźwięki")
++    static let soundUi = L("Play a sound when a break starts and ends", "Odtwarzaj dźwięk na początku i na końcu przerwy")
+     static let language = L("Language", "Język")
+     static let createdBy = L("Created by", "Stworzona przez")
+     static let author = L("Ammadeo", "Amadeusza Chomiaka")
+diff --git a/SaveMyEyes/Tests/SettingsFormTests.swift b/SaveMyEyes/Tests/SettingsFormTests.swift
+index 0c4993e..7302e40 100644
+--- a/SaveMyEyes/Tests/SettingsFormTests.swift
++++ b/SaveMyEyes/Tests/SettingsFormTests.swift
+@@ -74,9 +74,9 @@ final class SettingsFormTests: XCTestCase {
+ 
+     func testGraceMessageInBothLanguages() {
+         XCTAssertEqual(SettingsFormRules.message(code: .calendarGrace, from: 1000, to: 900, lang: .en, every: 1200),
+-                       "Fixing pause after a call from 17 min. to 15 min.")
++                       "Fixing hold after a meeting or call from 17 min. to 15 min.")
+         XCTAssertEqual(SettingsFormRules.message(code: .calendarGrace, from: 1000, to: 900, lang: .pl, every: 1200),
+-                       "Naprawiam wstrzymanie po rozmowie z 17 min. na 15 min.")
++                       "Naprawiam wstrzymanie po spotkaniu lub rozmowie z 17 min. na 15 min.")
+     }
+ 
+     // MARK: Clamping and snapping
+@@ -136,7 +136,7 @@ final class SettingsFormTests: XCTestCase {
+         XCTAssertEqual(SettingsFormRules.message(code: .shortLast, from: 10, to: 60, lang: .en, every: 1200),
+                        "Fixing short break length from 10 sec. to 60 sec.")
+         XCTAssertEqual(SettingsFormRules.message(code: .shortEvery, from: 10, to: 60, lang: .en, every: 1200),
+-                       "Fixing short break every from 10 sec. to 60 sec.")
++                       "Fixing break every from 10 sec. to 60 sec.")
+         XCTAssertEqual(SettingsFormRules.message(code: .shortLast, from: 10, to: 60, lang: .pl, every: 1200),
+                        "Naprawiam długość krótkiej przerwy z 10 sek. na 60 sek.")
+     }

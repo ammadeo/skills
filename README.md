@@ -10,6 +10,7 @@ other agent that reads the format.
 | [`review-pr`](skills/review-pr/SKILL.md) | Review one PR or a batch of related PRs (a rollout across repos) with parallel read-only reviewers, report at behaviour level, post comment/approve reviews on request. |
 | [`overseer-draft`](skills/overseer-draft/SKILL.md) | *Draft.* Oversee your open PRs and agent sessions: one-call status report grouped by who holds the ball, session triage, routing fixes to the owning session, reviewer proposals, merges you name. |
 | [`prototype`](skills/prototype/SKILL.md) | Turn an idea into a clickable throwaway demo fast: mocked data, no tests or specs, iterate on stakeholder feedback, hand over a demo script and a what-is-faked note. |
+| [`copywriting`](skills/copywriting/SKILL.md) | Write or sharpen the words people read before they act (headlines, buttons, landing pages, emails, UI text): find what is long, vague or interchangeable, rewrite it specific and benefit-first from facts in the repo, and apply it in place without supervision. |
 
 Requirements: [`gh`](https://cli.github.com) signed in, for `review-pr` and
 `overseer-draft`. Subagent support helps but is optional; without it the
@@ -43,7 +44,17 @@ Copy a folder from `skills/` into your agent's skills directory, for example
 skills/<name>/SKILL.md           the skill (frontmatter: name, description)
 skills/<name>/references/        extra docs the skill loads on demand
 skills/<name>/scripts/           helper scripts the skill runs
+evals/<name>/                    eval records for a skill (not loaded by agents)
 ```
+
+## Credits
+
+`copywriting` distils, in its own words, ideas from Harry Dry's
+[Marketing Examples](https://marketingexamples.com/) and his
+[copywriting masterclass](https://www.youtube.com/watch?v=TUMjnmfsPeM). Its
+interface-text reference draws on the platform and UX-writing guidance
+listed in [`evals/copywriting`](evals/copywriting/README.md), which also
+records how the skill was evaluated.
 
 ## License
 
