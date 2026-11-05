@@ -1,0 +1,220 @@
+{
+  "home": "/Users/me/swarm",
+  "generated": "2026-10-29 14:05",
+  "config": { "next_id": 14, "stuck_hours": 3, "owners": ["acme"], "repos": [] },
+  "work": [
+    {
+      "id": "W1", "title": "Fix flaky login test", "state": "done", "role": "builder", "owner": "local_a1b2",
+      "repo": "acme/app", "branch": "fix/flaky-login", "pr": "acme/app#5301", "pr_url": "https://github.com/acme/app/pull/5301",
+      "head": "1a2b3c4", "verified_main": "0f0e0d0", "ci": "success", "threads_open": 0,
+      "review": "APPROVED", "merged": true, "needs": [], "created": "2026-10-27 09:00", "updated": "2026-10-29 11:20",
+      "session_running": false, "session_last": "2026-10-29 11:15",
+      "brief": "Make `login_spec` deterministic.\n\nAcceptance: 20 green runs in a row.",
+      "log": [
+        { "ts": "2026-10-27 09:30", "who": "builder", "text": "report state=working" },
+        { "ts": "2026-10-28 16:00", "who": "builder", "text": "report state=pr-open pr=acme/app#5301 head=1a2b3c4" },
+        { "ts": "2026-10-29 11:20", "who": "scan", "text": "merged" }
+      ],
+      "findings": "", "question": null, "answer": null, "stuck": false
+    },
+    {
+      "id": "W2", "title": "Bump test runner", "state": "archived", "role": "builder", "owner": "local_c3d4",
+      "repo": "acme/api", "branch": "chore/bump-runner", "pr": "acme/api#812", "pr_url": "https://github.com/acme/api/pull/812",
+      "head": "5e6f7a8", "verified_main": "5e6f7a0", "ci": "success", "threads_open": 0,
+      "review": "APPROVED", "merged": true, "needs": [], "created": "2026-10-25 10:00", "updated": "2026-10-27 15:00",
+      "session_running": false, "session_last": "2026-10-27 14:50",
+      "brief": "Bump the test runner to the latest minor.",
+      "log": [ { "ts": "2026-10-27 15:00", "who": "overseer", "text": "archived" } ],
+      "findings": "", "question": null, "answer": null, "stuck": false
+    },
+    {
+      "id": "W3", "title": "Throttle reset emails in the UI", "state": "queued", "role": "builder", "owner": "",
+      "repo": "acme/app", "branch": "", "pr": "", "pr_url": "",
+      "head": "", "verified_main": "", "ci": "none", "threads_open": 0,
+      "review": "none", "merged": false, "needs": ["W7"], "created": "2026-10-29 12:00", "updated": "2026-10-29 12:00",
+      "session_running": false, "session_last": "",
+      "brief": "Show a cooldown message after a reset email was sent.\n\nWaits for the throttle decision in W7.",
+      "log": [], "findings": "", "question": null, "answer": null, "stuck": false
+    },
+    {
+      "id": "W4", "title": "Add audit log export", "state": "working", "role": "builder", "owner": "local_e5f6",
+      "repo": "acme/api", "branch": "feat/audit-export", "pr": "", "pr_url": "",
+      "head": "", "verified_main": "", "ci": "none", "threads_open": 0,
+      "review": "none", "merged": false, "needs": [], "created": "2026-10-29 09:00", "updated": "2026-10-29 13:50",
+      "session_running": true, "session_last": "2026-10-29 14:01",
+      "brief": "CSV export of the audit log for admins.\n\n- Scope: API endpoint only\n- No UI in this item",
+      "log": [
+        { "ts": "2026-10-29 09:10", "who": "builder", "text": "report state=working" },
+        { "ts": "2026-10-29 11:40", "who": "builder", "text": "endpoint + serializer done, writing request specs" },
+        { "ts": "2026-10-29 13:50", "who": "builder", "text": "specs green locally, streaming large exports next" }
+      ],
+      "findings": "", "question": null, "answer": null, "stuck": false
+    },
+    {
+      "id": "W5", "title": "Migrate settings page to new form layout", "state": "working", "role": "builder", "owner": "local_g7h8",
+      "repo": "acme/app", "branch": "feat/settings-form", "pr": "", "pr_url": "",
+      "head": "", "verified_main": "", "ci": "none", "threads_open": 0,
+      "review": "none", "merged": false, "needs": [], "created": "2026-10-29 08:00", "updated": "2026-10-29 09:30",
+      "session_running": false, "session_last": "2026-10-29 09:35",
+      "brief": "Port the settings page to the shared form layout component.",
+      "log": [
+        { "ts": "2026-10-29 08:15", "who": "builder", "text": "report state=working" },
+        { "ts": "2026-10-29 09:30", "who": "builder", "text": "half the fields ported; checking the date picker" }
+      ],
+      "findings": "", "question": null, "answer": null, "stuck": true
+    },
+    {
+      "id": "W6", "title": "Rotate webhook signing secret", "state": "blocked", "role": "builder", "owner": "local_i9j0",
+      "repo": "acme/api", "branch": "feat/webhook-rotation", "pr": "", "pr_url": "",
+      "head": "", "verified_main": "", "ci": "none", "threads_open": 0,
+      "review": "none", "merged": false, "needs": [], "created": "2026-10-28 15:00", "updated": "2026-10-29 10:45",
+      "session_running": true, "session_last": "2026-10-29 10:50",
+      "brief": "Support two active signing secrets during rotation.",
+      "log": [
+        { "ts": "2026-10-28 15:10", "who": "builder", "text": "report state=working" },
+        { "ts": "2026-10-29 10:45", "who": "builder", "text": "report state=blocked: staging secrets store denies write access to this session" }
+      ],
+      "findings": "", "question": null, "answer": null, "stuck": false
+    },
+    {
+      "id": "W7", "title": "Rate-limit password resets", "state": "needs-decision", "role": "builder", "owner": "local_k1l2",
+      "repo": "acme/app", "branch": "feat/reset-throttle", "pr": "", "pr_url": "",
+      "head": "", "verified_main": "", "ci": "none", "threads_open": 0,
+      "review": "none", "merged": false, "needs": [], "created": "2026-10-29 10:00", "updated": "2026-10-29 13:40",
+      "session_running": true, "session_last": "2026-10-29 13:41",
+      "brief": "Limit password reset requests to stop email flooding.\n\nAcceptance: max 5 resets per hour; clear error message.",
+      "log": [
+        { "ts": "2026-10-29 10:05", "who": "builder", "text": "report state=working" },
+        { "ts": "2026-10-29 13:40", "who": "builder", "text": "ask: Keep the throttle per account or per IP?" }
+      ],
+      "findings": "",
+      "question": {
+        "text": "Keep the throttle per account or per IP?",
+        "options": [
+          { "key": "A", "text": "per account (cost: one migration)" },
+          { "key": "B", "text": "per IP (cost: breaks shared-office logins)" },
+          { "key": "C", "text": "both, whichever trips first (cost: two counters, more tests)" }
+        ],
+        "recommended": "A"
+      },
+      "answer": null, "stuck": false
+    },
+    {
+      "id": "W8", "title": "Paginate the team members list", "state": "pr-open", "role": "builder", "owner": "local_m3n4",
+      "repo": "acme/app", "branch": "feat/members-pagination", "pr": "acme/app#5377", "pr_url": "https://github.com/acme/app/pull/5377",
+      "head": "7c8d9e0", "verified_main": "4a7b8c9", "ci": "pending", "threads_open": 0,
+      "review": "REVIEW_REQUIRED", "merged": false, "needs": [], "created": "2026-10-28 11:00", "updated": "2026-10-29 13:55",
+      "session_running": true, "session_last": "2026-10-29 13:58",
+      "brief": "Cursor pagination for teams with more than 200 members.",
+      "log": [
+        { "ts": "2026-10-28 11:10", "who": "builder", "text": "report state=working" },
+        { "ts": "2026-10-29 13:55", "who": "builder", "text": "report state=pr-open pr=acme/app#5377 head=7c8d9e0" }
+      ],
+      "findings": "", "question": null, "answer": null, "stuck": false
+    },
+    {
+      "id": "W9", "title": "Cache feature flags per request", "state": "fixing", "role": "builder", "owner": "local_o5p6",
+      "repo": "acme/api", "branch": "perf/flag-cache", "pr": "acme/api#820", "pr_url": "https://github.com/acme/api/pull/820",
+      "head": "2b3c4d5", "verified_main": "4a7b8c9", "ci": "failure", "threads_open": 2,
+      "review": "CHANGES_REQUESTED", "merged": false, "needs": [], "created": "2026-10-28 09:00", "updated": "2026-10-29 13:30",
+      "session_running": true, "session_last": "2026-10-29 14:00",
+      "brief": "Memoize flag lookups for the duration of a request.\n\nAcceptance: p95 of the dashboard endpoint drops by 20%.",
+      "log": [
+        { "ts": "2026-10-28 09:20", "who": "builder", "text": "report state=working" },
+        { "ts": "2026-10-28 17:00", "who": "builder", "text": "report state=pr-open pr=acme/api#820 head=1f2e3d4" },
+        { "ts": "2026-10-29 13:10", "who": "reviewer", "text": "3 findings (1 medium, 2 low)" },
+        { "ts": "2026-10-29 13:30", "who": "builder", "text": "report state=fixing" }
+      ],
+      "findings": "### 2026-10-29 13:10 reviewer\n- medium: cache is not cleared between jobs in the worker (lib/flags.rb:42)\n- low: missing spec for the disabled-flag path\n- low: rename `fc` to `flag_cache`",
+      "question": null, "answer": null, "stuck": false
+    },
+    {
+      "id": "W10", "title": "Add dark mode to email templates", "state": "ready", "role": "builder", "owner": "local_q7r8",
+      "repo": "acme/app", "branch": "feat/email-dark-mode", "pr": "acme/app#5380", "pr_url": "https://github.com/acme/app/pull/5380",
+      "head": "9f1c2d3", "verified_main": "4a7b8c9", "ci": "success", "threads_open": 0,
+      "review": "APPROVED", "merged": false, "needs": [], "created": "2026-10-27 14:00", "updated": "2026-10-29 14:00",
+      "session_running": false, "session_last": "2026-10-29 13:20",
+      "brief": "Respect prefers-color-scheme in transactional emails.",
+      "log": [
+        { "ts": "2026-10-28 18:00", "who": "builder", "text": "report state=pr-open pr=acme/app#5380 head=8e0b1c2" },
+        { "ts": "2026-10-29 13:15", "who": "builder", "text": "pushed fix for the thread on app/views/mailer.html:42" },
+        { "ts": "2026-10-29 14:00", "who": "overseer", "text": "ready: all checks passed" }
+      ],
+      "findings": "### 2026-10-28 19:00 reviewer\n- low: fallback colour for clients without media query support",
+      "question": null, "answer": null, "stuck": false
+    },
+    {
+      "id": "W11", "title": "Split the onboarding wizard", "state": "pr-open", "role": "coordinator", "owner": "local_s9t0",
+      "repo": "acme/app", "branch": "feat/onboarding-split", "pr": "acme/app#5371", "pr_url": "https://github.com/acme/app/pull/5371",
+      "head": "3d4e5f6", "verified_main": "4a7b8c9", "ci": "success", "threads_open": 1,
+      "review": "none", "merged": false, "needs": [], "created": "2026-10-27 10:00", "updated": "2026-10-29 12:30",
+      "session_running": true, "session_last": "2026-10-29 13:59",
+      "brief": "Coordinate splitting the onboarding wizard into three steps across two PRs.",
+      "log": [
+        { "ts": "2026-10-28 10:00", "who": "coordinator", "text": "ask: Keep step 2 optional?" },
+        { "ts": "2026-10-28 12:00", "who": "overseer", "text": "answered D1" },
+        { "ts": "2026-10-29 12:30", "who": "coordinator", "text": "report state=pr-open pr=acme/app#5371 head=3d4e5f6" }
+      ],
+      "findings": "",
+      "question": {
+        "text": "Keep step 2 (team invite) optional?",
+        "options": [
+          { "key": "A", "text": "optional with a skip link" },
+          { "key": "B", "text": "required" }
+        ],
+        "recommended": "A"
+      },
+      "answer": "A — optional, but nudge again on day 3",
+      "stuck": false
+    },
+    {
+      "id": "W12", "title": "Plan the search reindex rollout", "state": "queued", "role": "coordinator", "owner": "",
+      "repo": "acme/api", "branch": "", "pr": "", "pr_url": "",
+      "head": "", "verified_main": "", "ci": "none", "threads_open": 0,
+      "review": "none", "merged": false, "needs": ["W9", "W4"], "created": "2026-10-29 13:00", "updated": "2026-10-29 13:00",
+      "session_running": false, "session_last": "",
+      "brief": "", "log": [], "findings": "", "question": null, "answer": null, "stuck": false
+    },
+    {
+      "id": "W13", "title": "Document the public API changelog", "state": "needs-decision", "role": "builder", "owner": "local_u1v2",
+      "repo": "acme/docs", "branch": "docs/api-changelog", "pr": "", "pr_url": "",
+      "head": "", "verified_main": "", "ci": "none", "threads_open": 0,
+      "review": "none", "merged": false, "needs": [], "created": "2026-10-29 11:00", "updated": "2026-10-29 12:10",
+      "session_running": false, "session_last": "2026-10-29 12:12",
+      "brief": "Start a changelog page for the public API.",
+      "log": [ { "ts": "2026-10-29 12:10", "who": "builder", "text": "ask: Where should the changelog live?" } ],
+      "findings": "",
+      "question": {
+        "text": "Where should the changelog live?",
+        "options": [
+          { "key": "A", "text": "a page in the docs site" },
+          { "key": "B", "text": "CHANGELOG.md in the API repo" }
+        ],
+        "recommended": null
+      },
+      "answer": null, "stuck": false
+    }
+  ],
+  "changes": [
+    { "id": "W12", "kind": "new", "detail": "queued, needs W9,W4" },
+    { "id": "W4", "kind": "started", "detail": "owner local_e5f6" },
+    { "id": "W8", "kind": "pr-opened", "detail": "acme/app#5377" },
+    { "id": "W9", "kind": "went-red", "detail": "acme/api#820 ci=failure (was success)" },
+    { "id": "W9", "kind": "new-findings", "detail": "3 findings (1 medium, 2 low)" },
+    { "id": "W7", "kind": "asked", "detail": "Keep the throttle per account or per IP?" },
+    { "id": "W6", "kind": "blocked", "detail": "staging secrets store denies write access to this session" },
+    { "id": "W10", "kind": "ready", "detail": "acme/app#5380" },
+    { "id": "W1", "kind": "merged", "detail": "acme/app#5301" },
+    { "id": "W5", "kind": "stuck", "detail": "working, last log 2026-10-29 09:30" },
+    { "id": "W7", "kind": "unanswered", "detail": "Keep the throttle per account or per IP?" },
+    { "id": "W13", "kind": "unanswered", "detail": "Where should the changelog live?" }
+  ],
+  "decisions": [
+    { "id": "D1", "ts": "2026-10-28 12:00", "work": "W11", "question": "Keep step 2 (team invite) optional?", "answer": "A — optional, but nudge again on day 3" }
+  ],
+  "runs": [
+    { "ts": "2026-10-28 09:00", "summary": "3 items, 1 PR opened" },
+    { "ts": "2026-10-28 17:30", "summary": "W11 answered, W9 PR opened" },
+    { "ts": "2026-10-29 11:30", "summary": "W1 merged, W2 archived, 2 new items" }
+  ]
+}
