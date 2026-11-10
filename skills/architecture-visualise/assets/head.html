@@ -1,0 +1,126 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: diagrams first on wide plates, one table, sources folded away. */
+:root{--bg:#f4f6f8;--surface:#fff;--ink:#17212b;--muted:#5b6875;--line:#d3dae1;--node:#74818d;
+--add:#1f7a48;--add-bg:#e0f2e7;--gone:#a8502a;--gone-bg:#f8e7dc;--flag:#b56a00;
+--sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f151b;--surface:#18212a;--ink:#dfe6ed;--muted:#97a4b1;--line:#2d3945;--node:#7f8d9a;--add:#7fd0a0;--add-bg:#19352a;--gone:#e7a47c;--gone-bg:#3d2a1f;--flag:#f0b354;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f151b;--surface:#18212a;--ink:#dfe6ed;--muted:#97a4b1;--line:#2d3945;--node:#7f8d9a;--add:#7fd0a0;--add-bg:#19352a;--gone:#e7a47c;--gone-bg:#3d2a1f;--flag:#f0b354;color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans);padding-block:2.5rem 4rem;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{display:grid;gap:3rem;max-width:68rem;margin-inline:auto}
+main>*{min-width:0}
+header{display:grid;gap:.6rem}
+h1{font-size:1.9rem;line-height:1.15;font-weight:600;margin:0;text-wrap:balance}
+h2{font-size:1.3rem;line-height:1.2;font-weight:600;margin:0;text-wrap:balance}
+p{margin:0;max-width:44rem}
+a{color:inherit;text-underline-offset:3px}
+code{font:.86em var(--mono)}
+.refs{font:.82rem var(--mono);color:var(--muted)}
+.refs b{color:var(--ink);font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:.4rem 1.25rem;margin:0;padding:0;list-style:none;font-size:.86rem;color:var(--muted)}
+.legend li{display:flex;align-items:center;gap:.45rem}
+.sw{width:1.4rem;height:.9rem;border-radius:3px;border:1.5px solid var(--node);background:var(--surface)}
+.sw.gone{border-color:var(--gone);background:var(--gone-bg)}
+.sw.add{border-color:var(--add);background:var(--add-bg)}
+.q{display:inline-grid;place-items:center;width:1.1rem;height:1.1rem;border-radius:50%;font:600 .72rem var(--sans);background:var(--muted);color:var(--bg)}
+.q.warn{background:var(--flag)}
+figure,section{margin:0;display:grid;gap:.75rem}
+.fighead{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center;justify-content:space-between}
+.views{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:2px;background:var(--surface)}
+.views button{font:500 .82rem var(--sans);color:var(--muted);background:none;border:0;border-radius:999px;padding:.3rem .8rem;cursor:pointer}
+.views button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.views button:focus-visible{outline:2px solid var(--add);outline-offset:2px}
+figure[data-view="now"] [data-only="next"],figure[data-view="next"] [data-only="now"]{display:none}
+.plate{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.75rem}
+.plate svg{display:block;width:100%;min-width:860px;height:auto}
+figcaption{color:var(--muted);font-size:.95rem;max-width:48rem}
+figcaption b{color:var(--ink);font-weight:600}
+figure.zoom h2{font-size:1.05rem}
+/* diagram marks */
+/* class selectors only: marks reused through <use> must still match */
+.t{font:600 13px var(--mono);fill:var(--ink)}
+.tp{font:600 13px var(--sans);fill:var(--ink)}
+.s{font:400 11.5px var(--sans);fill:var(--muted)}
+.m{font:400 11px var(--mono);fill:var(--ink)}
+.ms{font:400 10.5px var(--mono);fill:var(--muted)}
+.cap{font:500 11.5px var(--sans);fill:var(--muted)}
+.lane{font:600 10.5px var(--sans);letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+/* "?" icons and their tooltips: added by the script from data-warn / data-tip */
+.plate text{pointer-events:none}
+[data-warn],[data-tip]{cursor:help}
+.q-m{outline:none}
+.q-c{fill:var(--muted);stroke:var(--surface);stroke-width:2}
+.q-c.warn{fill:var(--flag)}
+.q-t{font:600 11px var(--sans);fill:var(--surface)}
+.q-m:focus-visible .q-c{stroke:var(--ink)}
+.tip{position:fixed;z-index:20;max-width:min(22rem,calc(100vw - 24px));background:var(--ink);color:var(--bg);font:.85rem/1.4 var(--sans);padding:.5rem .7rem;border-radius:6px;box-shadow:0 4px 16px rgb(0 0 0/.25);pointer-events:none}
+.tip.warn{border-left:4px solid var(--flag)}
+.n{fill:var(--surface);stroke:var(--node);stroke-width:1.4;rx:6px}
+.n.ext{rx:22px}
+.n.gone{fill:var(--gone-bg);stroke:var(--gone)}
+.n.add{fill:var(--add-bg);stroke:var(--add)}
+.grp{fill:none;stroke:var(--node);stroke-width:1.2;stroke-dasharray:4 4;rx:8px}
+.grp.gone{stroke:var(--gone)}
+.grp.add{stroke:var(--add)}
+.e{fill:none;stroke:var(--node);stroke-width:1.5;marker-end:url(#ah)}
+.e.gone{stroke:var(--gone);marker-end:url(#ah-gone)}
+.e.add{stroke:var(--add);marker-end:url(#ah-add)}
+.e.dash{stroke-dasharray:5 4}
+#ah path{fill:var(--node)}#ah-gone path{fill:var(--gone)}#ah-add path{fill:var(--add)}
+/* comparison table */
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:.92rem;line-height:1.45}
+th,td{text-align:left;vertical-align:top;padding:.6rem .9rem;border-bottom:1px solid var(--line)}
+tbody tr:last-child>*{border-bottom:0}
+thead th{font:600 .75rem var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+tbody th{font-weight:600}
+tr.diff th::after{content:"changes";display:inline-block;margin-left:.5rem;font:600 .68rem var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--add);border:1px solid var(--add);border-radius:999px;padding:0 .5rem}
+tr.diff td:nth-of-type(1){background:var(--gone-bg)}
+tr.diff td:nth-of-type(2){background:var(--add-bg)}
+details{font-size:.88rem;color:var(--muted)}
+summary{cursor:pointer;font-weight:500}
+details ul{margin:.5rem 0;padding-left:1.1rem;columns:2 18rem}
+</style>
+<svg width="0" height="0" aria-hidden="true" style="position:absolute"><defs>
+<marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z"/></marker>
+<marker id="ah-gone" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z"/></marker>
+<marker id="ah-add" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z"/></marker>
+</defs></svg>
+<script>
+(function(){
+var NS='http://www.w3.org/2000/svg',SEL='[data-warn],[data-tip]',tip,pinned;
+function txt(el){return el.getAttribute('data-warn')||el.getAttribute('data-tip')}
+function hit(e){return e.target.closest?e.target.closest(SEL):null}
+function show(el){
+if(!tip){tip=document.createElement('div');tip.className='tip';tip.setAttribute('role','tooltip');document.body.appendChild(tip)}
+tip.textContent=txt(el);tip.classList.toggle('warn',el.hasAttribute('data-warn'));tip.hidden=false;
+var r=el.getBoundingClientRect(),b=tip.getBoundingClientRect();
+var x=Math.max(12,Math.min(r.left+r.width/2-b.width/2,innerWidth-b.width-12)),y=r.top-b.height-8;
+if(y<8)y=r.bottom+8;tip.style.left=x+'px';tip.style.top=y+'px'}
+function hide(){if(tip)tip.hidden=true;pinned=null}
+function mark(el){
+var svg=el.ownerSVGElement,x,y;if(!svg||el.closest('.q-m'))return;
+if(el.tagName==='rect'){x=+el.getAttribute('x')+ +el.getAttribute('width');y=+el.getAttribute('y')}
+else if(el.getTotalLength){var p=el.getPointAtLength(Math.min(18,el.getTotalLength()/2));x=p.x;y=p.y}
+else return;
+var g=document.createElementNS(NS,'g'),w=el.hasAttribute('data-warn'),o=el.closest('[data-only]');
+g.setAttribute('class','q-m');g.setAttribute('tabindex','0');g.setAttribute('role','button');
+g.setAttribute(w?'data-warn':'data-tip',txt(el));g.setAttribute('aria-label',(w?'Weak spot: ':'')+txt(el));
+if(o)g.setAttribute('data-only',o.getAttribute('data-only'));
+g.innerHTML='<circle class="q-c'+(w?' warn':'')+'" cx="'+x+'" cy="'+y+'" r="9"/><text class="q-t" x="'+x+'" y="'+(y+4)+'" text-anchor="middle">?</text>';
+svg.appendChild(g)}
+function init(){document.querySelectorAll('.plate [data-warn],.plate [data-tip]').forEach(mark)}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+document.addEventListener('mouseover',function(e){var el=hit(e);if(el&&!pinned)show(el)});
+document.addEventListener('mouseout',function(e){if(!pinned&&hit(e))hide()});
+document.addEventListener('focusin',function(e){var el=hit(e);if(el)show(el)});
+document.addEventListener('focusout',function(e){if(!pinned&&hit(e))hide()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')hide()});
+addEventListener('scroll',hide,true);
+document.addEventListener('click',function(e){
+var b=e.target.closest('.views button'),el=hit(e);
+if(b){var f=b.closest('figure');f.dataset.view=b.dataset.view;f.querySelectorAll('.views button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});hide();return}
+if(el&&pinned!==el){show(el);pinned=el}else hide()});
+})();
+</script>
