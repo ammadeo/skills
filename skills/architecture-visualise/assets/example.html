@@ -1,0 +1,113 @@
+<title>Receipt sending architecture</title>
+<main>
+<header>
+<h1>How receipts are sent</h1>
+<p class="refs">acme/shop · main <b>1a2b3c4</b> · PR #12 <b>5d6e7f8</b></p>
+<ul class="legend">
+<li><span class="sw"></span>in both</li>
+<li><span class="sw gone"></span>only on main, removed by #12</li>
+<li><span class="sw add"></span>new in #12</li>
+<li><span class="q warn">?</span>weak spot: hover or tap for why</li>
+<li><span class="q">?</span>more detail</li>
+</ul>
+</header>
+
+<figure>
+<h2>main: three callers, three copies of the switch</h2>
+<div class="plate"><svg viewBox="0 0 1000 286" role="img" aria-label="On main, OrderService, RetryJob and AdminPanel each switch over ChannelKind and call the email, sms and push clients themselves.">
+<g id="both">
+<rect class="n" data-unit="OrderService" x="16" y="40" width="196" height="58"/>
+<text class="t" x="28" y="64">OrderService</text>
+<text class="s" x="28" y="82">on purchase</text>
+<rect class="n" data-unit="RetryJob" x="16" y="120" width="196" height="58"/>
+<text class="t" x="28" y="144">RetryJob</text>
+<text class="s" x="28" y="162">resends failures</text>
+<rect class="n" data-unit="AdminPanel" x="16" y="200" width="196" height="58"/>
+<text class="tp" x="28" y="224">Resend button</text>
+<text class="ms" x="28" y="242">AdminPanel</text>
+<rect class="n" data-unit="EmailClient" x="772" y="40" width="212" height="58"/>
+<text class="t" x="784" y="64">EmailClient</text>
+<text class="s" x="784" y="82">sends email</text>
+<rect class="n" data-unit="SmsClient" x="772" y="120" width="212" height="58"/>
+<text class="t" x="784" y="144">SmsClient</text>
+<text class="s" x="784" y="162">sends sms</text>
+<rect class="n" data-unit="PushClient" x="772" y="200" width="212" height="58"/>
+<text class="t" x="784" y="224">PushClient</text>
+<text class="s" x="784" y="242">sends push</text>
+</g>
+<text class="cap" x="760" y="18">one client per channel</text>
+<rect class="grp" x="760" y="28" width="236" height="242"/>
+<path class="e gone" d="M212 69H760" data-warn="OrderService and RetryJob each work out which channel a customer gets, so the two can pick differently."/>
+<text class="m" x="486" y="61" text-anchor="middle">switch over ChannelKind</text>
+<path class="e gone" d="M212 149H760"/>
+<text class="m" x="486" y="141" text-anchor="middle">switch over ChannelKind</text>
+<path class="e gone" d="M212 229H760" data-warn="The same switch is written in all three callers and the copies have drifted: this one has no push case. A new channel means editing all three."/>
+<text class="m" x="486" y="221" text-anchor="middle">switch, email and sms only</text>
+</svg></div>
+<figcaption><b>Every caller knows every channel.</b> Each one picks a client by switching over the kinds, so the callers and the clients are tied together three times over.</figcaption>
+</figure>
+
+<figure>
+<h2>PR #12: one registry, one contract</h2>
+<div class="plate"><svg viewBox="0 0 1000 286" role="img" aria-label="In PR 12 the three callers ask ChannelRegistry, which hands back a Channel. The three clients all implement Channel.">
+<use href="#both"/>
+<rect class="n add" data-unit="ChannelRegistry" x="372" y="112" width="212" height="74" data-tip="Also skips a channel the shop has switched off in settings."/>
+<text class="t" x="384" y="136">ChannelRegistry</text>
+<text class="s" x="384" y="154">picks the customer's channel</text>
+<text class="s" x="384" y="170">no preference: email</text>
+<text class="cap" x="760" y="18">all three are a Channel</text>
+<rect class="grp add" x="760" y="28" width="236" height="242"/>
+<path class="e add" d="M212 69H292V139H372"/>
+<text class="m" x="252" y="61" text-anchor="middle">asks</text>
+<path class="e add" d="M212 149H372"/>
+<path class="e add" d="M212 229H292V159H372"/>
+<path class="e add" d="M584 149H760"/>
+<text class="m" x="672" y="141" text-anchor="middle">sends via Channel</text>
+</svg></div>
+<figcaption><b>Callers know one contract.</b> A new channel is one new client and one line in the registry; no caller changes.</figcaption>
+</figure>
+
+<figure class="zoom">
+<h2>Zoom: how ChannelRegistry picks, in #12</h2>
+<div class="plate"><svg viewBox="0 0 1000 106" role="img" aria-label="ChannelRegistry takes the customer's preferred channel, checks it is switched on, and falls back to email.">
+<rect class="n" x="16" y="24" width="212" height="58"/>
+<text class="tp" x="28" y="48">Customer's preference</text>
+<text class="s" x="28" y="66">email, sms or push</text>
+<rect class="n" x="372" y="24" width="212" height="58"/>
+<text class="tp" x="384" y="48">Channel switched on?</text>
+<text class="s" x="384" y="66">per shop, in settings</text>
+<rect class="n" x="772" y="24" width="212" height="58"/>
+<text class="tp" x="784" y="48">Fall back to email</text>
+<text class="s" x="784" y="66">always on</text>
+<path class="e" d="M228 53H372"/>
+<text class="m" x="300" y="45" text-anchor="middle">preferred kind</text>
+<path class="e" d="M584 53H772"/>
+<text class="m" x="678" y="45" text-anchor="middle">if switched off</text>
+</svg></div>
+<figcaption><b>One order of precedence, in one place.</b></figcaption>
+</figure>
+
+<section>
+<h2>The same situations in both versions</h2>
+<div class="scroll"><table>
+<thead><tr><th>Situation</th><th>main</th><th>PR #12</th></tr></thead>
+<tbody>
+<tr><th>Purchase, customer prefers email</th><td>Email receipt</td><td>Email receipt</td></tr>
+<tr class="diff"><th>Resend button, push-only customer</th><td>Nothing is sent</td><td>Push receipt</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<details class="src"><summary>Sources</summary>
+<p>Read from git at the two commits above. Nothing was run. Not traced: how receipts are rendered.</p>
+<ul>
+<li>OrderService <a href="https://github.com/acme/shop/blob/1a2b3c4/src/orders/OrderService.ts#L41">main</a> <a href="https://github.com/acme/shop/blob/5d6e7f8/src/orders/OrderService.ts#L38">#12</a></li>
+<li>RetryJob <a href="https://github.com/acme/shop/blob/1a2b3c4/src/jobs/RetryJob.ts#L12">main</a> <a href="https://github.com/acme/shop/blob/5d6e7f8/src/jobs/RetryJob.ts#L12">#12</a></li>
+<li>AdminPanel <a href="https://github.com/acme/shop/blob/1a2b3c4/src/admin/AdminPanel.tsx#L88">main</a> <a href="https://github.com/acme/shop/blob/5d6e7f8/src/admin/AdminPanel.tsx#L80">#12</a></li>
+<li>EmailClient <a href="https://github.com/acme/shop/blob/1a2b3c4/src/channels/EmailClient.ts#L5">main</a> <a href="https://github.com/acme/shop/blob/5d6e7f8/src/channels/EmailClient.ts#L6">#12</a></li>
+<li>SmsClient <a href="https://github.com/acme/shop/blob/1a2b3c4/src/channels/SmsClient.ts#L5">main</a> <a href="https://github.com/acme/shop/blob/5d6e7f8/src/channels/SmsClient.ts#L6">#12</a></li>
+<li>PushClient <a href="https://github.com/acme/shop/blob/1a2b3c4/src/channels/PushClient.ts#L5">main</a> <a href="https://github.com/acme/shop/blob/5d6e7f8/src/channels/PushClient.ts#L6">#12</a></li>
+<li>ChannelRegistry <a href="https://github.com/acme/shop/blob/5d6e7f8/src/channels/ChannelRegistry.ts#L9">#12</a></li>
+</ul>
+</details>
+</main>
