@@ -73,7 +73,9 @@ Only the context needed to act, nothing more:
 
 Delegation grants no authority the task did not. Research and review stay
 read-only unless the user asked for changes; external actions (posting,
-pushing, sending) keep the user's original permission boundary.
+pushing, sending) keep the user's original permission boundary. Anything a
+worker posts for the user on GitHub opens with
+`> 🤖 *Claude <model> <verb> on behalf of @<login>*`; put that in the brief.
 
 ## Coordinate, integrate, finish
 
