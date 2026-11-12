@@ -96,7 +96,12 @@ it once, with:
 - the specific items (thread path:line and what the reviewer or bot said),
 - the repo facts that change the answer (expected failures, merge style),
 - explicit "do not": no reviewer requests, no merges, no re-requests,
+- for any reply it posts on a thread, an opening attribution line:
+  `> 🤖 *Claude <model> answering on behalf of @<login>*` (the user's
+  `gh api user` login; the verb fits the reply),
 - "report back with head sha, CI state, thread state".
+
+Comments you post yourself carry the same attribution line.
 
 If no session owns the PR or it is unreachable, spawn a worker on a detached
 worktree of that repo, push with an explicit refspec, remove the worktree, same
