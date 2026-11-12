@@ -1,6 +1,6 @@
 {
   "name": "ammadeo",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Personal agent workflows: orchestrate multi-agent work, review PRs with reviewer subagents, oversee open PRs and agent sessions, build throwaway prototypes for stakeholder feedback, sharpen product and marketing copy, and visualise a feature's architecture as a diagram.",
   "author": { "name": "ammadeo", "url": "https://github.com/ammadeo" },
   "homepage": "https://github.com/ammadeo/skills",
