@@ -97,6 +97,11 @@ match yours, ask once which PRs they mean before posting.
 
 Rules that fell out of practice:
 
+- Every review body and every inline comment opens with an attribution line,
+  so readers know an agent wrote it and for whom:
+  `> 🤖 *Claude <model> reviewed on behalf of @<login>*`. Use your own model
+  name (for example `Opus 5.5`), the `gh api user` login from step 1, and a
+  verb that fits (`reviewed`, `asking`, `suggesting`).
 - Only the **actionable** blocker gets a COMMENT-level review, with an inline
   comment on the line that introduces it. Everything else, including
   "critical" items whose fix is simply "merge soon", goes into an **APPROVE**
