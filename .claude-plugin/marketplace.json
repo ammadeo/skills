@@ -8,8 +8,8 @@
     {
       "name": "ammadeo",
       "source": "./",
-      "description": "Personal agent workflows: orchestrate multi-agent work, review PRs with reviewer subagents, oversee open PRs and agent sessions, build throwaway prototypes for stakeholder feedback, sharpen product and marketing copy, and post daily updates to Slack.",
-      "version": "0.5.0"
+      "description": "Personal agent workflows: orchestrate multi-agent work, review PRs with reviewer subagents, oversee open PRs and agent sessions, build throwaway prototypes for stakeholder feedback, sharpen product and marketing copy, post daily updates to Slack, and visualise a feature's architecture as a diagram.",
+      "version": "0.6.0"
     }
   ]
 }
