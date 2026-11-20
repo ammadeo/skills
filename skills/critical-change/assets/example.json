@@ -1,0 +1,170 @@
+{
+  "title": "Move login sessions to the managed Redis",
+  "summary": "Login sessions move from the Redis box we run ourselves to the managed cluster. Users should notice nothing. We do it now because the old box has no failover and its disk is 80% full.",
+  "impact": "Every signed-in user is logged out at once, or new logins fail. About 12,000 people are signed in at peak.",
+  "window": "Tuesday 10:00 CET, the quietest hour. About 30 minutes, no planned downtime.",
+  "scope": {
+    "in": [
+      "The API reads and writes sessions in the managed cluster",
+      "Existing sessions are copied, so nobody is logged out"
+    ],
+    "out": [
+      "Rate-limit counters stay on the old box",
+      "Session format and lifetime do not change"
+    ]
+  },
+  "decisions": [
+    {
+      "id": "D1",
+      "decision": "Write to both stores for a day before reads move",
+      "why": "The new store then already holds every live session at the moment of the switch, and the old one stays complete if we have to go back.",
+      "details": "Flag `SESSION_DUAL_WRITE`, read by `api/session/store.ts`. Writes to the new store are best-effort while the flag is on: a failure is logged and does not fail the request.",
+      "status": "decided"
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "U1",
+      "question": "Does anything besides the API read sessions?",
+      "status": "answered",
+      "answer": "Yes, one thing: the nightly export job reads them straight from Redis.",
+      "evidence": "`jobs/export/sessions.py:41` opens its own connection from `REDIS_URL`. Searched all four repos for the key prefix `sess:`; no other reader."
+    },
+    {
+      "id": "U2",
+      "question": "Does the managed cluster drop keys when it runs out of memory?",
+      "status": "open",
+      "blocked_by": "No access to the cloud console of the production project.",
+      "if_wrong": "Sessions vanish at peak and users are logged out at random, days after the change looked fine.",
+      "admin_guide": [
+        "Open the cluster in the cloud console, tab Configuration",
+        "Send us the value of `maxmemory-policy` and the memory size",
+        "We need `noeviction` and at least 2 GB. Anything else changes D1"
+      ]
+    }
+  ],
+  "risks": [
+    {
+      "id": "R1",
+      "risk": "Everyone is logged out at the moment reads move",
+      "impact": "12,000 people have to sign in again; support gets the tickets.",
+      "severity": "critical",
+      "mitigation": "Dual write for 24 hours plus a copy of older sessions, so the new store has every live session before reads move.",
+      "status": "mitigated"
+    },
+    {
+      "id": "R2",
+      "risk": "The nightly export keeps reading the old box",
+      "impact": "Finance reports show yesterday's active users as zero. Nobody notices until the morning.",
+      "severity": "high",
+      "mitigation": "The export job gets the same read switch (P3) and is checked the same day, not the next morning.",
+      "status": "mitigated"
+    },
+    {
+      "id": "R3",
+      "risk": "The managed cluster is slower from our network",
+      "impact": "Every page load gets slower by the same amount.",
+      "severity": "medium",
+      "mitigation": "Measured 1.1 ms against 0.6 ms in staging. Watched after the switch.",
+      "status": "mitigated"
+    }
+  ],
+  "steps": [
+    {
+      "id": "E1",
+      "action": "Turn on writing to both stores",
+      "details": "Set `SESSION_DUAL_WRITE=1` through the config service. No deploy.",
+      "verify": "The key count in the new store grows and the API error rate stays flat for 10 minutes.",
+      "revert": "Turn the flag off.",
+      "status": "pending"
+    },
+    {
+      "id": "E2",
+      "action": "Copy the sessions created before E1",
+      "details": "`scripts/copy_sessions.py --execute`. Skips keys that already exist and keeps each key's remaining lifetime.",
+      "verify": "The script reports zero missing keys on its second pass.",
+      "revert": "Nothing to undo: the copy only adds keys to the new store.",
+      "status": "pending"
+    },
+    {
+      "id": "E3",
+      "action": "Move reads to the new store",
+      "details": "Set `SESSION_READ_FROM=managed` for the API and the export job.",
+      "verify": "Reads show up on the managed cluster's dashboard and drop to zero on the old box.",
+      "revert": "Set `SESSION_READ_FROM=legacy`. The old box still receives every write.",
+      "status": "pending"
+    }
+  ],
+  "reversal": {
+    "possible": true,
+    "summary": "Point reads back at the old box. It keeps receiving every write until dual write is switched off, so no session is lost on the way back.",
+    "window": "Until dual write is switched off. That is a separate change, at least a week later.",
+    "steps": [
+      { "id": "V1", "action": "Move reads back to the old box", "details": "`SESSION_READ_FROM=legacy`", "status": "pending" },
+      { "id": "V2", "action": "Stop writing to the new store", "details": "`SESSION_DUAL_WRITE=0`", "status": "pending" }
+    ]
+  },
+  "prep": [
+    { "id": "P1", "item": "API change: dual write and the read switch, both off by default", "status": "todo" },
+    { "id": "P2", "item": "Copy script with a dry-run mode and unit tests", "status": "todo" },
+    { "id": "P3", "item": "Export job reads from the store the switch names", "status": "todo" },
+    { "id": "P4", "item": "Smoke test script covering S1 to S4", "status": "todo" }
+  ],
+  "smoke": [
+    {
+      "id": "S1",
+      "check": "Someone who signed in before the change is still signed in",
+      "mitigates": ["R1"],
+      "why": "This is the failure users would feel. A fresh login would pass even with every old session lost, so the check uses a session created before E1.",
+      "how": "`scripts/smoke.sh existing-session` with the cookie saved before E1",
+      "expect": "HTTP 200 from `/me`",
+      "critical": true,
+      "status": "pending"
+    },
+    {
+      "id": "S2",
+      "check": "A new login works and survives the next request",
+      "mitigates": ["R1", "U2"],
+      "why": "Proves the new store takes writes and gives them back. It cannot rule out U2: eviction only shows under memory pressure.",
+      "how": "`scripts/smoke.sh fresh-login`",
+      "expect": "Login returns a cookie; `/me` with it returns 200",
+      "critical": true,
+      "status": "pending"
+    },
+    {
+      "id": "S3",
+      "check": "The export job sees today's sessions",
+      "mitigates": ["R2"],
+      "why": "The job runs at night; without this check the first sign of R2 is a wrong finance report.",
+      "how": "`python jobs/export/sessions.py --dry-run`",
+      "expect": "A count within 5% of the API's active-session metric",
+      "critical": false,
+      "status": "pending"
+    },
+    {
+      "id": "S4",
+      "check": "Pages are as fast as before",
+      "mitigates": ["R3"],
+      "why": "Session lookup is on every request, so a slower store slows everything.",
+      "how": "`scripts/smoke.sh latency`",
+      "expect": "p95 of `/me` within 20% of the value measured before E1",
+      "critical": false,
+      "status": "pending"
+    },
+    {
+      "id": "S5",
+      "check": "Sign in, reload, sign out in a real browser",
+      "mitigates": ["R1"],
+      "why": "The scripted checks call the API; this confirms the cookie path through the web app.",
+      "how": "By hand on the production site with the test account",
+      "expect": "Signed in after reload, signed out after sign-out",
+      "critical": false,
+      "manual": true,
+      "status": "pending"
+    }
+  ],
+  "improvements": [
+    "Move the rate-limit counters too and retire the old box",
+    "Alert on memory use of the managed cluster"
+  ]
+}
