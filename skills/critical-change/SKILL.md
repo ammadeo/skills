@@ -1,6 +1,6 @@
 ---
 name: critical-change
-description: Run a high-risk change to a live system as a gated flow with four phases, plan, prepare, status and execute. For infrastructure changes, data migrations and logic or provider cutovers where several pieces must change in the right order and a mistake would reach users or lose data. Plan is read-only research ending in a change document with risks, known unknowns, a way back and smoke tests tied to the risks they cover. Prepare builds unmerged PRs and tested scripts, status says what is still missing, execute runs the approved steps, smoke-tests and reverses on a critical failure. Use this skill when the user asks for it by name or by phase, "critical change", "plan this migration as a critical change", "prepare the change", "where are we with the cutover", "are we ready to execute", "run the change", or points at a change document from an earlier phase. Never start it unasked. If a task looks like this kind of change, recommend the skill in one sentence and let the user decide. Not for routine deploys.
+description: Run a high-risk change to a live system as a gated flow in four phases, plan, prepare, status and execute. For infrastructure changes, data migrations and logic or provider cutovers where several pieces must change in the right order and a mistake would reach users or lose data. Plan is read-only research ending in a change document with risks, known unknowns, a way back and smoke tests tied to the risks they cover. Prepare builds unmerged PRs and tested scripts, status says what is still missing, execute runs the approved steps, smoke-tests and offers the reversal on a critical failure. Use this skill when the user asks for it by name or by phase, "critical change", "plan this migration as a critical change", "prepare the change", "where are we with the cutover", "are we ready to execute", "run the change", or points at a change document from an earlier phase. Never start it unasked. If a task looks like such a change, recommend the skill in one sentence and let the user decide. Not for routine deploys.
 ---
 
 # Critical change
@@ -29,7 +29,7 @@ the task.
 | **plan** | A change document the user approved | Read-only: no code, no PRs, no writes anywhere | `references/plan.md` |
 | **prepare** | Every building block ready, nothing live | Nothing merged, released or run against a real environment | `references/prepare.md` |
 | **status** | A short product-level answer | Changes nothing | "Status" below |
-| **execute** | The change live and smoke-tested, or reversed | Only the approved steps, after a fresh final approval | `references/execute.md` |
+| **execute** | The change live and smoke-tested, or reversed | Only the approved steps, after a fresh final approval; a reversal only on the user's word | `references/execute.md` |
 
 Take the phase from the user's words and read only that reference. No phase
 named: run status and propose the next one. One phase per request: finish it,
@@ -59,7 +59,7 @@ Run from this skill's directory, with an absolute path to the file:
     python3 -I scripts/change.py check   FILE [--gate plan|prepare|execute|complete]
     python3 -I scripts/change.py render  FILE
     python3 -I scripts/change.py set     FILE ID STATUS [--note TEXT] [--ref URL] [--baseline]
-    python3 -I scripts/change.py approve FILE plan|execute --by NAME
+    python3 -I scripts/change.py approve FILE plan|execute|revert --by NAME
     python3 -I scripts/change.py finish  FILE completed|reverted [--note TEXT]
 
 - `check` prints the stage, what is missing before the next one and every

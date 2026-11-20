@@ -147,11 +147,16 @@ class Lifecycle(unittest.TestCase):
     def test_critical_smoke_failure_calls_for_the_reversal(self):
         self.to_executed()
         out = self.ok("set", "S1", "fail")
-        self.assertIn("Run the reversal path now", out)
+        self.assertIn("ask before running it", out)
         self.assertIn("V1", out)
         self.assertIn("S1 is critical and failed", self.refused("finish", "completed"))
         self.assertIn("Reversal steps left", self.refused("finish", "reverted"))
+        self.assertIn("has not confirmed the reversal", self.refused("set", "V1", "done"))
+        self.assertIn("The user confirmed the reversal", self.ok("approve", "revert", "--by", "Ada"))
         self.ok("set", "V1", "done")
+        self.edit(lambda d: d["reversal"]["steps"][1].update(action="Something else"))
+        self.assertIn("changed after the user confirmed", self.refused("set", "V2", "done"))
+        self.ok("approve", "revert", "--by", "Ada")
         self.ok("set", "V2", "done")
         self.assertIn("Stage: Reverted", self.ok("finish", "reverted", "--note", "S1 failed"))
         self.assertIn(">Reverted<", self.file.with_suffix(".html").read_text())
@@ -160,6 +165,19 @@ class Lifecycle(unittest.TestCase):
         self.to_prepared()
         self.ok("approve", "execute", "--by", "Ada")
         self.assertIn("A step failed", self.ok("set", "E1", "failed"))
+
+    def test_no_reversal_to_confirm_before_anything_ran(self):
+        self.to_prepared()
+        self.assertIn("nothing to reverse", self.refused("approve", "revert", "--by", "Ada"))
+
+    def test_user_may_keep_the_change_and_it_stays_open(self):
+        self.to_executed()
+        self.ok("set", "S1", "fail", "--note", "Ada: do not reverse, the saved cookie had expired")
+        self.assertIn("S1 is critical and failed", self.refused("finish", "completed"))
+        self.ok("set", "S1", "pass", "--note", "rerun with a valid cookie")
+        for s in ("S2", "S3", "S4", "S5"):
+            self.ok("set", s, "pass")
+        self.ok("finish", "completed")
 
 
 if __name__ == "__main__":

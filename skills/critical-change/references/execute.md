@@ -36,7 +36,8 @@ Show the user, in one message:
   and what you will run
 - the point of no return, if there is one
 - the critical smoke checks, and this sentence: "If one of these fails I
-  reverse at once without asking: <reversal summary>."
+  stop, tell you what broke and whether the planned reversal still fits,
+  and reverse on your word: <reversal summary>."
 - every accepted risk or unknown that still has no mitigation
 - anything that changed since they approved the plan
 - how long it takes and what users may notice meanwhile
@@ -67,25 +68,62 @@ with no plan at all. Then:
 
 - the step is safe to repeat and the cause is plainly transient (a timeout,
   a lock): retry once
-- otherwise reverse (section 5)
-- unless the system is stable where it stands and users are unaffected: then
-  hold, tell the user and let them choose between reversing and re-planning
+- otherwise handle it like a failed critical check: section 5
 
 ## 4. Smoke tests
 
 With all steps done, run every check, critical ones first, and record each:
 `set FILE S1 pass` or `set FILE S1 fail --note "<what you saw>"`.
 
-- A critical check fails: reverse now. Do not rerun it hoping, do not debug
-  first, do not ask; the user approved exactly this in section 2. The one
-  exception is a check that could not run at all (a tool error, not a
-  verdict): retry it once, and treat a second non-verdict as a failure.
+- A critical check fails: stop there and go to section 5. Do not rerun it
+  hoping and do not start fixing. The one exception is a check that could
+  not run at all (a tool error, not a verdict): retry it once, and treat a
+  second non-verdict as a failure.
 - A non-critical check fails: record what you saw, carry on, report it as a
   follow-up.
 - Manual checks: do them in a browser if you have one, with the test
   accounts the plan names. Otherwise ask the user to do them and wait.
 
-## 5. Reversal
+## 5. When it fails
+
+The user is watching and the reversal is their call. Your job is to put the
+facts in front of them within the first minute and keep the reversal ready.
+
+1. Record it: `set FILE S1 fail --note "<what you saw>"`, or the failed
+   step.
+2. In the same message, start one read-only diagnostics worker in the
+   background and do not wait for it. Its brief: the check that failed with
+   expected and observed, the steps run so far, where to look (logs,
+   metrics, the state of everything those steps touched), the remaining
+   read-only smoke checks to run, and a few minutes at most. It returns
+   what is broken, how widely and since when, whether it is getting worse,
+   and anything in the current state that would make a reversal step fail
+   or lose data. It changes nothing.
+3. Tell the user at once, in a few lines:
+   - what broke: the check, expected against observed
+   - what that means for users right now, taken from the risk the check
+     covers
+   - whether the planned reversal applies. Walk `reversal.steps` against
+     where the system really is: which steps ran, whether the `window` is
+     still open, what was written since the switch, whether a point of no
+     return was crossed. Answer "applies as written", "applies with this
+     change: ..." or "does not apply because ...".
+   - the question: reverse now?
+4. Work through the reversal with the user while the worker runs. When it
+   reports, relay it in two or three lines, starting with anything that
+   changes the answer on the reversal. Going back does not need the root
+   cause: if the user says go before the worker is done, go.
+5. If the reversal needs adjusting, edit `reversal.steps` in the document
+   and show the new steps before asking. Fix forward only if the user asks
+   for exactly that, and then as a new step written into the document.
+
+On the user's explicit yes: `approve FILE revert --by <their name>`. The
+script binds it to the reversal steps as they stand; editing them voids it.
+If they decide not to reverse, put the decision and their name in the
+failed item's note. The change then stays open, never completed, until that
+check passes or the change is reversed.
+
+## 6. Reversal
 
 Run `reversal.steps` in order and `set FILE V1 done` after each. Then run
 the smoke checks again: the restored system has to match the baseline.
@@ -100,7 +138,7 @@ If a reversal step fails, stop and tell the user at once with the exact
 state: what is reverted, what is not, what users see right now. That is an
 incident and it is theirs to run.
 
-## 6. Complete
+## 7. Complete
 
 `finish FILE completed`. It refuses while anything is pending. Report:
 

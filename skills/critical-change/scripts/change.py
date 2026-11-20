@@ -4,7 +4,7 @@
   change.py check   FILE [--gate plan|prepare|execute|complete]
   change.py render  FILE
   change.py set     FILE ID STATUS [--note TEXT] [--ref URL] [--baseline]
-  change.py approve FILE plan|execute --by NAME
+  change.py approve FILE plan|execute|revert --by NAME
   change.py finish  FILE completed|reverted [--note TEXT]
 
 FILE is change.json. Every command that changes it re-renders change.html next
@@ -189,11 +189,17 @@ def plan_hash(doc):
     return hashlib.sha256(json.dumps(core, sort_keys=True).encode()).hexdigest()[:16]
 
 
+def rev_hash(doc):
+    """What the confirmation of a reversal covers: the reversal steps as they stood."""
+    core = [[v.get("id"), v.get("action"), v.get("details")] for v in rev_steps(doc)]
+    return hashlib.sha256(json.dumps(core, sort_keys=True).encode()).hexdigest()[:16]
+
+
 def approved(doc, what):
     a = (doc.get("approvals") or {}).get(what)
     if not isinstance(a, dict) or not a.get("by"):
         return False
-    return what == "plan" or a.get("hash") == plan_hash(doc)
+    return what == "plan" or a.get("hash") == (rev_hash(doc) if what == "revert" else plan_hash(doc))
 
 
 def blockers(doc, gate):
@@ -225,7 +231,7 @@ def blockers(doc, gate):
         if s.get("status") not in ("pass", "fail"):
             b.append(f"{s.get('id')} has not run: {s.get('check', '')}")
         elif s.get("status") == "fail" and s.get("critical"):
-            b.append(f"{s.get('id')} is critical and failed: run the reversal")
+            b.append(f"{s.get('id')} is critical and failed")
     return b
 
 
@@ -252,10 +258,13 @@ def next_up(doc):
     done, current, failed, reverted = progress(doc)
     if reverted:
         return "Reverted. The change is not in place.", []
-    if failed == 2:
-        return "A step failed. Stop and run the reversal path:", [f"{v.get('id')} {v.get('action', '')}" for v in rev_steps(doc)]
-    if failed == 3:
-        return "A critical smoke test failed. Run the reversal path now:", [f"{v.get('id')} {v.get('action', '')}" for v in rev_steps(doc)]
+    if failed is not None:
+        what = "A step failed." if failed == 2 else "A critical smoke test failed."
+        left = [f"{v.get('id')} {v.get('action', '')}" for v in rev_steps(doc) if v.get("status") != "done"]
+        if approved(doc, "revert"):
+            return f"{what} The user confirmed the reversal. Steps left:", left
+        return (f"{what} Stop. Tell the user what broke, what it means for users and whether this "
+                "reversal still fits, then ask before running it:"), left
     if current is None:
         return "Completed.", []
     if current == 0:
@@ -466,7 +475,7 @@ def page(doc):
         st = s.get("status")
         tag = pill("passed", "ok") if st == "pass" else pill("failed", "crit" if s.get("critical") else "warn") if st == "fail" \
             else pill("critical", "crit") if s.get("critical") else pill("non-critical")
-        kind = "Critical: a failure reverses the change." if s.get("critical") else "Non-critical: a failure is recorded and followed up."
+        kind = "Critical: a failure stops the change and the reversal is put to you at once." if s.get("critical") else "Non-critical: a failure is recorded and followed up."
         body = (f"<b>{fmt(s.get('check'))}</b>" + line("Covers", ", ".join(s.get("mitigates") or [])) + block(s.get("why")) +
                 f'<p class="k">{kind}{" Checked by hand." if s.get("manual") else ""}</p>' + block(s.get("note")) +
                 fold([f"Run: {s.get('how', '')}", f"Expect: {s.get('expect', '')}",
@@ -601,6 +610,11 @@ def cmd_set(a):
             before = rows(doc, "steps")[:rows(doc, "steps").index(x)]
             if any(s.get("status") != "done" for s in before):
                 sys.exit(f"error: steps run in order and an earlier one is not done ({a.id} not changed)")
+        if kind == "V" and a.status != "pending" and not approved(doc, "revert"):
+            had = (doc.get("approvals") or {}).get("revert")
+            sys.exit("error: " + ("the reversal steps changed after the user confirmed them: show the new steps and ask again"
+                                  if had else "the user has not confirmed the reversal (approve FILE revert --by NAME)")
+                     + f" ({a.id} not changed)")
         x["status"] = a.status
     if a.note:
         x["note"] = a.note
@@ -612,12 +626,15 @@ def cmd_set(a):
 
 def cmd_approve(a):
     doc = load(a.file)
-    b = blockers(doc, "plan" if a.what == "plan" else "execute")
+    if a.what == "revert":
+        b = [] if (doc.get("approvals") or {}).get("execute") else ["nothing has been executed, so there is nothing to reverse"]
+    else:
+        b = blockers(doc, a.what)
     if b:
         fail(b, f"Not recorded. Before the {a.what} approval:")
     entry = {"by": a.by, "at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")}
-    if a.what == "execute":
-        entry["hash"] = plan_hash(doc)
+    if a.what != "plan":
+        entry["hash"] = rev_hash(doc) if a.what == "revert" else plan_hash(doc)
     doc.setdefault("approvals", {})[a.what] = entry
     save(a.file, doc, f"{a.what} approved by {a.by}")
     print(report(doc))
@@ -645,7 +662,7 @@ def main(argv=None):
     c = sub.add_parser("render"); c.add_argument("file"); c.set_defaults(fn=cmd_render)
     c = sub.add_parser("set"); c.add_argument("file"); c.add_argument("id"); c.add_argument("status")
     c.add_argument("--note"); c.add_argument("--ref"); c.add_argument("--baseline", action="store_true"); c.set_defaults(fn=cmd_set)
-    c = sub.add_parser("approve"); c.add_argument("file"); c.add_argument("what", choices=("plan", "execute")); c.add_argument("--by", required=True); c.set_defaults(fn=cmd_approve)
+    c = sub.add_parser("approve"); c.add_argument("file"); c.add_argument("what", choices=("plan", "execute", "revert")); c.add_argument("--by", required=True); c.set_defaults(fn=cmd_approve)
     c = sub.add_parser("finish"); c.add_argument("file"); c.add_argument("state", choices=("completed", "reverted")); c.add_argument("--note"); c.set_defaults(fn=cmd_finish)
     a = p.parse_args(argv)
     a.fn(a)

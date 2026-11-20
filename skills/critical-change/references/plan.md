@@ -135,7 +135,8 @@ That observation is a check.
 - `how` and `expect`: exact enough that another agent reaches the same
   verdict.
 - `critical`: true when a failure means users are being hurt now or data is
-  at risk. A critical failure reverses the change at once. False when the
+  at risk. A critical failure stops the change and puts the reversal to
+  the user at once. False when the
   failure can wait for a follow-up. Decide it here, calmly; nobody decides
   this well mid-change.
 - `manual: true` for the few things only a person in a browser can confirm.
