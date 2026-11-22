@@ -1,4 +1,3 @@
-# GitHub language stats: the skills are Markdown, and evals/ holds eval
-# records (a generated HTML report among them), not the product.
-*.md linguist-detectable
-evals/** linguist-documentation
+# GitHub language stats: leave out the eval report pages, which would
+# otherwise label the repo HTML. The scripts decide the label instead.
+evals/**/*.html linguist-documentation
