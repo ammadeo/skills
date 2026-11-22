@@ -1,0 +1,4 @@
+# GitHub language stats: the skills are Markdown, and evals/ holds eval
+# records (a generated HTML report among them), not the product.
+*.md linguist-detectable
+evals/** linguist-documentation
