@@ -6,13 +6,13 @@ other agent that reads the format.
 
 | Skill | What it does |
 | --- | --- |
-| [`orchestrate`](skills/orchestrate/SKILL.md) | Lead a task that is too big for one agent: split by deliverable and dependency, brief strong-model subagents with disjoint ownership, integrate and verify from real diffs. |
-| [`review-pr`](skills/review-pr/SKILL.md) | Review one PR or a batch of related PRs (a rollout across repos) with parallel read-only reviewers, report at behaviour level, post comment/approve reviews on request. |
-| [`overseer-draft`](skills/overseer-draft/SKILL.md) | *Draft.* Oversee your open PRs and agent sessions: one-call status report grouped by who holds the ball, session triage, routing fixes to the owning session, reviewer proposals, merges you name. |
-| [`prototype`](skills/prototype/SKILL.md) | Turn an idea into a clickable throwaway demo fast: mocked data, no tests or specs, iterate on stakeholder feedback, hand over a demo script and a what-is-faked note. |
-| [`copywriting`](skills/copywriting/SKILL.md) | Write or sharpen the words people read before they act (headlines, buttons, landing pages, emails, UI text): find what is long, vague or interchangeable, rewrite it specific and benefit-first from facts in the repo, and apply it in place without supervision. |
-| [`daily-update`](skills/daily-update/SKILL.md) | Post your end-of-day update to Slack: today's PRs matched to their tickets, a product-level TLDR against the epics and roadmap, items grouped Waiting / In progress / Releasable / Released, sent as a one-line channel post plus a thread to the channel you last confirmed for that project, only after you approve the exact text. |
-| [`architecture-visualise`](skills/architecture-visualise/SKILL.md) | See how a feature is put together without reading its code: hand-laid SVG diagrams of the units involved and how the answer travels between them, the pattern named in the picture and the weak spots marked on it. Compares two versions, such as main against a pull request, on the same grid with a table of what behaves differently. Suggests a better structure only when asked, as a view you can switch to. |
+| [`orchestrate`](skills/orchestrate/SKILL.md) | Splits a task too big for one agent across subagents, then integrates their work and verifies it against real diffs. |
+| [`review-pr`](skills/review-pr/SKILL.md) | Reviews one PR or a batch of related PRs with parallel read-only reviewers; posts reviews to GitHub only on request. |
+| [`overseer-draft`](skills/overseer-draft/SKILL.md) | *Draft.* Reports the state of all your open PRs and agent sessions, grouped by who has to act next. |
+| [`prototype`](skills/prototype/SKILL.md) | Builds a clickable throwaway demo of a feature idea with mocked data, plus a note of what is faked. |
+| [`copywriting`](skills/copywriting/SKILL.md) | Rewrites headlines, buttons, landing pages and UI text in place, using only facts it finds in the repo. |
+| [`daily-update`](skills/daily-update/SKILL.md) | Posts an end-of-day Slack update built from today's PRs and tickets, only after you approve the exact text. |
+| [`architecture-visualise`](skills/architecture-visualise/SKILL.md) | Draws how a feature is put together as SVG diagrams, with the pattern named and weak spots marked; compares two versions on the same grid. |
 
 Requirements: [`gh`](https://cli.github.com) signed in, for `review-pr`,
 `overseer-draft`, `daily-update` and pull-request comparisons in
@@ -64,4 +64,4 @@ records how the skill was evaluated.
 
 ## License
 
-MIT
+[MIT](LICENSE)
