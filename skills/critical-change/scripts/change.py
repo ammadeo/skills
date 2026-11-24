@@ -18,6 +18,8 @@ import html
 import json
 import re
 import sys
+import tempfile
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -202,6 +204,30 @@ def approved(doc, what):
     if not isinstance(a, dict) or not a.get("by"):
         return False
     return what == "plan" or a.get("hash") == (rev_hash(doc) if what == "revert" else plan_hash(doc))
+
+
+def monitor_state_file(config):
+    """Where a running monitor reports that it is alive. Outside the repository, one file per monitor config."""
+    key = hashlib.sha256(str(Path(config).resolve()).encode()).hexdigest()[:16]
+    return Path(tempfile.gettempdir()) / f"critical-change-monitor-{key}.json"
+
+
+def monitor_gap(change_file):
+    """Why the first step may not be recorded yet, or None. Applies only when the change has a monitor config."""
+    config = Path(change_file).resolve().with_name("monitor.json")
+    if not config.exists():
+        return None
+    try:
+        state = json.loads(monitor_state_file(config).read_text())
+    except (OSError, ValueError):
+        state = {}
+    if time.time() - state.get("updated", 0) > 15:
+        return "the monitor is not running. Start it and confirm the dashboard before the first step (monitor.py serve, then monitor.py status)"
+    if state.get("demo"):
+        return "the monitor is running in demo mode: its readings are invented. Restart it without --demo"
+    if state.get("state") in ("bad", "waiting"):
+        return f"the monitor is not green before the first step: {state.get('text')}"
+    return None
 
 
 def blockers(doc, gate):
@@ -457,6 +483,16 @@ def listing(items):
     return f'<ul class="rows">{"".join(items)}</ul>' if items else ""
 
 
+def stage_states(doc):
+    """[(stage name, done|now|todo|bad)], shared by the page's stepper and the live dashboard."""
+    done, current, failed, reverted = progress(doc)
+    out = []
+    for i, name in enumerate(STAGES):
+        state = "bad" if failed == i else "done" if done[i] else "now" if current == i else "todo"
+        out.append(("Reverted", "bad") if reverted and i == 4 else (name, state))
+    return out
+
+
 def stepper(doc):
     done, current, failed, reverted = progress(doc)
     xs, y, r = [60 + 120 * i for i in range(5)], 30, 14
@@ -464,10 +500,7 @@ def stepper(doc):
     for i in range(4):
         out.append(f'<line class="sl{" ok" if done[i] and done[i + 1] or (done[i] and current == i + 1) else ""}" '
                    f'x1="{xs[i] + r}" y1="{y}" x2="{xs[i + 1] - r}" y2="{y}"/>')
-    for i, name in enumerate(STAGES):
-        state = "bad" if failed == i else "done" if done[i] else "now" if current == i else "todo"
-        if reverted and i == 4:
-            state, name = "bad", "Reverted"
+    for i, (name, state) in enumerate(stage_states(doc)):
         x = xs[i]
         out.append(f'<circle class="sn {state}" cx="{x}" cy="{y}" r="{r}"/>')
         if state == "done":
@@ -591,7 +624,7 @@ def load(path):
 
 def save(path, doc, *events):
     for event in events:
-        doc.setdefault("log", []).append({"at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"), "event": event})
+        doc.setdefault("log", []).append({"at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "event": event})
     Path(path).write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     render(path, doc)
 
@@ -667,6 +700,10 @@ def cmd_set(a):
                 b = blockers(doc, gate)
                 if b:
                     fail(b, f"{id_} not changed. Still missing:")
+            if kind == "E" and status == "done" and not any(s.get("status") == "done" for s in rows(doc, "steps")):
+                gap = monitor_gap(a.file)
+                if gap:
+                    sys.exit(f"error: {gap} ({id_} not changed)")
             if kind == "E" and status == "done":
                 before = rows(doc, "steps")[:rows(doc, "steps").index(x)]
                 if any(s.get("status") != "done" for s in before):

@@ -28,7 +28,19 @@ The document describes a past moment. Verify the present, read-only:
 Anything off: correct the document, tell the user, stop. Do not adapt on the
 fly.
 
-## 2. Final approval
+## 2. Start the dashboard
+
+Start the monitor as a background process, `monitor.py serve CONFIG`, then
+run `monitor.py status CONFIG`. Go on only when it reports every live check
+green on the untouched system. Red or missing here means the baseline is
+off: stop as in section 1.
+
+Give the user the address and have them open it. From here until the change
+is completed or reverted this is where they watch, and the page is not
+republished. The script refuses to record the first step while the monitor
+is down, running in demo mode, or not green.
+
+## 3. Final approval
 
 Show the user, in one message:
 
@@ -41,6 +53,7 @@ Show the user, in one message:
 - every accepted risk or unknown that still has no mitigation
 - anything that changed since they approved the plan
 - how long it takes and what users may notice meanwhile
+- the dashboard's address, and the request to confirm it is open and live
 
 Ask for an explicit go. The approval is for this list, now. Approval of the
 plan, a yes from an earlier session or a yes to something else does not
@@ -49,12 +62,16 @@ again. On a yes: `approve FILE execute --by <their name>`. The script binds
 the approval to the steps, the reversal and the smoke tests; editing any of
 them voids it.
 
-## 3. Run the steps
+## 4. Run the steps
 
 One at a time, in order: do exactly what `details` says, confirm `verify` by
 observing it (a command that exits 0 is not proof), then `set FILE E1 done`.
 The line it prints is your update to the user. Pass it on as it is and go to
 the next step; while everything matches the plan, that line is all you say.
+
+Glance at the monitor after every step: `monitor.py status CONFIG` prints
+one line and exits 1 when a critical check is red. A red critical heartbeat
+at any moment counts like a failed critical smoke test: section 6.
 
 - Only what the step says. No extra fix, no cleanup, no "while I am here".
 - A permission prompt or a denial mid-step is a stop, not something to route
@@ -69,16 +86,18 @@ with no plan at all. Then:
 
 - the step is safe to repeat and the cause is plainly transient (a timeout,
   a lock): retry once
-- otherwise handle it like a failed critical check: section 5
+- otherwise handle it like a failed critical check: section 6
 
-## 4. Smoke tests
+## 5. Smoke tests
 
-With all steps done, run every check, critical ones first. Record the ones
-that pass together, `set FILE S1 pass S2 pass S3 pass`, and pass on the line
+With all steps done, run every check, critical ones first. The ones the
+monitor knows run through it, `monitor.py run CONFIG S1 S2 S3`, so the user
+sees each result land on the dashboard; the rest you run yourself. Running a
+check and recording it stay two commands. Record the ones that pass together, `set FILE S1 pass S2 pass S3 pass`, and pass on the line
 it prints. A failure gets a call of its own with what you saw:
 `set FILE S4 fail --note "<what you saw>"`.
 
-- A critical check fails: stop there and go to section 5. Do not rerun it
+- A critical check fails: stop there and go to section 6. Do not rerun it
   hoping and do not start fixing. The one exception is a check that could
   not run at all (a tool error, not a verdict): retry it once, and treat a
   second non-verdict as a failure.
@@ -87,7 +106,7 @@ it prints. A failure gets a call of its own with what you saw:
 - Manual checks: do them in a browser if you have one, with the test
   accounts the plan names. Otherwise ask the user to do them and wait.
 
-## 5. When it fails
+## 6. When it fails
 
 The user is watching and the reversal is their call. Your job is to put the
 facts in front of them within the first minute and keep the reversal ready.
@@ -126,11 +145,11 @@ If they decide not to reverse, put the decision and their name in the
 failed item's note. The change then stays open, never completed, until that
 check passes or the change is reversed.
 
-## 6. Reversal
+## 7. Reversal
 
 Run `reversal.steps` in order and `set FILE V1 done` after each. Then run
 the smoke checks again: the restored system has to match the baseline.
-`finish FILE reverted --note "<why>"`.
+`finish FILE reverted --note "<why>"`, and publish the page once with that state.
 
 Report what failed (what was observed, not a theory), that the system is
 back and how you know, what was or was not lost, and what is still in place
@@ -141,9 +160,11 @@ If a reversal step fails, stop and tell the user at once with the exact
 state: what is reverted, what is not, what users see right now. That is an
 incident and it is theirs to run.
 
-## 7. Complete
+## 8. Complete
 
-`finish FILE completed`. It refuses while anything is pending. Report:
+`finish FILE completed`. It refuses while anything is pending. Publish the
+page once now, with the final state, and leave the monitor running until
+the user says the watch is over. Report:
 
 - the change is live and which checks passed, and any non-critical ones that
   failed

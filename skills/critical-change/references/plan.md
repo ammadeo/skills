@@ -102,7 +102,8 @@ way.
   switched off (a flag, config, a manual sync or apply, a disabled job).
   Prepare depends on it.
 - `prep` lists every building block prepare has to produce: each PR, each
-  script, the smoke checks, the switch, whatever the way back needs.
+  script, the smoke checks, the live monitor, the switch, whatever the way
+  back needs.
 - A choice a stakeholder would want a say in is a decision: what we chose
   and why, in their terms. If the choice is theirs to make, set
   `status: open` and put your recommendation in `why`.
@@ -146,6 +147,11 @@ still work (existing sessions, existing data, neighbours on the same
 resource). Every check must be able to fail; one that passes on a broken
 system is worse than none. Prefer checks that can also run before the
 change, so there is a baseline to compare with.
+
+Name the heartbeats too: read-only signals cheap enough to read every few
+seconds for the whole change, such as "is it up", the error rate, and
+whatever the way back depends on. They show trouble between steps, long
+before the smoke tests run. Prepare turns them into the live dashboard.
 
 `check` warns about every critical or high risk without a smoke test. Add
 one, or say in the risk's `mitigation` why none can exist.
