@@ -44,8 +44,9 @@ is down, running in demo mode, or not green.
 
 Show the user, in one message:
 
-- the numbered steps exactly as you will run them: what each does for users
-  and what you will run
+- the numbered steps exactly as they will run: what each does for users,
+  what is run, and who does it
+- who runs each smoke test: a script, you, or them by name
 - the point of no return, if there is one
 - the critical smoke checks, and this sentence: "If one of these fails I
   stop, tell you what broke and whether the planned reversal still fits,
@@ -79,6 +80,9 @@ one line, carry on with the plan and run the remaining checks yourself;
 restart it only if that is quick.
 
 - Only what the step says. No extra fix, no cleanup, no "while I am here".
+- Only the steps that are yours. A step that belongs to a person: tell them
+  it is their turn, wait, then confirm `verify` yourself and record it. A
+  step a script does: start it or wait for it as `details` says.
 - A permission prompt or a denial mid-step is a stop, not something to route
   around.
 - Before a `no_return` step, stop and confirm once more with the user,
@@ -95,11 +99,12 @@ with no plan at all. Then:
 
 ## 5. Smoke tests
 
-With all steps done, run every check, critical ones first. The ones the
-monitor knows run through it, `monitor.py run CONFIG S1 S2 S3`, so the user
-sees each result land on the dashboard; the rest you run yourself. Running a
-check and recording it stay two commands. Record the ones that pass together, `set FILE S1 pass S2 pass S3 pass`, and pass on the line
-it prints. A failure gets a call of its own with what you saw:
+With all steps done, every check runs, critical ones first, each by its
+owner. `monitor.py run CONFIG` runs all the tests a script owns, and the user
+sees each result land on the dashboard. The ones that are yours you run
+yourself. Running a check and recording it stay two commands. Record the
+ones that pass together, `set FILE S1 pass S2 pass S3 pass`, and pass on the
+line it prints. A failure gets a call of its own with what you saw:
 `set FILE S4 fail --note "<what you saw>"`.
 
 - A critical check fails: stop there and go to section 6. Do not rerun it
@@ -108,8 +113,11 @@ it prints. A failure gets a call of its own with what you saw:
   second non-verdict as a failure.
 - A non-critical check fails: record what you saw, carry on, report it as a
   follow-up.
-- Manual checks: do them in a browser if you have one, with the test
-  accounts the plan names. Otherwise ask the user to do them and wait.
+- A test that belongs to a person is theirs: ask and wait. They answer with
+  the Pass and Fail buttons on their row of the dashboard, which
+  `monitor.py status CONFIG` then shows, or in the conversation. Either way
+  you record it with `set`, in their words. Do not do the test for them,
+  even where you could.
 
 ## 6. When it fails
 

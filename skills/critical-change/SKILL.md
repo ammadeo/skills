@@ -90,6 +90,11 @@ How to write it:
   commands go in `details`, `evidence` and `how`, which the page folds.
 - Short sentences. Say the bad thing plainly: "everyone is logged out", not
   "potential session disruption".
+- Every step, reversal step and smoke test says who does it, in `by`:
+  `script`, `agent` or `human` (with `who` for the person's name). It is
+  agreed in the plan, shown on the page and the dashboard, and part of what
+  the user approves. Nothing is left implied, and nobody does an item that
+  belongs to someone else.
 - Inline `code` and `[links](https://...)` work in every text field. No
   secrets, tokens or customer data in the file, ever.
 
@@ -103,6 +108,9 @@ default that is all, and the monitor runs a smoke test only when you ask.
 A change may add heartbeats, checks the monitor loops by itself; they show
 as a grid of charts and status pings beside the smoke tests. They are
 opt-in, because every one is one more thing that can fail on release day.
+
+Every smoke test on it names who runs it: a script, you, or a person. A
+person's tests carry Pass and Fail buttons for their verdict.
 
 The monitor only watches. It never writes to the change document, and your
 `set` commands never run a check; the two layers meet on the screen. It is a
@@ -176,7 +184,7 @@ dashboard opens beside the conversation. The page already follows the artifact
 page contract, both themes included, so it needs no page-design guidance and
 no preview. Workers go through `orchestrate`; plan-phase workers are
 read-only (`Explore`, or `general-purpose` with the read-only rule in the
-brief). Use `gh` for PRs and the session's browser tools for manual smoke
+brief). Use `gh` for PRs and the session's browser tools for smoke
 checks.
 
 In an agent without artifacts, give the user the path of `change.html`.

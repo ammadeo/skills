@@ -4,6 +4,7 @@ import io
 import json
 import shutil
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -18,6 +19,12 @@ class Lifecycle(unittest.TestCase):
         self.addCleanup(shutil.rmtree, self.dir)
         self.file = self.dir / "change.json"
         shutil.copy(EXAMPLE, self.file)
+        # The example has smoke tests a script runs, so it needs a monitor. Stand in for a running, green one.
+        config = self.dir / "monitor.json"
+        config.write_text(json.dumps({"checks": []}))
+        self.monitor_state = change.monitor_state_file(config)
+        self.monitor_state.write_text(json.dumps({"updated": time.time() + 3600, "state": "ok", "text": "Monitor up"}))
+        self.addCleanup(lambda: self.monitor_state.exists() and self.monitor_state.unlink())
 
     def run_cmd(self, *args):
         """Returns (exit code, output)."""
@@ -152,7 +159,7 @@ class Lifecycle(unittest.TestCase):
         self.assertIn("has not confirmed the reversal", self.refused("set", "V1", "done"))
         self.assertEqual(self.ok("approve", "revert", "--by", "Ada").strip(),
                          "Reversal confirmed by Ada. Reversing after critical smoke test S1 failed. 0 of 2 reversal steps done. "
-                         "Next: V1 Move reads back to the old box.")
+                         "Next: V1 Move reads back to the old box, done by the agent.")
         self.ok("set", "V1", "done")
         self.edit(lambda d: d["reversal"]["steps"][1].update(action="Something else"))
         self.assertIn("changed after the user confirmed", self.refused("set", "V2", "done"))
@@ -160,6 +167,38 @@ class Lifecycle(unittest.TestCase):
         self.ok("set", "V2", "done")
         self.assertEqual(self.ok("finish", "reverted", "--note", "S1 failed").strip(), "Reverted. The change is not in place.")
         self.assertIn(">Reverted<", self.file.with_suffix(".html").read_text())
+
+    def test_every_step_and_smoke_test_names_who_does_it(self):
+        def holes(d):
+            d["steps"][0].pop("by")
+            d["reversal"]["steps"][0]["by"] = "someone"
+            d["smoke"][4].pop("by")
+        self.edit(holes)
+        out = self.refused("check")
+        for id_ in ("E1", "V1", "S5"):
+            self.assertIn(f"{id_}: by must say who does it: script, agent or human", out)
+
+    def test_who_does_what_is_on_the_page_and_in_the_status_line(self):
+        self.ok("render")
+        page = self.file.with_suffix(".html").read_text()
+        self.assertIn("Who does what", page)
+        self.assertIn("A script, with nobody deciding in the moment. Smoke tests: S1, S2, S4.", page)
+        self.assertIn("The agent. Steps: E1, E2, E3. Smoke tests: S3. Way back: V1, V2.", page)
+        self.assertIn("A person (Ada). Smoke tests: S5.", page)
+        self.to_prepared()
+        self.assertIn("Next: E1 Turn on writing to both stores, done by the agent.", self.ok("approve", "execute", "--by", "Ada"))
+
+    def test_changing_who_runs_a_check_voids_the_final_approval(self):
+        self.to_prepared()
+        self.ok("approve", "execute", "--by", "Ada")
+        self.edit(lambda d: d["smoke"][2].update(by="human", who="Ada"))
+        self.assertIn("changed after the final approval", self.refused("set", "E1", "done"))
+
+    def test_script_owned_checks_need_a_monitor(self):
+        self.to_prepared()
+        self.ok("approve", "execute", "--by", "Ada")
+        (self.dir / "monitor.json").unlink()
+        self.assertIn("S1, S2, S4 are to be run by script, but there is no monitor.json", self.refused("set", "E1", "done"))
 
     def test_failed_step_calls_for_the_reversal(self):
         self.to_prepared()
@@ -178,7 +217,7 @@ class Lifecycle(unittest.TestCase):
         self.assertEqual(self.ok("check", "--brief").strip(), "Ready to execute, waiting for the final approval.")
         self.ok("approve", "execute", "--by", "Ada")
         self.assertEqual(self.ok("set", "E1", "done").strip(),
-                         "E1 done. Execution 1 of 3 done. Next: E2 Copy the sessions created before E1.")
+                         "E1 done. Execution 1 of 3 done. Next: E2 Copy the sessions created before E1, done by the agent.")
         self.ok("set", "E2", "done", "E3", "done")
         self.assertEqual(self.ok("set", "S1", "pass", "S2", "pass", "S3", "pass").strip(),
                          "S1 pass, S2 pass, S3 pass. All 3 steps done. Smoke tests 3 of 5 passed. Left: S4, S5.")

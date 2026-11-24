@@ -18,6 +18,7 @@ what you cannot find:
 - what must be true afterwards, and why now
 - who is affected if it goes wrong and how they would notice (`impact`)
 - constraints: the window, tolerated downtime, freezes, who has to be around
+- who carries out the change: you, or a person with you watching
 
 Restate the change in two sentences and get a yes before the expensive part.
 
@@ -95,6 +96,9 @@ way.
   observe that proves it worked, checked before the next step) and `revert`
   (how to undo this step alone). A step that cannot be undone gets
   `no_return: true`; put it as late as possible.
+- `by` on every step and every reversal step: `agent` or `human` (with
+  `who`), as the user decided in section 1, or `script` when automation does
+  it with nobody deciding in the moment.
 - Prefer shapes where old and new both keep working: add before remove,
   write to both before reading from the new one, switch with a flag or
   config instead of a deploy, a small share of traffic before all of it.
@@ -140,7 +144,11 @@ That observation is a check.
   the user at once. False when the
   failure can wait for a follow-up. Decide it here, calmly; nobody decides
   this well mid-change.
-- `manual: true` for the few things only a person in a browser can confirm.
+- `by`: who runs it. Aim for `script`: a command decides, the monitor runs
+  it, and nobody has to judge under pressure. Use `agent` only when the
+  verdict needs a reading or a comparison no script can make, and `human`
+  (with `who`) only for what a person has to see for themselves. `check`
+  warns about every test that is not a script's.
 
 Check the old promises, not only the new path: what worked before and must
 still work (existing sessions, existing data, neighbours on the same
@@ -174,6 +182,8 @@ the page. Then tell the user, briefly:
 - the change in two sentences
 - risks without mitigation, first and plainly, with what each needs
 - decisions waiting for them, with your recommendation
+- who does what: which steps and tests a script runs, which are yours and
+  which are theirs
 - the request: approve the plan, or say what to change
 
 On an explicit yes, record their decisions and run

@@ -26,6 +26,7 @@ from pathlib import Path
 STAGES = ["Plan", "Preparation", "Execution", "Smoke test", "Completed"]
 SEVERITIES = ["critical", "high", "medium", "low"]
 LISTS = {"D": "decisions", "U": "unknowns", "R": "risks", "E": "steps", "P": "prep", "S": "smoke"}
+OWNERS = ("script", "agent", "human")      # who does a step or runs a check; agreed in the plan, never implied
 STATUSES = {"P": ("todo", "done"), "E": ("pending", "done", "failed"),
             "V": ("pending", "done", "failed"), "S": ("pending", "pass", "fail")}
 
@@ -41,6 +42,12 @@ def rev(doc):
 
 def rev_steps(doc):
     return [x for x in (rev(doc).get("steps") or []) if isinstance(x, dict)]
+
+
+def owner(x):
+    """Who is accountable for a step or a check, in words for the reader: script, agent, or the person's name."""
+    by = x.get("by")
+    return (x.get("who") or "a person") if by == "human" else f"the {by}" if by in OWNERS else "nobody yet"
 
 
 def has(x, key):
@@ -104,6 +111,9 @@ def errors(doc):
 
     if not rows(doc, "steps"):
         e.append("steps: list the execution steps in order")
+    for x in rows(doc, "steps") + rev_steps(doc) + rows(doc, "smoke"):
+        if x.get("by") not in OWNERS:
+            e.append(f"{x.get('id', '?')}: by must say who does it: script, agent or human")
     for s in rows(doc, "steps"):
         need(s, ("action", "verify"))
         if not has(s, "revert") and s.get("no_return") is not True:
@@ -154,8 +164,10 @@ def warnings(doc):
     if rev(doc).get("possible") and not has(rev(doc), "window"):
         w.append("reversal.window is empty: say until when going back stays possible")
     for s in rows(doc, "smoke"):
-        if not s.get("manual") and s.get("baseline") not in ("pass", "fail"):
+        if s.get("by") != "human" and s.get("baseline") not in ("pass", "fail"):
             w.append(f"{s.get('id')} has never run against the current system (no baseline)")
+        if s.get("by") in ("agent", "human"):
+            w.append(f"{s.get('id')} is run by {owner(s)}: a script is preferable, keep this only if a script cannot decide it")
     return w
 
 
@@ -185,17 +197,17 @@ def plan_hash(doc):
     pick = lambda x, keys: {k: x.get(k) for k in keys}
     core = {
         "scope": doc.get("scope"),
-        "steps": [pick(s, ("id", "action", "details", "verify", "revert", "no_return")) for s in rows(doc, "steps")],
+        "steps": [pick(s, ("id", "action", "details", "verify", "revert", "no_return", "by", "who")) for s in rows(doc, "steps")],
         "reversal": [pick(rev(doc), ("possible", "summary", "instead")),
-                     [pick(v, ("id", "action", "details")) for v in rev_steps(doc)]],
-        "smoke": [pick(s, ("id", "check", "mitigates", "how", "expect", "critical")) for s in rows(doc, "smoke")],
+                     [pick(v, ("id", "action", "details", "by", "who")) for v in rev_steps(doc)]],
+        "smoke": [pick(s, ("id", "check", "mitigates", "how", "expect", "critical", "by", "who")) for s in rows(doc, "smoke")],
     }
     return hashlib.sha256(json.dumps(core, sort_keys=True).encode()).hexdigest()[:16]
 
 
 def rev_hash(doc):
     """What the confirmation of a reversal covers: the reversal steps as they stood."""
-    core = [[v.get("id"), v.get("action"), v.get("details")] for v in rev_steps(doc)]
+    core = [[v.get("id"), v.get("action"), v.get("details"), v.get("by"), v.get("who")] for v in rev_steps(doc)]
     return hashlib.sha256(json.dumps(core, sort_keys=True).encode()).hexdigest()[:16]
 
 
@@ -212,11 +224,13 @@ def monitor_state_file(config):
     return Path(tempfile.gettempdir()) / f"critical-change-monitor-{key}.json"
 
 
-def monitor_gap(change_file):
-    """Why the first step may not be recorded yet, or None. Applies only when the change has a monitor config."""
+def monitor_gap(change_file, doc):
+    """Why the first step may not be recorded yet, or None. Applies when the change has a monitor config or needs one."""
     config = Path(change_file).resolve().with_name("monitor.json")
     if not config.exists():
-        return None
+        scripted = [str(s.get("id")) for s in rows(doc, "smoke") if s.get("by") == "script"]
+        return (f"{', '.join(scripted)} are to be run by script, but there is no monitor.json next to the change to run them"
+                if scripted else None)
     try:
         state = json.loads(monitor_state_file(config).read_text())
     except (OSError, ValueError):
@@ -337,7 +351,7 @@ def brief(doc):
     done, current, failed, reverted = progress(doc)
     steps, smoke, prep, back = rows(doc, "steps"), rows(doc, "smoke"), rows(doc, "prep"), rev_steps(doc)
     ids = lambda xs: ", ".join(str(x.get("id")) for x in xs)
-    nxt = lambda x: f" Next: {x.get('id')} {x.get('action', '')}."
+    nxt = lambda x: f" Next: {x.get('id')} {x.get('action', '')}, done by {owner(x)}."
     if reverted:
         return "Reverted. The change is not in place."
     if failed is not None:
@@ -515,6 +529,19 @@ def stepper(doc):
             + "".join(out) + "</svg></div>")
 
 
+def who_does_what(doc):
+    """One list per owner, so nobody has to read every row to learn what is theirs."""
+    parts = (("Steps", rows(doc, "steps")), ("Smoke tests", rows(doc, "smoke")), ("Way back", rev_steps(doc)))
+    out = []
+    for by, name in (("script", "A script, with nobody deciding in the moment"), ("agent", "The agent"), ("human", "A person")):
+        mine = [f"{label}: {', '.join(str(x.get('id')) for x in xs if x.get('by') == by)}" for label, xs in parts
+                if any(x.get("by") == by for x in xs)]
+        people = sorted({x["who"] for _, xs in parts for x in xs if x.get("by") == by and has(x, "who")})
+        if mine:
+            out.append(f"{name}{' (' + ', '.join(people) + ')' if people else ''}. " + ". ".join(mine) + ".")
+    return block(out) if out else ""
+
+
 def page(doc):
     head, lines = next_up(doc)
     now = f'<p class="now"><b>{html.escape(head)}</b></p>' + (block(lines) if lines else "")
@@ -543,7 +570,7 @@ def page(doc):
 
     step_pill = {"done": pill("done", "ok"), "failed": pill("failed", "crit")}
     steps = [row(s.get("id"),
-                 f"<b>{fmt(s.get('action'))}</b>" + line("We know it worked when", s.get("verify")) +
+                 f"<b>{fmt(s.get('action'))}</b>" + line("Done by", owner(s)) + line("We know it worked when", s.get("verify")) +
                  (line("To undo", s.get("revert")) if has(s, "revert") else '<p class="k">No way back after this step.</p>') +
                  block(s.get("note")) + fold(s.get("details")),
                  step_pill.get(s.get("status"), pill("no return", "warn") if s.get("no_return") else pill("pending")))
@@ -551,7 +578,7 @@ def page(doc):
 
     r = rev(doc)
     reversal = block(r.get("summary")) + line("Possible until", r.get("window")) + line("Instead of a way back", r.get("instead"))
-    reversal += listing([row(v.get("id"), f"<b>{fmt(v.get('action'))}</b>" + block(v.get("note")) + fold(v.get("details")),
+    reversal += listing([row(v.get("id"), f"<b>{fmt(v.get('action'))}</b>" + line("Done by", owner(v)) + block(v.get("note")) + fold(v.get("details")),
                              step_pill.get(v.get("status"), "")) for v in rev_steps(doc)])
     if r.get("possible") is False:
         reversal = f'<p>{pill("cannot be reversed", "crit")}</p>' + reversal
@@ -562,8 +589,8 @@ def page(doc):
         tag = pill("passed", "ok") if st == "pass" else pill("failed", "crit" if s.get("critical") else "warn") if st == "fail" \
             else pill("critical", "crit") if s.get("critical") else pill("non-critical")
         kind = "Critical: a failure stops the change and the reversal is put to you at once." if s.get("critical") else "Non-critical: a failure is recorded and followed up."
-        body = (f"<b>{fmt(s.get('check'))}</b>" + line("Covers", ", ".join(s.get("mitigates") or [])) + block(s.get("why")) +
-                f'<p class="k">{kind}{" Checked by hand." if s.get("manual") else ""}</p>' + block(s.get("note")) +
+        body = (f"<b>{fmt(s.get('check'))}</b>" + line("Run by", owner(s)) + line("Covers", ", ".join(s.get("mitigates") or [])) + block(s.get("why")) +
+                f'<p class="k">{kind}</p>' + block(s.get("note")) +
                 fold([f"Run: {s.get('how', '')}", f"Expect: {s.get('expect', '')}",
                       f"On the system before the change: {s.get('baseline') or 'not run'}"], "How it runs"))
         smoke.append(row(s.get("id"), body, tag))
@@ -594,6 +621,7 @@ def page(doc):
         f"<header><h1>{html.escape(str(doc.get('title')))}</h1>{stepper(doc)}{now}</header>",
         section("Risks without mitigation", listing(risks_loud), "loud"),
         section("What changes", block(doc.get("summary")) + line("If it goes wrong", doc.get("impact")) + line("When", doc.get("window"))),
+        section("Who does what", who_does_what(doc)),
         section("Key decisions", listing(decisions)),
         section("Scope", scope_html),
         section("Preparation", listing(prep)),
@@ -701,7 +729,7 @@ def cmd_set(a):
                 if b:
                     fail(b, f"{id_} not changed. Still missing:")
             if kind == "E" and status == "done" and not any(s.get("status") == "done" for s in rows(doc, "steps")):
-                gap = monitor_gap(a.file)
+                gap = monitor_gap(a.file, doc)
                 if gap:
                     sys.exit(f"error: {gap} ({id_} not changed)")
             if kind == "E" and status == "done":

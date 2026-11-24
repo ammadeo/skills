@@ -76,7 +76,8 @@
       "details": "Set `SESSION_DUAL_WRITE=1` through the config service. No deploy.",
       "verify": "The key count in the new store grows and the API error rate stays flat for 10 minutes.",
       "revert": "Turn the flag off.",
-      "status": "pending"
+      "status": "pending",
+      "by": "agent"
     },
     {
       "id": "E2",
@@ -84,7 +85,8 @@
       "details": "`scripts/copy_sessions.py --execute`. Skips keys that already exist and keeps each key's remaining lifetime.",
       "verify": "The script reports zero missing keys on its second pass.",
       "revert": "Nothing to undo: the copy only adds keys to the new store.",
-      "status": "pending"
+      "status": "pending",
+      "by": "agent"
     },
     {
       "id": "E3",
@@ -92,7 +94,8 @@
       "details": "Set `SESSION_READ_FROM=managed` for the API and the export job.",
       "verify": "Reads show up on the managed cluster's dashboard and drop to zero on the old box.",
       "revert": "Set `SESSION_READ_FROM=legacy`. The old box still receives every write.",
-      "status": "pending"
+      "status": "pending",
+      "by": "agent"
     }
   ],
   "reversal": {
@@ -100,67 +103,111 @@
     "summary": "Point reads back at the old box. It keeps receiving every write until dual write is switched off, so no session is lost on the way back.",
     "window": "Until dual write is switched off. That is a separate change, at least a week later.",
     "steps": [
-      { "id": "V1", "action": "Move reads back to the old box", "details": "`SESSION_READ_FROM=legacy`", "status": "pending" },
-      { "id": "V2", "action": "Stop writing to the new store", "details": "`SESSION_DUAL_WRITE=0`", "status": "pending" }
+      {
+        "id": "V1",
+        "action": "Move reads back to the old box",
+        "details": "`SESSION_READ_FROM=legacy`",
+        "status": "pending",
+        "by": "agent"
+      },
+      {
+        "id": "V2",
+        "action": "Stop writing to the new store",
+        "details": "`SESSION_DUAL_WRITE=0`",
+        "status": "pending",
+        "by": "agent"
+      }
     ]
   },
   "prep": [
-    { "id": "P1", "item": "API change: dual write and the read switch, both off by default", "status": "todo" },
-    { "id": "P2", "item": "Copy script with a dry-run mode and unit tests", "status": "todo" },
-    { "id": "P3", "item": "Export job reads from the store the switch names", "status": "todo" },
-    { "id": "P4", "item": "Smoke test script covering S1 to S4", "status": "todo" }
+    {
+      "id": "P1",
+      "item": "API change: dual write and the read switch, both off by default",
+      "status": "todo"
+    },
+    {
+      "id": "P2",
+      "item": "Copy script with a dry-run mode and unit tests",
+      "status": "todo"
+    },
+    {
+      "id": "P3",
+      "item": "Export job reads from the store the switch names",
+      "status": "todo"
+    },
+    {
+      "id": "P4",
+      "item": "Smoke test script covering S1 to S4",
+      "status": "todo"
+    }
   ],
   "smoke": [
     {
       "id": "S1",
       "check": "Someone who signed in before the change is still signed in",
-      "mitigates": ["R1"],
+      "mitigates": [
+        "R1"
+      ],
       "why": "This is the failure users would feel. A fresh login would pass even with every old session lost, so the check uses a session created before E1.",
       "how": "`scripts/smoke.sh existing-session` with the cookie saved before E1",
       "expect": "HTTP 200 from `/me`",
       "critical": true,
-      "status": "pending"
+      "status": "pending",
+      "by": "script"
     },
     {
       "id": "S2",
       "check": "A new login works and survives the next request",
-      "mitigates": ["R1", "U2"],
+      "mitigates": [
+        "R1",
+        "U2"
+      ],
       "why": "Proves the new store takes writes and gives them back. It cannot rule out U2: eviction only shows under memory pressure.",
       "how": "`scripts/smoke.sh fresh-login`",
       "expect": "Login returns a cookie; `/me` with it returns 200",
       "critical": true,
-      "status": "pending"
+      "status": "pending",
+      "by": "script"
     },
     {
       "id": "S3",
       "check": "The export job sees today's sessions",
-      "mitigates": ["R2"],
-      "why": "The job runs at night; without this check the first sign of R2 is a wrong finance report.",
+      "mitigates": [
+        "R2"
+      ],
+      "why": "The job runs at night; without this check the first sign of R2 is a wrong finance report. The agent runs it because the count has to be compared with the API's metric by reading both.",
       "how": "`python jobs/export/sessions.py --dry-run`",
       "expect": "A count within 5% of the API's active-session metric",
       "critical": false,
-      "status": "pending"
+      "status": "pending",
+      "by": "agent"
     },
     {
       "id": "S4",
       "check": "Pages are as fast as before",
-      "mitigates": ["R3"],
+      "mitigates": [
+        "R3"
+      ],
       "why": "Session lookup is on every request, so a slower store slows everything.",
       "how": "`scripts/smoke.sh latency`",
       "expect": "p95 of `/me` within 20% of the value measured before E1",
       "critical": false,
-      "status": "pending"
+      "status": "pending",
+      "by": "script"
     },
     {
       "id": "S5",
       "check": "Sign in, reload, sign out in a real browser",
-      "mitigates": ["R1"],
+      "mitigates": [
+        "R1"
+      ],
       "why": "The scripted checks call the API; this confirms the cookie path through the web app.",
-      "how": "By hand on the production site with the test account",
+      "how": "On the production site with the test account",
       "expect": "Signed in after reload, signed out after sign-out",
       "critical": false,
-      "manual": true,
-      "status": "pending"
+      "status": "pending",
+      "by": "human",
+      "who": "Ada"
     }
   ],
   "improvements": [

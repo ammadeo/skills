@@ -26,14 +26,14 @@
       ]
     },
     {
-      "id": "S3",
-      "label": "The export job sees today's sessions",
+      "id": "S4",
+      "label": "Pages are as fast as before",
       "kind": "ping",
-      "cmd": "python jobs/export/sessions.py --dry-run",
+      "cmd": "scripts/smoke.sh latency",
       "on_demand": true,
       "critical": false,
       "covers": [
-        "R2"
+        "R3"
       ]
     }
   ]

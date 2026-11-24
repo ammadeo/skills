@@ -118,6 +118,11 @@ h2 span.bad{color:var(--crit);font-weight:600}
 #smoke li.ok .res{color:var(--ok)}
 #smoke li.fail .res,#smoke li.fail .what{color:var(--crit)}
 #smoke li.fail .what{font-weight:600}
+#smoke .res button{display:inline-flex;align-items:center;gap:.25rem;font:600 var(--small) var(--sans);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:.375rem .75rem;min-height:2rem;cursor:pointer}
+#smoke .res button:hover{border-color:var(--muted)}
+#smoke .res button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#smoke .res button[aria-pressed="true"][data-result="pass"]{color:var(--bg);background:var(--ok);border-color:var(--ok)}
+#smoke .res button[aria-pressed="true"][data-result="fail"]{color:var(--bg);background:var(--crit);border-color:var(--crit)}
 #smoke .sub{grid-column:1/-1;font-size:var(--meta);color:var(--muted)}
 #smoke .sub:empty{display:none}
 #log{overflow-y:auto;scrollbar-width:thin}
@@ -126,6 +131,7 @@ h2 span.bad{color:var(--crit);font-weight:600}
 .src{font:600 var(--meta) var(--sans);letter-spacing:.05em;text-transform:uppercase;padding:0 .375rem;border-radius:4px;white-space:nowrap;justify-self:start}
 .src.monitor{color:var(--accent);border:1px solid var(--accent)}
 .src.agent{color:var(--bg);background:var(--ink);border:1px solid var(--ink)}
+.src.human{color:var(--ink);border:1px dashed var(--ink)}
 #log p{grid-column:1/-1;overflow-wrap:anywhere}
 #log li.bad p{color:var(--crit);font-weight:600}
 #log p svg{display:inline;vertical-align:-2px;margin-right:.375rem}
@@ -268,7 +274,7 @@ function checks(list, now) {
   }
 }
 
-// Smoke tests: one row each. The monitor's result when it ran the test, otherwise what the agent recorded.
+// Smoke tests: one row each, always naming who runs it. The monitor's result when a script ran the test, otherwise what was recorded.
 function smoke(list, all, now) {
   const mon = Object.fromEntries(all.map(c => [c.id, c]));
   let passed = 0, critFail = false;
@@ -279,15 +285,23 @@ function smoke(list, all, now) {
       r.innerHTML = `<span class="what"><b>${esc(s.id)}</b>${esc(s.check)}</span><span class="res"></span><span class="sub"></span>`;
       $("smoke").append(r);
     }
-    const m = mon[s.id], seen = m && m.status !== "waiting" ? m.status : null, running = m && m.running;
-    const result = seen || (s.recorded === "pass" ? "ok" : s.recorded === "fail" ? "fail" : "waiting");
+    const m = mon[s.id], running = m && m.running;
+    const said = {pass: "ok", fail: "fail"};
+    const seen = m && m.status !== "waiting" ? m.status : said[s.marked] || null;      // a script's result, or a person's click
+    const result = said[s.recorded] || seen || "waiting";                             // once recorded, the document speaks
     if (result === "ok") passed++;
     if (result === "fail" && s.critical) critFail = true;
     r.className = result + (running ? " running" : m && m.every ? " live" : "");
-    r.querySelector(".res").innerHTML = running ? '<span class="beat"></span>Running'
+    const theirs = s.by === "human" && !s.recorded;                                    // a person answers with a button
+    const html = theirs ? ["pass", "fail"].map(v =>
+        `<button type="button" data-id="${esc(s.id)}" data-result="${v}" aria-pressed="${s.marked === v}">${s.marked === v ? (v === "pass" ? CHECK : CROSS) : ""}${v === "pass" ? "Pass" : "Fail"}</button>`).join("")
+      : running ? '<span class="beat"></span>Running'
       : (m && m.every ? '<span class="beat"></span>' : result === "ok" ? CHECK : result === "fail" ? CROSS : "")
-        + (result === "ok" ? "Passed" : result === "fail" ? "Failed" : s.manual ? "By hand" : "Not run yet");
-    r.querySelector(".sub").textContent = [s.critical ? "critical" : "", seen && !s.recorded ? "not recorded yet" : ""].filter(Boolean).join(" · ");
+        + (result === "ok" ? "Passed" : result === "fail" ? "Failed" : "Waiting for " + esc(s.owner));
+    if (r.dataset.html !== html) { r.dataset.html = html; r.querySelector(".res").innerHTML = html; }   // never rebuilt under a cursor
+    // who runs it is always said, in words: a script, the agent, or a named person
+    r.querySelector(".sub").textContent = ["Run by " + s.owner, s.critical ? "critical" : "",
+      theirs && !s.marked ? "waiting for " + s.owner : "", seen && !s.recorded ? "not recorded yet" : ""].filter(Boolean).join(" · ");
   }
   $("smokeSum").textContent = list.length ? (critFail ? "Critical failed · " : "") + `${passed} of ${list.length} passed` : "";
   $("smokeSum").className = critFail ? "bad" : "";
@@ -298,7 +312,7 @@ function log(entries) {
   if (key === logKey) return;
   logKey = key;
   $("log").innerHTML = entries.length ? entries.slice().reverse().map(e =>
-    `<li class="${e.level}"><time>${clock(e.at)}</time><span class="src ${e.source}">${e.source === "agent" ? "Agent" : "Monitor"}</span><span></span><p>${e.level === "bad" ? CROSS : ""}${esc(e.text)}</p></li>`).join("")
+    `<li class="${e.level}"><time>${clock(e.at)}</time><span class="src ${e.source}">${{agent: "Agent", human: "Person"}[e.source] || "Monitor"}</span><span></span><p>${e.level === "bad" ? CROSS : ""}${esc(e.text)}</p></li>`).join("")
     : '<li class="empty">Nothing yet.</li>';
 }
 
@@ -322,6 +336,16 @@ async function tick() {
   signal();
 }
 tick(); setInterval(tick, 1000);
+// A person's verdict on a test that is theirs. It goes to the monitor; the agent records it in the change document.
+$("smoke").addEventListener("click", async e => {
+  const b = e.target.closest("button[data-result]");
+  if (!b) return;
+  b.disabled = true;
+  try {
+    await fetch("/verdict", {method: "POST", headers: {"Content-Type": "application/json", "X-Change-Dashboard": "1"},
+                             body: JSON.stringify({id: b.dataset.id, result: b.dataset.result})});
+  } finally { b.disabled = false; tick(); }
+});
 addEventListener("resize", () => Object.values(tiles).forEach(t => t.c.kind === "chart" && draw(t.c.id)));
 </script>
 </body>

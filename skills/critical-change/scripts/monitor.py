@@ -5,10 +5,11 @@
   monitor.py serve  CONFIG [--port N] [--demo [ok|fail]]
                                                  run the checks and serve the dashboard
   monitor.py status CONFIG                       one line; exit 1 if the monitor is down or a critical check is red
-  monitor.py run    CONFIG ID [ID ...]           have the running monitor run on-demand checks now
+  monitor.py run    CONFIG [ID ...]              have the running monitor run on-demand checks now; no ID means all of them
 
 CONFIG is monitor.json, next to change.json. The monitor only watches: it runs
-the checks, shows them, and never writes to the change document. The page is
+the checks, shows them, takes a person's Pass or Fail on the tests that are
+theirs, and never writes to the change document. The page is
 assets/dashboard/index.html, served as it is. --demo runs no command at all
 and draws invented readings, to look at the page.
 """
@@ -75,8 +76,17 @@ def read_config(path):
                 e.append(f"{id_}: a chart needs a unit")
             if not any(isinstance(c.get(k), (int, float)) for k in ("min", "max")):
                 e.append(f"{id_}: a chart needs min or max, the limit that turns it red")
-    if not (Path(path).resolve().parent / cfg.get("change", "change.json")).exists():
-        e.append(f"change: {cfg.get('change', 'change.json')} not found next to the config")
+    change_file = Path(path).resolve().parent / cfg.get("change", "change.json")
+    try:
+        smoke = {s.get("id"): s for s in change.rows(json.loads(change_file.read_text(encoding="utf-8")), "smoke")}
+    except (OSError, ValueError):
+        e.append(f"change: {cfg.get('change', 'change.json')} not found or unreadable next to the config")
+        return cfg, e
+    for id_, s in smoke.items():
+        if s.get("by") == "script" and id_ not in seen:
+            e.append(f"{id_}: the plan says a script runs this smoke test, but it is not in the monitor config")
+        if s.get("by") != "script" and id_ in seen:
+            e.append(f"{id_}: the monitor would run this smoke test, but the plan says {change.owner(s)} runs it")
     return cfg, e
 
 
@@ -106,6 +116,7 @@ class Monitor:
         self.started = time.time()
         self.lock = threading.Lock()
         self.events = deque(maxlen=300)
+        self.human = {}                    # id -> a person's verdict given on the dashboard, until the agent records it
         self.state = {c["id"]: {"status": "waiting", "running": False, "value": None, "text": "", "at": None,
                                 "last_start": 0, "history": deque(maxlen=60)} for c in cfg["checks"]}
         self.url = ""
@@ -166,7 +177,7 @@ class Monitor:
     def verdict(self):
         live = [c for c in self.cfg["checks"] if c.get("every")]
         red = [c for c in self.cfg["checks"] if self.state[c["id"]]["status"] == "fail"]
-        crit = [c["id"] for c in red if c.get("critical")]
+        crit = [c["id"] for c in red if c.get("critical")] + [i for i, v in self.human.items() if v["result"] == "fail" and v["critical"]]
         if crit:
             return "bad", f"STOP: critical check {', '.join(crit)} is red"
         if red:
@@ -195,17 +206,43 @@ class Monitor:
                 idle = [c["id"] for c in self.cfg["checks"] if c.get("on_demand") and self.state[c["id"]]["status"] == "waiting"]
                 tmp = change.monitor_state_file(self.path).with_suffix(".tmp")
                 tmp.write_text(json.dumps({"updated": now, "url": self.url, "pid": os.getpid(), "state": state, "text": text,
-                                           "not_run": idle, "demo": bool(self.demo)}))
+                                           "not_run": idle, "demo": bool(self.demo),
+                                           "marked": {i: [v["result"], v["by"]] for i, v in self.human.items()}}))
                 tmp.replace(change.monitor_state_file(self.path))
             time.sleep(0.25)
 
-    def change_view(self):
+    def mark(self, id_, result):
+        """A person's verdict on a smoke test that is theirs. Returns an error text, or None."""
+        doc = self.doc()
+        test = next((s for s in change.rows(doc or {}, "smoke") if s.get("id") == id_), None)
+        if result not in ("pass", "fail"):
+            return "result must be pass or fail"
+        if not test or test.get("by") != "human":
+            return f"{id_} is not a smoke test a person runs"
+        if test.get("status") in ("pass", "fail"):
+            return f"{id_} is already recorded as {test['status']}"
+        who = change.owner(test)
+        with self.lock:
+            self.human[id_] = {"result": result, "critical": bool(test.get("critical")), "by": who, "at": time.time()}
+            self.event("ok" if result == "pass" else "bad",
+                       f"{who} marked {id_} {'passed' if result == 'pass' else 'FAILED'} on the dashboard", source="human")
+        return None
+
+    def doc(self):
         try:
             doc = json.loads(self.change_file.read_text(encoding="utf-8"))
-        except (OSError, ValueError) as err:
-            return {"title": "Change document unreadable", "line": str(err), "stages": [], "smoke": []}, []
-        if self.demo:
-            doc = demo_change(doc, self.started)
+        except (OSError, ValueError):
+            return None
+        return demo_change(doc, self.started) if self.demo else doc
+
+    def change_view(self):
+        doc = self.doc()
+        if doc is None:
+            return {"title": "Change document unreadable", "line": str(self.change_file), "stages": [], "smoke": []}, []
+        with self.lock:                    # once the agent has recorded a person's verdict, the document speaks for it
+            for s in change.rows(doc, "smoke"):
+                if s.get("status") in ("pass", "fail"):
+                    self.human.pop(s.get("id"), None)
         log = []
         for x in change.rows(doc, "log"):
             try:
@@ -216,7 +253,8 @@ class Monitor:
                         "text": str(x.get("event"))})
         return {"title": doc.get("title", ""), "line": change.brief(doc),
                 "stages": [{"name": n, "state": s} for n, s in change.stage_states(doc)],
-                "smoke": [{"id": s.get("id"), "check": s.get("check", ""), "critical": bool(s.get("critical")), "manual": bool(s.get("manual")),
+                "smoke": [{"id": s.get("id"), "check": s.get("check", ""), "critical": bool(s.get("critical")), "owner": change.owner(s), "by": s.get("by"),
+                           "marked": (self.human.get(s.get("id")) or {}).get("result"),
                            "recorded": s.get("status") if s.get("status") in ("pass", "fail") else None} for s in change.rows(doc, "smoke")]}, log
 
     def snapshot(self):
@@ -275,9 +313,20 @@ def handler(mon):
                 self.send(404, {"error": "not found"})
 
         def do_POST(self):
-            if not self.path.startswith("/run"):
+            # A custom header cannot be sent across origins without a preflight, which this server never grants:
+            # a page on another site cannot start a check or give a verdict.
+            if self.headers.get("X-Change-Dashboard") != "1":
+                return self.send(403, {"error": "this request must come from the dashboard or the monitor CLI"})
+            try:
+                body = json.loads(self.rfile.read(int(self.headers.get("Content-Length") or 0)) or b"null")
+            except ValueError:
+                return self.send(400, {"error": "the body must be JSON"})
+            if self.path == "/verdict":
+                err = mon.mark(str((body or {}).get("id")), (body or {}).get("result")) if isinstance(body, dict) else "the body must be an object"
+                return self.send(400, {"error": err}) if err else self.send(200, {"ok": True})
+            if self.path != "/run" or not isinstance(body, list):
                 return self.send(404, {"error": "not found"})
-            ids = json.loads(self.rfile.read(int(self.headers.get("Content-Length") or 0)) or b"[]")
+            ids = body
             by_id = {c["id"]: c for c in mon.cfg["checks"]}
             unknown = [i for i in ids if i not in by_id]
             if unknown:
@@ -342,8 +391,10 @@ def cmd_status(a):
     if not st:
         print("The monitor is not running: no signal. Start it with: monitor.py serve CONFIG")
         sys.exit(1)
-    idle = f" On demand, not run yet: {', '.join(st['not_run'])}." if st.get("not_run") else ""
-    print(f"{st['text']}.{idle} Dashboard: {st['url']}" + (" (demo)" if st.get("demo") else ""))
+    idle = f" Waiting for the script, on your word: {', '.join(st['not_run'])}." if st.get("not_run") else ""
+    marked = "".join(f" {who} marked {i} {'passed' if r == 'pass' else 'FAILED'} on the dashboard: record it."
+                     for i, (r, who) in (st.get("marked") or {}).items())
+    print(f"{st['text']}.{idle}{marked} Dashboard: {st['url']}" + (" (demo)" if st.get("demo") else ""))
     sys.exit(1 if st["state"] == "bad" else 0)
 
 
@@ -352,7 +403,9 @@ def cmd_run(a):
     if not st:
         print("The monitor is not running, so nothing was run. Start it with: monitor.py serve CONFIG")
         sys.exit(1)
-    req = urllib.request.Request(st["url"] + "/run", data=json.dumps(a.ids).encode(), method="POST")
+    ids = a.ids or [c["id"] for c in need_config(a.config)["checks"] if c.get("on_demand")]
+    req = urllib.request.Request(st["url"] + "/run", data=json.dumps(ids).encode(), method="POST",
+                                 headers={"X-Change-Dashboard": "1"})
     try:
         with urllib.request.urlopen(req, timeout=300) as r:
             results = json.loads(r.read())
@@ -374,7 +427,7 @@ def main(argv=None):
     c = sub.add_parser("serve"); c.add_argument("config"); c.add_argument("--port", type=int)
     c.add_argument("--demo", nargs="?", const="ok", choices=("ok", "fail")); c.set_defaults(fn=cmd_serve)
     c = sub.add_parser("status"); c.add_argument("config"); c.set_defaults(fn=cmd_status)
-    c = sub.add_parser("run"); c.add_argument("config"); c.add_argument("ids", nargs="+"); c.set_defaults(fn=cmd_run)
+    c = sub.add_parser("run"); c.add_argument("config"); c.add_argument("ids", nargs="*"); c.set_defaults(fn=cmd_run)
     a = p.parse_args(argv)
     a.fn(a)
 

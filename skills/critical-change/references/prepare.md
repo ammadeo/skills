@@ -46,9 +46,10 @@ found an existing problem; fix it or tell the user, because a failing
 baseline blocks execution. Checks that write anything wait for execution.
 
 **The live monitor.** Write `monitor.json` next to `change.json`, in the
-shape of `assets/dashboard/monitor.example.json`. By default it holds only
-the smoke checks the monitor can run, under the same IDs as in the change
-document, each `on_demand`: it runs once, when execute asks. Set
+shape of `assets/dashboard/monitor.example.json`. By default it holds exactly
+the smoke tests the plan gives to a script (`by: script`), under the same
+IDs, each `on_demand`: it runs once, when execute asks. `monitor.py check`
+refuses a config that disagrees with the plan about who runs what. Set
 `critical: true` where red means stop.
 
 Add a heartbeat only when the plan names one: a check that loops (`every`,
