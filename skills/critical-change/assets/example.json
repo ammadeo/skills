@@ -153,7 +153,8 @@
       "expect": "HTTP 200 from `/me`",
       "critical": true,
       "status": "pending",
-      "by": "script"
+      "by": "script",
+      "continuous": true
     },
     {
       "id": "S2",
@@ -193,7 +194,8 @@
       "expect": "p95 of `/me` within 20% of the value measured before E1",
       "critical": false,
       "status": "pending",
-      "by": "script"
+      "by": "script",
+      "continuous": true
     },
     {
       "id": "S5",

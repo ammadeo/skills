@@ -87,6 +87,10 @@ def read_config(path):
             e.append(f"{id_}: the plan says a script runs this smoke test, but it is not in the monitor config")
         if s.get("by") != "script" and id_ in seen:
             e.append(f"{id_}: the monitor would run this smoke test, but the plan says {change.owner(s)} runs it")
+        looping = any(isinstance(c, dict) and c.get("id") == id_ and c.get("every") for c in checks)
+        if s.get("by") == "script" and id_ in seen and bool(s.get("continuous")) != looping:
+            e.append(f"{id_}: the plan says this test runs continuously, so it needs every (seconds), not on_demand" if s.get("continuous")
+                     else f"{id_}: the monitor would loop this test, but the plan does not mark it continuous")
     return cfg, e
 
 
@@ -194,8 +198,8 @@ class Monitor:
                 st = self.state[c["id"]]
                 if c.get("every") and not st["running"] and now - st["last_start"] >= c["every"]:
                     threading.Thread(target=self.run, args=(c,), daemon=True).start()
-            if self.demo:                                   # on-demand checks play themselves, 12 s apart, last one never
-                waiting = [c for c in self.cfg["checks"] if c.get("on_demand")][:-1]
+            if self.demo:                                   # on-demand checks play themselves, 12 s apart
+                waiting = [c for c in self.cfg["checks"] if c.get("on_demand")]
                 for i, c in enumerate(waiting):
                     st = self.state[c["id"]]
                     if st["status"] == "waiting" and not st["running"] and now - self.started >= DEMO_SMOKE + 12 * i:
@@ -254,6 +258,7 @@ class Monitor:
         return {"title": doc.get("title", ""), "line": change.brief(doc),
                 "stages": [{"name": n, "state": s} for n, s in change.stage_states(doc)],
                 "smoke": [{"id": s.get("id"), "check": s.get("check", ""), "critical": bool(s.get("critical")), "owner": change.owner(s), "by": s.get("by"),
+                           "continuous": bool(s.get("continuous")),
                            "marked": (self.human.get(s.get("id")) or {}).get("result"),
                            "recorded": s.get("status") if s.get("status") in ("pass", "fail") else None} for s in change.rows(doc, "smoke")]}, log
 

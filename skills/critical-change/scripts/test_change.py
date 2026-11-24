@@ -200,6 +200,13 @@ class Lifecycle(unittest.TestCase):
         (self.dir / "monitor.json").unlink()
         self.assertIn("S1, S2, S4 are to be run by script, but there is no monitor.json", self.refused("set", "E1", "done"))
 
+    def test_only_a_script_checks_continuously(self):
+        self.edit(lambda d: d["smoke"][2].update(continuous=True))
+        self.assertIn("S3: only a script can check continuously; it is given to the agent", self.refused("check"))
+        self.edit(lambda d: d["smoke"][2].pop("continuous"))
+        self.ok("render")
+        self.assertIn("the script, continuously: before, during and after the change", self.file.with_suffix(".html").read_text())
+
     def test_failed_step_calls_for_the_reversal(self):
         self.to_prepared()
         self.ok("approve", "execute", "--by", "Ada")

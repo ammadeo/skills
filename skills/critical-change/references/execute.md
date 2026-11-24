@@ -70,10 +70,11 @@ observing it (a command that exits 0 is not proof), then `set FILE E1 done`.
 The line it prints is your update to the user. Pass it on as it is and go to
 the next step; while everything matches the plan, that line is all you say.
 
-If the change has heartbeats, glance at the monitor after every step:
-`monitor.py status CONFIG` prints one line and exits 1 when a critical check
-is red. A red critical heartbeat at any moment counts like a failed critical
-smoke test: section 6.
+If the change has continuous smoke tests or heartbeats, glance at the
+monitor after every step: `monitor.py status CONFIG` prints one line and
+exits 1 when a critical check is red. A critical one going red at any
+moment, not only at the end, counts as a failed critical smoke test:
+section 6.
 
 The monitor is a window, not a dependency. If it dies mid-change, say so in
 one line, carry on with the plan and run the remaining checks yourself;
@@ -100,8 +101,9 @@ with no plan at all. Then:
 ## 5. Smoke tests
 
 With all steps done, every check runs, critical ones first, each by its
-owner. `monitor.py run CONFIG` runs all the tests a script owns, and the user
-sees each result land on the dashboard. The ones that are yours you run
+owner. `monitor.py run CONFIG` runs the tests a script owns that run once,
+and the user sees each result land on the dashboard. A continuous test is
+already running: record what it shows now. The ones that are yours you run
 yourself. Running a check and recording it stay two commands. Record the
 ones that pass together, `set FILE S1 pass S2 pass S3 pass`, and pass on the
 line it prints. A failure gets a call of its own with what you saw:

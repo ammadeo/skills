@@ -7,11 +7,11 @@
       "label": "Someone signed in before the change is still signed in",
       "kind": "ping",
       "cmd": "scripts/smoke.sh existing-session",
-      "on_demand": true,
       "critical": true,
       "covers": [
         "R1"
-      ]
+      ],
+      "every": 10
     },
     {
       "id": "S2",
@@ -30,11 +30,11 @@
       "label": "Pages are as fast as before",
       "kind": "ping",
       "cmd": "scripts/smoke.sh latency",
-      "on_demand": true,
       "critical": false,
       "covers": [
         "R3"
-      ]
+      ],
+      "every": 15
     }
   ]
 }

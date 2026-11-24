@@ -103,7 +103,9 @@ How to write it:
 Execution is watched on a local dashboard, not on the page. `scripts/monitor.py`
 serves `assets/dashboard/index.html`: the stage on top, then the smoke tests
 and a log. The log marks what a check saw apart from what you recorded. By
-default that is all, and the monitor runs a smoke test only when you ask.
+default that is all. A smoke test the plan marks as continuous is checked
+all the time, from before the first step, and shows its latest reading; the
+monitor runs the others once, when you ask.
 
 A change may add heartbeats, checks the monitor loops by itself; they show
 as a grid of charts and status pings beside the smoke tests. They are

@@ -103,7 +103,7 @@ h3{font-size:var(--body);font-weight:600;line-height:1.3;flex:1;min-width:0}
 .running .beat::after{animation-duration:.9s}
 body.lost .beat::after,body.lost .halo{animation:none}
 body.lost .tiles{opacity:.55}
-@media (prefers-reduced-motion:reduce){.live .beat::after,.live .halo,.running .beat::after,.ticks span.new{animation:none}}
+@media (prefers-reduced-motion:reduce){.live .beat::after,.live .halo,.running .beat::after,.ticks span.new,.trail i.new{animation:none}}
 
 .side{display:grid;gap:1.5rem;position:sticky;top:1.5rem;max-height:calc(100vh - 3rem);grid-template-rows:auto minmax(8rem,1fr)}
 .side section{display:grid;gap:.5rem;min-height:0;align-content:start}
@@ -114,7 +114,12 @@ h2 span.bad{color:var(--crit);font-weight:600}
 .side li{padding:.5rem 0;border-top:1px solid var(--line)}
 #smoke li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 1rem;align-items:baseline}
 #smoke .what b{font:600 var(--meta) var(--mono);color:var(--muted);margin-right:.5rem}
+#smoke .now{display:inline-flex;align-items:center;gap:.75rem}
 #smoke .res{display:inline-flex;align-items:center;gap:.5rem;font-weight:600;color:var(--muted);white-space:nowrap}
+.trail{display:inline-flex;align-items:flex-end;gap:2px;height:16px}
+.trail i{width:4px;height:8px;border-radius:1px;background:var(--ok);transform-origin:bottom}
+.trail i.no{height:16px;background:var(--crit)}
+.trail i.new{animation:arrive .5s cubic-bezier(.16,1,.3,1)}
 #smoke li.ok .res{color:var(--ok)}
 #smoke li.fail .res,#smoke li.fail .what{color:var(--crit)}
 #smoke li.fail .what{font-weight:600}
@@ -182,7 +187,7 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
 const CHECK = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5l3 3 6-7"/></svg>';
 const CROSS = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 3l8 8M11 3l-8 8"/></svg>';
-const SLOTS = 60, TICKS = 30, H = 64, PAD = 7, NS = "http://www.w3.org/2000/svg";
+const SLOTS = 60, TICKS = 30, TRAIL = 12, H = 64, PAD = 7, NS = "http://www.w3.org/2000/svg";
 let lastOk = 0, skew = 0, tiles = {}, rows = {}, hover = {}, logKey = "";
 
 const fmt = v => v == null ? "" : Math.abs(v) >= 1000 ? Math.round(v).toLocaleString("en-US") : Math.abs(v) >= 10 ? v.toFixed(0) : v.toFixed(2);
@@ -274,36 +279,45 @@ function checks(list, now) {
   }
 }
 
-// Smoke tests: one row each, always naming who runs it. The monitor's result when a script ran the test, otherwise what was recorded.
-function smoke(list, all, now) {
+// Smoke tests: one row each, always naming who runs it. A continuous test shows its latest reading and a trail of
+// recent ones; the others show the result once they have run. A person's test carries Pass and Fail buttons.
+function smoke(list, all, now, atSmoke) {
   const mon = Object.fromEntries(all.map(c => [c.id, c]));
+  const said = {pass: "ok", fail: "fail"};
   let passed = 0, critFail = false;
   for (const s of list) {
     let r = rows[s.id];
     if (!r) {
       r = rows[s.id] = document.createElement("li");
-      r.innerHTML = `<span class="what"><b>${esc(s.id)}</b>${esc(s.check)}</span><span class="res"></span><span class="sub"></span>`;
+      r.innerHTML = `<span class="what"><b>${esc(s.id)}</b>${esc(s.check)}</span><span class="now"><span class="trail"></span><span class="res"></span></span><span class="sub"></span>`;
       $("smoke").append(r);
     }
-    const m = mon[s.id], running = m && m.running;
-    const said = {pass: "ok", fail: "fail"};
-    const seen = m && m.status !== "waiting" ? m.status : said[s.marked] || null;      // a script's result, or a person's click
-    const result = said[s.recorded] || seen || "waiting";                             // once recorded, the document speaks
+    const m = mon[s.id], running = m && m.running, live = !!(m && m.every);
+    const seen = m && m.status !== "waiting" ? m.status : said[s.marked] || null;      // a script's reading, or a person's click
+    const result = (live ? seen || said[s.recorded] : said[s.recorded] || seen) || "waiting";   // a live test reports now; otherwise the record speaks
     if (result === "ok") passed++;
     if (result === "fail" && s.critical) critFail = true;
-    r.className = result + (running ? " running" : m && m.every ? " live" : "");
+    r.className = result + (live ? " live" : running ? " running" : "");
     const theirs = s.by === "human" && !s.recorded;                                    // a person answers with a button
     const html = theirs ? ["pass", "fail"].map(v =>
         `<button type="button" data-id="${esc(s.id)}" data-result="${v}" aria-pressed="${s.marked === v}">${s.marked === v ? (v === "pass" ? CHECK : CROSS) : ""}${v === "pass" ? "Pass" : "Fail"}</button>`).join("")
+      : live ? (result === "fail" ? CROSS + "Failing" : '<span class="beat"></span>' + (result === "ok" ? "Passing" : "Waiting for " + esc(s.owner)))
       : running ? '<span class="beat"></span>Running'
-      : (m && m.every ? '<span class="beat"></span>' : result === "ok" ? CHECK : result === "fail" ? CROSS : "")
-        + (result === "ok" ? "Passed" : result === "fail" ? "Failed" : "Waiting for " + esc(s.owner));
+      : (result === "ok" ? CHECK + "Passed" : result === "fail" ? CROSS + "Failed" : "Waiting for " + esc(s.owner));
     if (r.dataset.html !== html) { r.dataset.html = html; r.querySelector(".res").innerHTML = html; }   // never rebuilt under a cursor
-    // who runs it is always said, in words: a script, the agent, or a named person
-    r.querySelector(".sub").textContent = ["Run by " + s.owner, s.critical ? "critical" : "",
-      theirs && !s.marked ? "waiting for " + s.owner : "", seen && !s.recorded ? "not recorded yet" : ""].filter(Boolean).join(" · ");
+    if (live && r.dataset.at !== String(m.at)) {                                       // one tick per reading, newest on the right
+      r.dataset.at = String(m.at);
+      const h = m.history.slice(-TRAIL);
+      r.querySelector(".trail").innerHTML = h.map((p, i) =>
+        `<i class="${p[1] ? "" : "no"}${i === h.length - 1 ? " new" : ""}" style="opacity:${(0.25 + 0.75 * (i + 1) / h.length).toFixed(2)}"></i>`).join("");
+    }
+    const unrecorded = seen && !s.recorded && (!live || atSmoke);                      // a live test is recorded once the steps are done
+    r.querySelector(".sub").textContent = [
+      live ? `Checked every ${m.every} s by ${s.owner}` : "Run by " + s.owner, s.critical ? "critical" : "",
+      live && m.at != null ? "last " + ago(m.at, now) : "", theirs && !s.marked ? "waiting for " + s.owner : "",
+      unrecorded ? "not recorded yet" : ""].filter(Boolean).join(" · ");
   }
-  $("smokeSum").textContent = list.length ? (critFail ? "Critical failed · " : "") + `${passed} of ${list.length} passed` : "";
+  $("smokeSum").textContent = list.length ? (critFail ? "Critical failing · " : "") + `${passed} of ${list.length} OK` : "";
   $("smokeSum").className = critFail ? "bad" : "";
 }
 
@@ -328,9 +342,10 @@ async function tick() {
   try {
     const s = await (await fetch("/state", {cache: "no-store"})).json();
     lastOk = Date.now(); skew = s.now * 1000 - Date.now();
-    smoke(s.change.smoke || [], s.checks, s.now);
+    const stages = s.change.stages || [];
+    smoke(s.change.smoke || [], s.checks, s.now, !!stages[3] && stages[3].state !== "todo");
     const live = s.checks.filter(c => !rows[c.id]);          // smoke tests have their own place
-    header(s, live.length); checks(live, s.now); log(s.log);
+    header(s, s.checks.filter(c => c.every).length); checks(live, s.now); log(s.log);
     $("main").classList.toggle("solo", !live.length);
   } catch (e) { if (!(e instanceof TypeError && /fetch/i.test(e.message))) console.error(e); }   // a lost connection is the banner's job
   signal();

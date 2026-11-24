@@ -114,6 +114,9 @@ def errors(doc):
     for x in rows(doc, "steps") + rev_steps(doc) + rows(doc, "smoke"):
         if x.get("by") not in OWNERS:
             e.append(f"{x.get('id', '?')}: by must say who does it: script, agent or human")
+    for s in rows(doc, "smoke"):
+        if s.get("continuous") and s.get("by") != "script":
+            e.append(f"{s.get('id', '?')}: only a script can check continuously; it is given to {owner(s)}")
     for s in rows(doc, "steps"):
         need(s, ("action", "verify"))
         if not has(s, "revert") and s.get("no_return") is not True:
@@ -164,7 +167,7 @@ def warnings(doc):
     if rev(doc).get("possible") and not has(rev(doc), "window"):
         w.append("reversal.window is empty: say until when going back stays possible")
     for s in rows(doc, "smoke"):
-        if s.get("by") != "human" and s.get("baseline") not in ("pass", "fail"):
+        if s.get("by") != "human" and not s.get("continuous") and s.get("baseline") not in ("pass", "fail"):
             w.append(f"{s.get('id')} has never run against the current system (no baseline)")
         if s.get("by") in ("agent", "human"):
             w.append(f"{s.get('id')} is run by {owner(s)}: a script is preferable, keep this only if a script cannot decide it")
@@ -200,7 +203,7 @@ def plan_hash(doc):
         "steps": [pick(s, ("id", "action", "details", "verify", "revert", "no_return", "by", "who")) for s in rows(doc, "steps")],
         "reversal": [pick(rev(doc), ("possible", "summary", "instead")),
                      [pick(v, ("id", "action", "details", "by", "who")) for v in rev_steps(doc)]],
-        "smoke": [pick(s, ("id", "check", "mitigates", "how", "expect", "critical", "by", "who")) for s in rows(doc, "smoke")],
+        "smoke": [pick(s, ("id", "check", "mitigates", "how", "expect", "critical", "by", "who", "continuous")) for s in rows(doc, "smoke")],
     }
     return hashlib.sha256(json.dumps(core, sort_keys=True).encode()).hexdigest()[:16]
 
@@ -589,7 +592,8 @@ def page(doc):
         tag = pill("passed", "ok") if st == "pass" else pill("failed", "crit" if s.get("critical") else "warn") if st == "fail" \
             else pill("critical", "crit") if s.get("critical") else pill("non-critical")
         kind = "Critical: a failure stops the change and the reversal is put to you at once." if s.get("critical") else "Non-critical: a failure is recorded and followed up."
-        body = (f"<b>{fmt(s.get('check'))}</b>" + line("Run by", owner(s)) + line("Covers", ", ".join(s.get("mitigates") or [])) + block(s.get("why")) +
+        runs = owner(s) + (", continuously: before, during and after the change" if s.get("continuous") else "")
+        body = (f"<b>{fmt(s.get('check'))}</b>" + line("Run by", runs) + line("Covers", ", ".join(s.get("mitigates") or [])) + block(s.get("why")) +
                 f'<p class="k">{kind}</p>' + block(s.get("note")) +
                 fold([f"Run: {s.get('how', '')}", f"Expect: {s.get('expect', '')}",
                       f"On the system before the change: {s.get('baseline') or 'not run'}"], "How it runs"))

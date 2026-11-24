@@ -19,11 +19,11 @@ ASSETS = Path(__file__).resolve().parent.parent / "assets"
 CHECKS = [
     {"id": "H1", "label": "Up", "kind": "ping", "cmd": "true", "every": 2, "critical": True},
     {"id": "H2", "label": "Error rate", "kind": "chart", "cmd": "echo rate=0.4", "unit": "%", "max": 1, "every": 2, "critical": True},
-    {"id": "S1", "label": "Old session works", "kind": "ping", "cmd": "echo fine", "on_demand": True, "critical": True},
+    {"id": "S1", "label": "Old session works", "kind": "ping", "cmd": "echo fine", "every": 2, "critical": True},
     {"id": "S2", "label": "New login works", "kind": "ping", "cmd": "true", "on_demand": True, "critical": True},
-    {"id": "S4", "label": "As fast as before", "kind": "ping", "cmd": "true", "on_demand": True, "critical": False},
+    {"id": "S4", "label": "As fast as before", "kind": "ping", "cmd": "true", "every": 2, "critical": False},
 ]
-SMOKE = CHECKS[2:]          # what the example plan gives to a script: S1, S2, S4
+SMOKE = CHECKS[2:]          # what the example plan gives to a script: S1 and S4 continuously, S2 once
 
 
 class MonitorTest(unittest.TestCase):
@@ -62,7 +62,7 @@ class MonitorTest(unittest.TestCase):
     def test_shipped_examples_are_valid_configs(self):
         default, errs = monitor.read_config(ASSETS / "dashboard" / "monitor.example.json")
         self.assertEqual(errs, [])
-        self.assertFalse(any(c.get("every") for c in default["checks"]), "the default runs nothing by itself")
+        self.assertTrue(all(c["id"].startswith("S") for c in default["checks"]), "the default holds smoke tests only")
         self.assertEqual(monitor.read_config(ASSETS / "dashboard" / "monitor.heartbeats.example.json")[1], [])
 
     def test_config_holes_are_named(self):
@@ -74,24 +74,41 @@ class MonitorTest(unittest.TestCase):
                        "H2: a chart needs a unit", "H2: a chart needs min or max", "checks[2]: id must look like"):
             self.assertIn(needle, errs)
 
-    def test_the_default_monitor_runs_nothing_until_asked(self):
-        marker = self.dir / "ran"
-        m = self.monitor([dict(SMOKE[0], cmd=f"touch '{marker}'"), *SMOKE[1:]])
-        self.assertEqual(m.verdict(), ("ok", "Monitor up"))
+    def test_continuous_tests_loop_and_the_rest_wait_to_be_asked(self):
+        looped, once = self.dir / "looped", self.dir / "once"
+        m = self.monitor([dict(SMOKE[0], cmd=f"touch '{looped}'"), dict(SMOKE[1], cmd=f"touch '{once}'"), SMOKE[2]])
         threading.Thread(target=m.loop, daemon=True).start()
-        time.sleep(1)
-        self.assertFalse(marker.exists())
-        m.run(m.cfg["checks"][0])
-        self.assertTrue(marker.exists())
+        time.sleep(1.5)
+        self.assertTrue(looped.exists())
+        self.assertFalse(once.exists())
+        self.assertEqual(m.verdict(), ("ok", "All 2 live checks green"))
+        m.run(m.cfg["checks"][1])
+        self.assertTrue(once.exists())
+
+    def test_plan_and_config_must_agree_on_what_runs_continuously(self):
+        once = {k: v for k, v in dict(SMOKE[0], on_demand=True).items() if k != "every"}
+        looping = {k: v for k, v in dict(SMOKE[1], every=5).items() if k != "on_demand"}
+        self.write([once, looping, SMOKE[2]])
+        errs = "\n".join(monitor.read_config(self.config)[1])
+        self.assertIn("S1: the plan says this test runs continuously, so it needs every (seconds), not on_demand", errs)
+        self.assertIn("S2: the monitor would loop this test, but the plan does not mark it continuous", errs)
+
+    def test_a_smoke_test_with_nothing_looping_is_still_a_valid_monitor(self):
+        d = json.loads((self.dir / "change.json").read_text())
+        for s in d["smoke"]:
+            s.pop("continuous", None)
+        (self.dir / "change.json").write_text(json.dumps(d))
+        m = self.monitor([{k: v for k, v in dict(c, on_demand=True).items() if k != "every"} for c in SMOKE])
+        self.assertEqual(m.verdict(), ("ok", "Monitor up"))
 
     def test_demo_fail_breaks_the_first_critical_smoke_test(self):
         m = self.monitor(demo="fail")
-        m.run(m.cfg["checks"][2])
-        self.assertEqual(m.verdict(), ("bad", "STOP: critical check S1 is red"))
+        m.run(m.cfg["checks"][3])
+        self.assertEqual(m.verdict(), ("bad", "STOP: critical check S2 is red"))
 
     def test_config_and_plan_must_agree_on_what_a_script_runs(self):
         s3 = {"id": "S3", "label": "Export sees sessions", "kind": "ping", "cmd": "true", "on_demand": True, "critical": False}
-        self.write([CHECKS[0], SMOKE[0], SMOKE[1], s3])
+        self.write([SMOKE[0], SMOKE[1], s3])
         errs = "\n".join(monitor.read_config(self.config)[1])
         self.assertIn("S4: the plan says a script runs this smoke test, but it is not in the monitor config", errs)
         self.assertIn("S3: the monitor would run this smoke test, but the plan says the agent runs it", errs)
@@ -100,7 +117,7 @@ class MonitorTest(unittest.TestCase):
         m = self.monitor()
         self.assertEqual(m.verdict(), ("waiting", "Waiting for the first readings"))
         self.run_all(m)
-        self.assertEqual(m.verdict(), ("ok", "All 2 live checks green"))
+        self.assertEqual(m.verdict(), ("ok", "All 4 live checks green"))
         self.assertEqual(m.state["H2"]["value"], 0.4)
         self.assertEqual(m.state["S1"]["text"], "fine")
 
@@ -186,11 +203,9 @@ class MonitorTest(unittest.TestCase):
         args = lambda **kw: type("A", (), {"config": str(self.config), **kw})()
         code, out = self.call(monitor.cmd_status, args())
         self.assertEqual(code, 0, out)
-        self.assertIn("All 2 live checks green. Waiting for the script, on your word: S1, S2, S4.", out)
-        code, out = self.call(monitor.cmd_run, args(ids=["S1"]))
-        self.assertEqual((code, out.strip()), (0, "S1 passed."))
+        self.assertIn("All 4 live checks green. Waiting for the script, on your word: S2.", out)
         code, out = self.call(monitor.cmd_run, args(ids=[]))             # no ID: everything on demand
-        self.assertEqual((code, out.strip()), (0, "S1 passed, S2 passed, S4 passed."))
+        self.assertEqual((code, out.strip()), (0, "S2 passed."))
         code, out = self.call(monitor.cmd_run, args(ids=["S9"]))
         self.assertIn("no check S9", out)
 
@@ -237,7 +252,7 @@ class MonitorTest(unittest.TestCase):
 
     def test_another_site_cannot_start_a_check_or_give_a_verdict(self):
         url = self.serve(self.monitor())
-        self.assertEqual(self.post(url, "/run", ["S1"], header=False)[0], 403)
+        self.assertEqual(self.post(url, "/run", ["S2"], header=False)[0], 403)
         self.assertEqual(self.post(url, "/verdict", {"id": "S5", "result": "pass"}, header=False)[0], 403)
 
     def test_status_without_a_monitor_says_so(self):

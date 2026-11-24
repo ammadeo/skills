@@ -139,6 +139,12 @@ That observation is a check.
 - `why`: why this observation catches that risk, and what it would miss.
 - `how` and `expect`: exact enough that another agent reaches the same
   verdict.
+- `continuous: true` for a test that has to hold before, during and after
+  the change, such as "people already signed in stay signed in". The monitor
+  then checks it all the time, from before the first step, so the baseline is
+  live and a break shows the moment it happens. Only for a script's test
+  that reads and never writes, and is safe to repeat every few seconds. A
+  test that writes something, like a test order, runs once.
 - `critical`: true when a failure means users are being hurt now or data is
   at risk. A critical failure stops the change and puts the reversal to
   the user at once. False when the
