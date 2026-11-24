@@ -96,13 +96,18 @@ How to write it:
 ## The live dashboard
 
 Execution is watched on a local dashboard, not on the page. `scripts/monitor.py`
-runs the change's checks by itself and serves `assets/dashboard/index.html`:
-the stage on top, live checks in a two-column grid, the smoke tests and a log
-on the right. The log marks what a check saw apart from what you recorded.
+serves `assets/dashboard/index.html`: the stage on top, then the smoke tests
+and a log. The log marks what a check saw apart from what you recorded. By
+default that is all, and the monitor runs a smoke test only when you ask.
+
+A change may add heartbeats, checks the monitor loops by itself; they show
+as a grid of charts and status pings beside the smoke tests. They are
+opt-in, because every one is one more thing that can fail on release day.
 
 The monitor only watches. It never writes to the change document, and your
-`set` commands never run a check; the two layers meet on the screen. A red
-check therefore shows within seconds, whatever you are busy with.
+`set` commands never run a check; the two layers meet on the screen. It is a
+window, not a dependency: only the first step waits for it, and nothing in
+the change stops because the monitor did.
 
     python3 -I scripts/monitor.py check  CONFIG
     python3 -I scripts/monitor.py serve  CONFIG [--port N]
@@ -110,8 +115,8 @@ check therefore shows within seconds, whatever you are busy with.
     python3 -I scripts/monitor.py run    CONFIG ID [ID ...]
 
 CONFIG is `monitor.json`, next to `change.json`; its shape is
-`assets/dashboard/monitor.example.json`. Prepare writes it and execute
-starts it. The page is a fixed template: write the config, never edit or
+`assets/dashboard/monitor.example.json`, or `monitor.heartbeats.example.json`
+with heartbeats. Prepare writes it and execute starts it. The page is a fixed template: write the config, never edit or
 restyle the page, so every change looks the same to the person watching.
 `serve --demo` draws invented readings, to look at the page without a system.
 

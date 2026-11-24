@@ -31,9 +31,9 @@ fly.
 ## 2. Start the dashboard
 
 Start the monitor as a background process, `monitor.py serve CONFIG`, then
-run `monitor.py status CONFIG`. Go on only when it reports every live check
-green on the untouched system. Red or missing here means the baseline is
-off: stop as in section 1.
+run `monitor.py status CONFIG`. Go on only when it reports that it is up
+and, if the change has heartbeats, that every one is green on the untouched
+system. Red or missing here means the baseline is off: stop as in section 1.
 
 Give the user the address and have them open it. From here until the change
 is completed or reverted this is where they watch, and the page is not
@@ -69,9 +69,14 @@ observing it (a command that exits 0 is not proof), then `set FILE E1 done`.
 The line it prints is your update to the user. Pass it on as it is and go to
 the next step; while everything matches the plan, that line is all you say.
 
-Glance at the monitor after every step: `monitor.py status CONFIG` prints
-one line and exits 1 when a critical check is red. A red critical heartbeat
-at any moment counts like a failed critical smoke test: section 6.
+If the change has heartbeats, glance at the monitor after every step:
+`monitor.py status CONFIG` prints one line and exits 1 when a critical check
+is red. A red critical heartbeat at any moment counts like a failed critical
+smoke test: section 6.
+
+The monitor is a window, not a dependency. If it dies mid-change, say so in
+one line, carry on with the plan and run the remaining checks yourself;
+restart it only if that is quick.
 
 - Only what the step says. No extra fix, no cleanup, no "while I am here".
 - A permission prompt or a denial mid-step is a stop, not something to route

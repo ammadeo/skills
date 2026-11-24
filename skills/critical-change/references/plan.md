@@ -148,10 +148,11 @@ resource). Every check must be able to fail; one that passes on a broken
 system is worse than none. Prefer checks that can also run before the
 change, so there is a baseline to compare with.
 
-Name the heartbeats too: read-only signals cheap enough to read every few
-seconds for the whole change, such as "is it up", the error rate, and
-whatever the way back depends on. They show trouble between steps, long
-before the smoke tests run. Prepare turns them into the live dashboard.
+Heartbeats are optional, and most changes need none: the smoke tests carry
+the verdict. Name one only for a signal you would act on between steps (is
+it up, the error rate, what the way back depends on) that a dependable
+read-only command can give every few seconds. Each one is another thing
+that can fail on the day.
 
 `check` warns about every critical or high risk without a smoke test. Add
 one, or say in the risk's `mitigation` why none can exist.

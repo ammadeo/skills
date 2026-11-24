@@ -55,8 +55,11 @@ class MonitorTest(unittest.TestCase):
                 out.write(e.code if isinstance(e.code, str) else "")
         return code, out.getvalue()
 
-    def test_shipped_example_is_a_valid_config(self):
-        self.assertEqual(monitor.read_config(ASSETS / "dashboard" / "monitor.example.json")[1], [])
+    def test_shipped_examples_are_valid_configs(self):
+        default, errs = monitor.read_config(ASSETS / "dashboard" / "monitor.example.json")
+        self.assertEqual(errs, [])
+        self.assertFalse(any(c.get("every") for c in default["checks"]), "the default runs nothing by itself")
+        self.assertEqual(monitor.read_config(ASSETS / "dashboard" / "monitor.heartbeats.example.json")[1], [])
 
     def test_config_holes_are_named(self):
         self.write([{"id": "H1", "label": "Up", "kind": "ping", "cmd": "true", "critical": True},
@@ -67,9 +70,20 @@ class MonitorTest(unittest.TestCase):
                        "H2: a chart needs a unit", "H2: a chart needs min or max", "checks[2]: id must look like"):
             self.assertIn(needle, errs)
 
-    def test_a_monitor_with_nothing_looping_is_refused(self):
-        self.write([dict(CHECKS[2])])
-        self.assertIn("at least one must loop", "\n".join(monitor.read_config(self.config)[1]))
+    def test_the_default_monitor_runs_nothing_until_asked(self):
+        marker = self.dir / "ran"
+        m = self.monitor([dict(CHECKS[2], cmd=f"touch '{marker}'")])
+        self.assertEqual(m.verdict(), ("ok", "Monitor up"))
+        threading.Thread(target=m.loop, daemon=True).start()
+        time.sleep(1)
+        self.assertFalse(marker.exists())
+        m.run(m.cfg["checks"][0])
+        self.assertTrue(marker.exists())
+
+    def test_demo_fail_breaks_the_first_critical_smoke_test(self):
+        m = self.monitor(demo="fail")
+        m.run(m.cfg["checks"][2])
+        self.assertEqual(m.verdict(), ("bad", "STOP: critical check S1 is red"))
 
     def test_green_readings(self):
         m = self.monitor()

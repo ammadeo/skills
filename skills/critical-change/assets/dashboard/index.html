@@ -7,14 +7,15 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
 /* Layout: the stage on top; live checks in a two-column grid on the left two thirds; on the right third the smoke
-   tests, then the log. Only the checks are boxed: they are the things being watched. Green is the quiet default,
-   so a label appears only when something is not fine. Same tokens as the change page (scripts/change.py).
-   Do not restyle per change. */
+   tests, then the log. With no live checks, the default, it is just the smoke tests and the log. Only the checks
+   are boxed: they are the things being watched. Green is the quiet default, so a label appears only when something
+   is not fine. No state is told by colour alone: every one also has a shape, a word or a size. Same tokens as the
+   change page (scripts/change.py). Do not restyle per change. */
 :root{--bg:#f3f5f8;--surface:#fff;--ink:#16202b;--muted:#5a6776;--line:#d2d9e1;--accent:#2457a6;--accent-soft:#2457a61f;
---ok:#1c7445;--ok-bg:#dff1e6;--warn:#8f5600;--warn-bg:#fbeed3;--crit:#b3261e;--crit-bg:#fbe4e1;
+--ok:#007a5a;--ok-bg:#dff1e6;--warn:#8f5600;--warn-bg:#fbeed3;--crit:#b3261e;--crit-bg:#fbe4e1;
 --meta:.75rem;--small:.875rem;--body:1rem;--lead:1.125rem;--title:1.25rem;--value:1.75rem;
 --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace}
-@media (prefers-color-scheme:dark){:root{--bg:#0e141a;--surface:#172029;--ink:#dee5ec;--muted:#96a3b0;--line:#2c3844;--accent:#8ab4f8;--accent-soft:#8ab4f826;--ok:#7fd0a0;--ok-bg:#17342a;--warn:#f0b354;--warn-bg:#3a2c12;--crit:#ff8a80;--crit-bg:#42201d;color-scheme:dark}}
+@media (prefers-color-scheme:dark){:root{--bg:#0e141a;--surface:#172029;--ink:#dee5ec;--muted:#96a3b0;--line:#2c3844;--accent:#8ab4f8;--accent-soft:#8ab4f826;--ok:#62d9ac;--ok-bg:#17342a;--warn:#f0b354;--warn-bg:#3a2c12;--crit:#ff9466;--crit-bg:#42201d;color-scheme:dark}}
 *{box-sizing:border-box}
 html{scrollbar-color:var(--line) transparent}
 body{margin:0;background:var(--bg);color:var(--ink);font:var(--small)/1.5 var(--sans);font-variant-numeric:tabular-nums;
@@ -24,6 +25,7 @@ padding:1.5rem max(16px,env(safe-area-inset-right,0px)) 2rem max(16px,env(safe-a
 h1,h2,h3,p,ol{margin:0;padding:0}
 ol{list-style:none}
 svg{display:block}
+[hidden]{display:none!important}
 
 /* stage on top */
 .top{display:grid;gap:1rem}
@@ -39,7 +41,7 @@ h1{font-size:var(--title);line-height:1.2;font-weight:600;text-wrap:balance}
 .tag.demo{color:var(--warn)}
 .stages{display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
 .stages li{display:grid;justify-items:center;gap:.25rem;position:relative;font-weight:500;color:var(--muted);text-align:center}
-.stages li::before{content:"";position:absolute;top:13px;right:50%;width:100%;height:2px;background:var(--line)}
+.stages li::before{content:"";position:absolute;top:13px;left:calc(-50% + 22px);right:calc(50% + 22px);height:2px;border-radius:1px;background:var(--line)}
 .stages li:first-child::before{display:none}
 .stages li.done::before,.stages li.now::before{background:var(--ok)}
 .mark{position:relative;width:28px;height:28px;border-radius:50%;border:2px solid var(--line);background:var(--bg);display:grid;place-items:center;color:var(--bg)}
@@ -79,9 +81,11 @@ h3{font-size:var(--body);font-weight:600;line-height:1.3;flex:1;min-width:0}
 .tile.fail .end{stroke:var(--crit-bg)}
 .halo{fill:var(--accent);opacity:0;transform-box:fill-box;transform-origin:center}
 .cross{stroke:var(--muted);stroke-width:1}
-.ticks{display:flex;align-items:flex-end;gap:2px;height:64px}
-.ticks span{flex:1;max-width:8px;min-width:2px;height:16px;border-radius:2px;background:var(--ok);opacity:.7}
-.ticks span.no{height:36px;background:var(--crit);opacity:1}
+.ticks{display:flex;align-items:flex-end;justify-content:flex-end;gap:3px;height:64px;overflow:hidden}
+.ticks span{flex:none;width:6px;height:14px;border-radius:2px;background:var(--ok);transform-origin:bottom}
+.ticks span.no{height:40px;background:var(--crit)}
+.ticks span.new{animation:arrive .5s cubic-bezier(.16,1,.3,1)}
+@keyframes arrive{from{transform:scaleY(.1) translateX(9px)}}
 .tile footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:0 1rem;font-size:var(--meta);color:var(--muted)}
 .tile footer span{min-width:0;overflow-wrap:anywhere}
 .tile.fail .note{color:var(--crit)}
@@ -92,12 +96,14 @@ h3{font-size:var(--body);font-weight:600;line-height:1.3;flex:1;min-width:0}
 .ok .beat::before,.ok .beat::after{background:var(--ok)}
 .fail .beat::before,.fail .beat::after{background:var(--crit)}
 .beat::after{opacity:0}
+.waiting .beat::before{background:none;border:2px solid var(--muted)}
+.lamp{display:inline-flex;align-items:center;color:var(--crit)}
 @keyframes breathe{0%{transform:scale(1);opacity:.5}70%,100%{transform:scale(2.6);opacity:0}}
 .live .beat::after,.live .halo,.running .beat::after{animation:breathe 2.6s cubic-bezier(.16,1,.3,1) infinite}
 .running .beat::after{animation-duration:.9s}
 body.lost .beat::after,body.lost .halo{animation:none}
 body.lost .tiles{opacity:.55}
-@media (prefers-reduced-motion:reduce){.live .beat::after,.live .halo,.running .beat::after{animation:none}}
+@media (prefers-reduced-motion:reduce){.live .beat::after,.live .halo,.running .beat::after,.ticks span.new{animation:none}}
 
 .side{display:grid;gap:1.5rem;position:sticky;top:1.5rem;max-height:calc(100vh - 3rem);grid-template-rows:auto minmax(8rem,1fr)}
 .side section{display:grid;gap:.5rem;min-height:0;align-content:start}
@@ -122,9 +128,14 @@ h2 span.bad{color:var(--crit);font-weight:600}
 .src.agent{color:var(--bg);background:var(--ink);border:1px solid var(--ink)}
 #log p{grid-column:1/-1;overflow-wrap:anywhere}
 #log li.bad p{color:var(--crit);font-weight:600}
+#log p svg{display:inline;vertical-align:-2px;margin-right:.375rem}
 .side li.empty{color:var(--muted)}
 
-@media (max-width:60rem){.main{grid-template-columns:minmax(0,1fr)}.side{position:static;max-height:none}#log{max-height:28rem}}
+.main.solo{grid-template-columns:minmax(0,1fr)}
+.solo .tiles{display:none}
+.solo .side{position:static;max-height:none;grid-template-rows:none;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:2rem;align-items:start}
+.solo #log{max-height:calc(100vh - 16rem)}
+@media (max-width:60rem){.solo .side{grid-template-columns:minmax(0,1fr)}.main{grid-template-columns:minmax(0,1fr)}.side{position:static;max-height:none}#log{max-height:28rem}}
 @media (max-width:36rem){.tiles{grid-template-columns:minmax(0,1fr)}.stages li{font-size:var(--meta)}}
 </style>
 </head>
@@ -145,7 +156,7 @@ h2 span.bad{color:var(--crit);font-weight:600}
     <p class="line" id="line"></p>
   </section>
 
-  <div class="main">
+  <div class="main" id="main">
     <section class="tiles" id="tiles" aria-label="Live checks"></section>
     <div class="side">
       <section aria-label="Smoke tests">
@@ -165,7 +176,7 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
 const CHECK = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5l3 3 6-7"/></svg>';
 const CROSS = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 3l8 8M11 3l-8 8"/></svg>';
-const SLOTS = 60, H = 64, PAD = 7, NS = "http://www.w3.org/2000/svg";
+const SLOTS = 60, TICKS = 30, H = 64, PAD = 7, NS = "http://www.w3.org/2000/svg";
 let lastOk = 0, skew = 0, tiles = {}, rows = {}, hover = {}, logKey = "";
 
 const fmt = v => v == null ? "" : Math.abs(v) >= 1000 ? Math.round(v).toLocaleString("en-US") : Math.abs(v) >= 10 ? v.toFixed(0) : v.toFixed(2);
@@ -173,8 +184,9 @@ const clock = at => new Date(at * 1000).toLocaleTimeString([], {hour12: false});
 const ago = (at, now) => at == null ? "" : Math.max(0, Math.round(now - at)) + " s ago";
 const limitText = c => "limit " + ["min", "max"].filter(k => c[k] != null).map(k => `${k} ${fmt(c[k])} ${c.unit || ""}`.trim()).join(", ");
 
-function header(s) {
+function header(s, liveCount) {
   const ch = s.change, v = s.verdict;
+  $("verdict").hidden = !liveCount && v.state === "ok";       // nothing live and nothing red: nothing to announce
   document.title = ch.title ? ch.title + ": live" : "Change dashboard";
   $("title").textContent = ch.title || "Change dashboard";
   $("line").textContent = ch.line || "";
@@ -188,7 +200,7 @@ function header(s) {
 function makeTile(c) {
   const el = document.createElement("article"), chart = c.kind === "chart";
   el.innerHTML = `<header><span class="id">${esc(c.id)}</span><h3>${esc(c.label)}</h3>${c.critical ? '<span class="tag">critical</span>' : ""}</header>
-    <div class="read">${chart ? "" : '<span class="beat"></span>'}<span class="val"></span>${chart ? `<span class="unit">${esc(c.unit || "")}</span>` : ""}<span class="state"></span></div>
+    <div class="read">${chart ? "" : '<span class="lamp"></span>'}<span class="val"></span>${chart ? `<span class="unit">${esc(c.unit || "")}</span>` : ""}<span class="state"></span></div>
     <div class="plot">${chart ? "" : '<div class="ticks"></div>'}</div><footer><span class="note"></span><span class="age"></span></footer>`;
   if (chart) {
     const svg = document.createElementNS(NS, "svg");
@@ -233,9 +245,9 @@ function draw(id) {
 // Live checks. Green says nothing beyond its value; a label appears only when a check is waiting or red.
 function checks(list, now) {
   for (const c of list) {
-    if (rows[c.id]) continue;                 // smoke tests have their own place
     const t = tiles[c.id] || (tiles[c.id] = makeTile(c));
-    t.c = c;
+    const changed = t.status !== c.status, fresh = t.at !== c.at;
+    Object.assign(t, {c, status: c.status, at: c.at});
     const el = t.el, bad = c.status === "fail";
     el.className = `tile ${c.kind} ${c.status} live${c.running ? " running" : ""}`;
     if (c.kind === "chart") {
@@ -244,7 +256,12 @@ function checks(list, now) {
       draw(c.id);
     } else {
       el.querySelector(".val").textContent = c.status === "waiting" ? "Waiting" : bad ? "Down" : "Up";
-      el.querySelector(".ticks").innerHTML = c.history.map(p => `<span class="${p[1] ? "" : "no"}" title="${clock(p[0])}: ${p[1] ? "passed" : "failed"}"></span>`).join("");
+      if (changed) el.querySelector(".lamp").innerHTML = bad ? CROSS : '<span class="beat"></span>';   // only on a change, so the breathing never restarts
+      if (fresh) {                              // one tick per reading; the newest arrives from the right, older ones fade
+        const h = c.history.slice(-TICKS);
+        el.querySelector(".ticks").innerHTML = h.map((p, i) =>
+          `<span class="${p[1] ? "" : "no"}${i === h.length - 1 ? " new" : ""}" style="opacity:${(0.25 + 0.75 * (i + 1) / h.length).toFixed(2)}" title="${clock(p[0])}: ${p[1] ? "passed" : "failed"}"></span>`).join("");
+      }
       el.querySelector(".note").textContent = bad ? c.text || "" : "";
     }
     el.querySelector(".age").textContent = ago(c.at, now);
@@ -281,7 +298,7 @@ function log(entries) {
   if (key === logKey) return;
   logKey = key;
   $("log").innerHTML = entries.length ? entries.slice().reverse().map(e =>
-    `<li class="${e.level}"><time>${clock(e.at)}</time><span class="src ${e.source}">${e.source === "agent" ? "Agent" : "Monitor"}</span><span></span><p>${esc(e.text)}</p></li>`).join("")
+    `<li class="${e.level}"><time>${clock(e.at)}</time><span class="src ${e.source}">${e.source === "agent" ? "Agent" : "Monitor"}</span><span></span><p>${e.level === "bad" ? CROSS : ""}${esc(e.text)}</p></li>`).join("")
     : '<li class="empty">Nothing yet.</li>';
 }
 
@@ -297,7 +314,10 @@ async function tick() {
   try {
     const s = await (await fetch("/state", {cache: "no-store"})).json();
     lastOk = Date.now(); skew = s.now * 1000 - Date.now();
-    header(s); smoke(s.change.smoke || [], s.checks, s.now); checks(s.checks, s.now); log(s.log);
+    smoke(s.change.smoke || [], s.checks, s.now);
+    const live = s.checks.filter(c => !rows[c.id]);          // smoke tests have their own place
+    header(s, live.length); checks(live, s.now); log(s.log);
+    $("main").classList.toggle("solo", !live.length);
   } catch (e) { if (!(e instanceof TypeError && /fetch/i.test(e.message))) console.error(e); }   // a lost connection is the banner's job
   signal();
 }

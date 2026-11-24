@@ -46,21 +46,23 @@ found an existing problem; fix it or tell the user, because a failing
 baseline blocks execution. Checks that write anything wait for execution.
 
 **The live monitor.** Write `monitor.json` next to `change.json`, in the
-shape of `assets/dashboard/monitor.example.json`:
+shape of `assets/dashboard/monitor.example.json`. By default it holds only
+the smoke checks the monitor can run, under the same IDs as in the change
+document, each `on_demand`: it runs once, when execute asks. Set
+`critical: true` where red means stop.
 
-- Heartbeats, IDs H1, H2...: read-only checks that loop (`every`, in
-  seconds). A `ping` passes or fails by exit code. A `chart` reads a number
-  from the output and has the limit (`min`, `max`) that turns it red.
-- The smoke checks the monitor can run, under the same IDs as in the change
-  document. Read-only ones may loop. Ones that write are `on_demand`: they
-  run once, when execute asks.
-- `critical: true` where red means stop.
+Add a heartbeat only when the plan names one: a check that loops (`every`,
+in seconds; shape in `monitor.heartbeats.example.json`). A `ping` passes or
+fails by exit code. A `chart` reads a number from the output and has the
+limit (`min`, `max`) that turns it red. Every heartbeat is one more thing
+that can fail on release day, and a flaky one is a false alarm at the worst
+moment, so its command has to be read-only, safe to repeat unattended and
+dependable.
 
-The monitor runs these commands unattended, so only commands that are safe
-to repeat belong here. Run `monitor.py check CONFIG`, then start the monitor
-once against the untouched system and confirm with `monitor.py status CONFIG`
-that every live check is green. That is the baseline for the heartbeats; a
-check that is red today is broken or has found a problem. Stop it again.
+Run `monitor.py check CONFIG`, then start the monitor once against the
+untouched system and confirm with `monitor.py status CONFIG` that it is up
+and that every heartbeat is green. That is the heartbeats' baseline; one
+that is red today is broken or has found a problem. Stop it again.
 
 ## Working
 

@@ -75,8 +75,6 @@ def read_config(path):
                 e.append(f"{id_}: a chart needs a unit")
             if not any(isinstance(c.get(k), (int, float)) for k in ("min", "max")):
                 e.append(f"{id_}: a chart needs min or max, the limit that turns it red")
-    if not any(isinstance(c, dict) and c.get("every") for c in checks):
-        e.append("checks: at least one must loop (every), or nothing shows that the monitor is alive")
     if not (Path(path).resolve().parent / cfg.get("change", "change.json")).exists():
         e.append(f"change: {cfg.get('change', 'change.json')} not found next to the config")
     return cfg, e
@@ -130,6 +128,9 @@ class Monitor:
         if self.demo:
             time.sleep(0.25)
             ok, value, text = demo_reading(c, t0, self.demo, self.started)
+            critical = [x["id"] for x in self.cfg["checks"] if x.get("on_demand") and x.get("critical")]
+            if self.demo == "fail" and critical[:1] == [c["id"]]:
+                ok, text = False, "made to fail by the demo"
         else:
             try:
                 p = subprocess.run(c["cmd"], shell=True, cwd=str(self.cwd), capture_output=True, text=True, timeout=c.get("timeout", 20))
@@ -172,7 +173,7 @@ class Monitor:
             return "warn", f"{', '.join(c['id'] for c in red)} red, not critical"
         if any(self.state[c["id"]]["status"] == "waiting" for c in live):
             return "waiting", "Waiting for the first readings"
-        return "ok", f"All {len(live)} live checks green"
+        return "ok", f"All {len(live)} live checks green" if live else "Monitor up"
 
     def loop(self):
         last_write = 0
@@ -306,8 +307,9 @@ def need_config(path):
 def cmd_check(a):
     cfg = need_config(a.config)
     live = [c["id"] for c in cfg["checks"] if c.get("every")]
-    print(f"Config is complete: {len(live)} live checks ({', '.join(live)}), "
-          f"{len(cfg['checks']) - len(live)} on demand.")
+    demand = [c["id"] for c in cfg["checks"] if c.get("on_demand")]
+    print("Config is complete. " + (f"Live: {', '.join(live)}. " if live else "No live checks. ")
+          + (f"On demand: {', '.join(demand)}." if demand else "Nothing on demand."))
 
 
 def cmd_serve(a):
