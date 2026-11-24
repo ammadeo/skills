@@ -108,7 +108,7 @@ class Monitor:
         self.started = time.time()
         self.lock = threading.Lock()
         self.events = deque(maxlen=300)
-        self.state = {c["id"]: {"status": "waiting", "running": False, "value": None, "text": "", "at": None, "ms": None,
+        self.state = {c["id"]: {"status": "waiting", "running": False, "value": None, "text": "", "at": None,
                                 "last_start": 0, "history": deque(maxlen=60)} for c in cfg["checks"]}
         self.url = ""
         self.event("info", f"Monitor started with {len(cfg['checks'])} checks" + (" (demo: invented readings)" if demo else ""))
@@ -149,13 +149,14 @@ class Monitor:
         shown = f"{value:g} {c.get('unit', '')}".strip() if value is not None else text
         with self.lock:
             was = st["status"]
-            st.update(status=status, running=False, value=value, text=text, at=time.time(), ms=round((time.time() - t0) * 1000))
+            st.update(status=status, running=False, value=value, text=text, at=time.time())
             st["history"].append([round(st["at"], 1), value if c["kind"] == "chart" else (1 if ok else 0)])
             name = f"{c['id']} {c['label']}"
             if c.get("on_demand"):
-                self.event("ok" if ok else "bad", f"{name}: {'passed' if ok else 'FAILED'}" + (f". {shown}" if shown else ""))
+                self.event("ok" if ok else "bad", f"{name}: passed" if ok else f"{name}: FAILED" + (f". {shown}" if shown else ""))
             elif was == "waiting":
-                self.event("ok" if ok else "bad", f"{name}: first reading {'green' if ok else 'RED'}" + (f", {shown}" if shown else ""))
+                if not ok:
+                    self.event("bad", f"{name}: RED on its first reading" + (f", {shown}" if shown else ""))
             elif was != status:
                 limit = f" (limit: {self.limit(c)})" if c["kind"] == "chart" else ""
                 self.event("ok" if ok else "bad", f"{name} {'is green again' if ok else 'went RED'}: {shown}{limit}")
@@ -201,7 +202,7 @@ class Monitor:
         try:
             doc = json.loads(self.change_file.read_text(encoding="utf-8"))
         except (OSError, ValueError) as err:
-            return {"title": "Change document unreadable", "line": str(err), "stages": [], "steps": [], "reversal": [], "smoke": []}, []
+            return {"title": "Change document unreadable", "line": str(err), "stages": [], "smoke": []}, []
         if self.demo:
             doc = demo_change(doc, self.started)
         log = []
@@ -212,11 +213,8 @@ class Monitor:
                 continue
             log.append({"at": at, "source": "agent", "level": "bad" if re.search(r"\b(fail|failed|reverted)\b", str(x.get("event"))) else "info",
                         "text": str(x.get("event"))})
-        failed = change.progress(doc)[2] is not None
-        pick = lambda xs: [{"id": x.get("id"), "action": x.get("action", ""), "status": x.get("status") or "pending"} for x in xs]
         return {"title": doc.get("title", ""), "line": change.brief(doc),
                 "stages": [{"name": n, "state": s} for n, s in change.stage_states(doc)],
-                "steps": pick(change.rows(doc, "steps")), "reversal": pick(change.rev_steps(doc)) if failed else [],
                 "smoke": [{"id": s.get("id"), "check": s.get("check", ""), "critical": bool(s.get("critical")), "manual": bool(s.get("manual")),
                            "recorded": s.get("status") if s.get("status") in ("pass", "fail") else None} for s in change.rows(doc, "smoke")]}, log
 
@@ -224,9 +222,8 @@ class Monitor:
         view, agent_log = self.change_view()
         state, text = self.verdict()
         with self.lock:
-            checks = [{**{k: c.get(k) for k in ("id", "label", "kind", "unit", "min", "max", "critical", "every", "covers")},
-                       "on_demand": bool(c.get("on_demand")),
-                       **{k: self.state[c["id"]][k] for k in ("status", "running", "value", "text", "at", "ms")},
+            checks = [{**{k: c.get(k) for k in ("id", "label", "kind", "unit", "min", "max", "critical", "every")},
+                       **{k: self.state[c["id"]][k] for k in ("status", "running", "value", "text", "at")},
                        "history": list(self.state[c["id"]]["history"])} for c in self.cfg["checks"]]
             log = sorted(list(self.events) + agent_log, key=lambda x: x["at"])[-120:]
         return {"now": time.time(), "started": self.started, "demo": bool(self.demo), "change": view,

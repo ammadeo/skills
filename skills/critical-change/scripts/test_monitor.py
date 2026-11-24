@@ -102,16 +102,15 @@ class MonitorTest(unittest.TestCase):
         checks = [dict(c) for c in CHECKS]
         checks[0]["cmd"] = f"test ! -e '{flag}'"
         m = self.monitor(checks)
-        m.run(checks[0]); m.run(checks[0])
+        m.run(checks[0]); m.run(checks[0])                 # green from the start: nothing worth a log line
         flag.write_text("")
         m.run(checks[0]); m.run(checks[0])
         flag.unlink()
         m.run(checks[0])
         texts = [e["text"] for e in m.events if "H1" in e["text"]]
-        self.assertEqual(len(texts), 3)
-        self.assertIn("first reading green", texts[0])
-        self.assertIn("went RED", texts[1])
-        self.assertIn("is green again", texts[2])
+        self.assertEqual(len(texts), 2)
+        self.assertIn("went RED", texts[0])
+        self.assertIn("is green again", texts[1])
 
     def test_snapshot_joins_the_change_and_marks_who_said_what(self):
         self.call(change.main, ["approve", str(self.dir / "change.json"), "plan", "--by", "Ada"])
