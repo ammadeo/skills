@@ -40,8 +40,8 @@ reversal is a hope.
 
 **Smoke checks.** One command per check, or one script that reports a
 verdict per check ID, with a non-zero exit on failure. Run every read-only
-check once now, against the untouched system, and record it:
-`set FILE S1 pass --baseline`. A check that fails today is broken or has
+check once now, against the untouched system, and record the results in one
+call: `set FILE S1 pass S2 pass --baseline`. A check that fails today is broken or has
 found an existing problem; fix it or tell the user, because a failing
 baseline blocks execution. Checks that write anything wait for execution.
 

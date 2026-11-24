@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """The change document of the critical-change skill: check it, render it, move it forward.
 
-  change.py check   FILE [--gate plan|prepare|execute|complete]
+  change.py check   FILE [--brief] [--gate plan|prepare|execute|complete]
   change.py render  FILE
-  change.py set     FILE ID STATUS [--note TEXT] [--ref URL] [--baseline]
+  change.py set     FILE ID STATUS [ID STATUS ...] [--note TEXT] [--ref URL] [--baseline]
   change.py approve FILE plan|execute|revert --by NAME
   change.py finish  FILE completed|reverted [--note TEXT]
 
 FILE is change.json. Every command that changes it re-renders change.html next
-to it. Exit code 1 means: something is missing, the lines printed say what.
+to it and prints one line on where the change stands, written to be passed
+on to the user as it is. Exit code 1 means: something is missing, the lines
+printed say what.
 """
 import argparse
 import hashlib
@@ -304,6 +306,57 @@ def report(doc):
     return "\n".join(out)
 
 
+def brief(doc):
+    """One line on where the change stands, short enough to pass on to the user as it is."""
+    done, current, failed, reverted = progress(doc)
+    steps, smoke, prep, back = rows(doc, "steps"), rows(doc, "smoke"), rows(doc, "prep"), rev_steps(doc)
+    ids = lambda xs: ", ".join(str(x.get("id")) for x in xs)
+    nxt = lambda x: f" Next: {x.get('id')} {x.get('action', '')}."
+    if reverted:
+        return "Reverted. The change is not in place."
+    if failed is not None:
+        bad = [s for s in steps if s.get("status") == "failed"] if failed == 2 else \
+            [s for s in smoke if s.get("status") == "fail" and s.get("critical")]
+        what = f"{'step' if failed == 2 else 'critical smoke test'} {ids(bad)} failed"
+        if not approved(doc, "revert"):
+            return f"STOP: {what}. The reversal waits for the user's word."
+        left = [v for v in back if v.get("status") != "done"]
+        return (f"Reversing after {what}. {len(back) - len(left)} of {len(back)} reversal steps done."
+                + (nxt(left[0]) if left else " Ready to mark reverted."))
+    soft = [s for s in smoke if s.get("status") == "fail"]
+    soft_note = f" Failed, not critical: {ids(soft)}." if soft else ""
+    passed = sum(1 for s in smoke if s.get("status") == "pass")
+    if current is None:
+        return f"Completed. {passed} of {len(smoke)} smoke tests passed." + soft_note
+    if current == 0:
+        b = blockers(doc, "plan")
+        return f"Plan not ready for approval: {len(b)} open item(s), see check." if b else "Plan complete, waiting for the user's approval."
+    unaccepted = [x for x in loud(doc) if not x["accepted_by"]]
+    risk = f" Without mitigation and not accepted: {', '.join(str(x['id']) for x in unaccepted)}." if unaccepted else ""
+    if current == 1:
+        left = [x for x in prep if x.get("status") != "done"]
+        return f"Preparation {len(prep) - len(left)} of {len(prep)} ready. Left: {ids(left)}." + risk
+    if current == 2:
+        if not approved(doc, "execute"):
+            b = blockers(doc, "run" if (doc.get("approvals") or {}).get("execute") else "execute")
+            return f"Not ready to execute: {len(b)} open item(s), see check." + risk if b else "Ready to execute, waiting for the final approval."
+        left = [s for s in steps if s.get("status") != "done"]
+        return f"Execution {len(steps) - len(left)} of {len(steps)} done." + nxt(left[0])
+    left = [s for s in smoke if s.get("status") not in ("pass", "fail")]
+    return (f"All {len(steps)} steps done. Smoke tests {passed} of {len(smoke)} passed." + soft_note
+            + (f" Left: {ids(left)}." if left else " Ready to mark completed."))
+
+
+def after(doc, did=""):
+    """What a command that changed the document prints: one line, plus what to do at the moment something fails."""
+    print((did + " " if did else "") + brief(doc))
+    if progress(doc)[2] is not None and not approved(doc, "revert") and (doc.get("outcome") or {}).get("state") != "reverted":
+        head, lines = next_up(doc)
+        print(head)
+        for x in lines:
+            print(f"  - {x}")
+
+
 # ---------------------------------------------------------------- page
 
 CSS = """
@@ -536,8 +589,8 @@ def load(path):
     return doc
 
 
-def save(path, doc, event=None):
-    if event:
+def save(path, doc, *events):
+    for event in events:
         doc.setdefault("log", []).append({"at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"), "event": event})
     Path(path).write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     render(path, doc)
@@ -565,7 +618,7 @@ def find(doc, id_):
 
 def cmd_check(a):
     doc = load(a.file)
-    print(report(doc))
+    print(brief(doc) if a.brief else report(doc))
     if a.gate:
         b = blockers(doc, "run" if a.gate == "execute" and (doc.get("approvals") or {}).get("execute") else a.gate)
         if b:
@@ -587,41 +640,50 @@ def cmd_render(a):
 
 def cmd_set(a):
     doc = load(a.file)
-    kind = a.id[:1]
-    if kind not in STATUSES:
-        sys.exit("error: set works on P (prep), E (steps), V (reversal steps) and S (smoke) items; edit the JSON for the rest")
-    x = find(doc, a.id)
-    if a.baseline:
-        if kind != "S" or a.status not in ("pass", "fail"):
-            sys.exit("error: --baseline goes with a smoke check and pass or fail")
-        x["baseline"] = a.status
-    else:
-        if a.status not in STATUSES[kind]:
-            sys.exit(f"error: {a.id} can be {', '.join(STATUSES[kind])}")
-        gate = {"P": "prepare", "E": "run"}.get(kind)
-        if kind == "S":
-            if any(s.get("status") != "done" for s in rows(doc, "steps")):
-                sys.exit("error: the change has not run yet. A result from before it is a baseline: add --baseline")
-        elif gate and a.status != "pending":
-            b = blockers(doc, gate)
-            if b:
-                fail(b, f"{a.id} not changed. Still missing:")
-        if kind == "E" and a.status == "done":
-            before = rows(doc, "steps")[:rows(doc, "steps").index(x)]
-            if any(s.get("status") != "done" for s in before):
-                sys.exit(f"error: steps run in order and an earlier one is not done ({a.id} not changed)")
-        if kind == "V" and a.status != "pending" and not approved(doc, "revert"):
-            had = (doc.get("approvals") or {}).get("revert")
-            sys.exit("error: " + ("the reversal steps changed after the user confirmed them: show the new steps and ask again"
-                                  if had else "the user has not confirmed the reversal (approve FILE revert --by NAME)")
-                     + f" ({a.id} not changed)")
-        x["status"] = a.status
-    if a.note:
-        x["note"] = a.note
-    if a.ref:
-        x["ref"] = a.ref
-    save(a.file, doc, f"{a.id} {'baseline ' if a.baseline else ''}{a.status}" + (f": {a.note}" if a.note else ""))
-    print(report(doc))
+    pairs = [a.id, a.status, *a.more]
+    if len(pairs) % 2:
+        sys.exit("error: items come in pairs: ID STATUS [ID STATUS ...]")
+    pairs = list(zip(pairs[::2], pairs[1::2]))
+    if len(pairs) > 1 and (a.note or a.ref):
+        sys.exit("error: --note and --ref describe one item; set that item in a call of its own")
+    events = []
+    for id_, status in pairs:              # nothing is saved unless every item is accepted
+        kind = id_[:1]
+        if kind not in STATUSES:
+            sys.exit("error: set works on P (prep), E (steps), V (reversal steps) and S (smoke) items; edit the JSON for the rest")
+        x = find(doc, id_)
+        if a.baseline:
+            if kind != "S" or status not in ("pass", "fail"):
+                sys.exit("error: --baseline goes with smoke checks and pass or fail")
+            x["baseline"] = status
+        else:
+            if status not in STATUSES[kind]:
+                sys.exit(f"error: {id_} can be {', '.join(STATUSES[kind])}")
+            gate = {"P": "prepare", "E": "run"}.get(kind)
+            if kind == "S":
+                if any(s.get("status") != "done" for s in rows(doc, "steps")):
+                    sys.exit("error: the change has not run yet. A result from before it is a baseline: add --baseline")
+            elif gate and status != "pending":
+                b = blockers(doc, gate)
+                if b:
+                    fail(b, f"{id_} not changed. Still missing:")
+            if kind == "E" and status == "done":
+                before = rows(doc, "steps")[:rows(doc, "steps").index(x)]
+                if any(s.get("status") != "done" for s in before):
+                    sys.exit(f"error: steps run in order and an earlier one is not done ({id_} not changed)")
+            if kind == "V" and status != "pending" and not approved(doc, "revert"):
+                had = (doc.get("approvals") or {}).get("revert")
+                sys.exit("error: " + ("the reversal steps changed after the user confirmed them: show the new steps and ask again"
+                                      if had else "the user has not confirmed the reversal (approve FILE revert --by NAME)")
+                         + f" ({id_} not changed)")
+            x["status"] = status
+        if a.note:
+            x["note"] = a.note
+        if a.ref:
+            x["ref"] = a.ref
+        events.append(f"{id_} {'baseline ' if a.baseline else ''}{status}" + (f": {a.note}" if a.note else ""))
+    save(a.file, doc, *events)
+    after(doc, ", ".join(f"{i} {'baseline ' if a.baseline else ''}{s}" for i, s in pairs) + ".")
 
 
 def cmd_approve(a):
@@ -637,7 +699,7 @@ def cmd_approve(a):
         entry["hash"] = rev_hash(doc) if a.what == "revert" else plan_hash(doc)
     doc.setdefault("approvals", {})[a.what] = entry
     save(a.file, doc, f"{a.what} approved by {a.by}")
-    print(report(doc))
+    after(doc, f"{'Reversal confirmed' if a.what == 'revert' else a.what.capitalize() + ' approved'} by {a.by}.")
 
 
 def cmd_finish(a):
@@ -652,15 +714,16 @@ def cmd_finish(a):
             fail(left, "Not marked reverted. Reversal steps left:")
     doc["outcome"] = {"state": a.state, "note": a.note or ""}
     save(a.file, doc, a.state + (f": {a.note}" if a.note else ""))
-    print(report(doc))
+    after(doc)
 
 
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
-    c = sub.add_parser("check"); c.add_argument("file"); c.add_argument("--gate", choices=("plan", "prepare", "execute", "complete")); c.set_defaults(fn=cmd_check)
+    c = sub.add_parser("check"); c.add_argument("file"); c.add_argument("--brief", action="store_true")
+    c.add_argument("--gate", choices=("plan", "prepare", "execute", "complete")); c.set_defaults(fn=cmd_check)
     c = sub.add_parser("render"); c.add_argument("file"); c.set_defaults(fn=cmd_render)
-    c = sub.add_parser("set"); c.add_argument("file"); c.add_argument("id"); c.add_argument("status")
+    c = sub.add_parser("set"); c.add_argument("file"); c.add_argument("id"); c.add_argument("status"); c.add_argument("more", nargs="*")
     c.add_argument("--note"); c.add_argument("--ref"); c.add_argument("--baseline", action="store_true"); c.set_defaults(fn=cmd_set)
     c = sub.add_parser("approve"); c.add_argument("file"); c.add_argument("what", choices=("plan", "execute", "revert")); c.add_argument("--by", required=True); c.set_defaults(fn=cmd_approve)
     c = sub.add_parser("finish"); c.add_argument("file"); c.add_argument("state", choices=("completed", "reverted")); c.add_argument("--note"); c.set_defaults(fn=cmd_finish)

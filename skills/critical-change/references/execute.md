@@ -21,8 +21,8 @@ The document describes a past moment. Verify the present, read-only:
   people's deploys
 - you hold the access every step and every reversal step needs, checked
   without using it (an identity or permission query, a dry run)
-- every read-only smoke check passes on the system as it is now; record each
-  with `set FILE S1 pass --baseline`
+- every read-only smoke check passes on the system as it is now; record
+  them in one call: `set FILE S1 pass S2 pass S3 pass --baseline`
 - it is the window the plan chose and the people it needs are around
 
 Anything off: correct the document, tell the user, stop. Do not adapt on the
@@ -51,9 +51,10 @@ them voids it.
 
 ## 3. Run the steps
 
-One at a time, in order. Say what you are about to do, do exactly what
-`details` says, confirm `verify` by observing it (a command that exits 0 is
-not proof), then `set FILE E1 done` and update the page.
+One at a time, in order: do exactly what `details` says, confirm `verify` by
+observing it (a command that exits 0 is not proof), then `set FILE E1 done`.
+The line it prints is your update to the user. Pass it on as it is and go to
+the next step; while everything matches the plan, that line is all you say.
 
 - Only what the step says. No extra fix, no cleanup, no "while I am here".
 - A permission prompt or a denial mid-step is a stop, not something to route
@@ -72,8 +73,10 @@ with no plan at all. Then:
 
 ## 4. Smoke tests
 
-With all steps done, run every check, critical ones first, and record each:
-`set FILE S1 pass` or `set FILE S1 fail --note "<what you saw>"`.
+With all steps done, run every check, critical ones first. Record the ones
+that pass together, `set FILE S1 pass S2 pass S3 pass`, and pass on the line
+it prints. A failure gets a call of its own with what you saw:
+`set FILE S4 fail --note "<what you saw>"`.
 
 - A critical check fails: stop there and go to section 5. Do not rerun it
   hoping and do not start fixing. The one exception is a check that could
