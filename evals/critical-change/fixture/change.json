@@ -1,0 +1,246 @@
+{
+  "title": "Move card payments to the new gateway",
+  "summary": "Card payments at checkout move from the gateway we have used since launch to the new one. Customers should notice nothing. We do it now because the old contract ends on 31 December and the new gateway costs 0.4 points less per payment.",
+  "impact": "Customers cannot pay, or they pay and their order never shows as paid. About 40 orders a minute. Refunds on older orders could also stop working.",
+  "window": "Any hour, on Robin Hale's go: traffic is flat at about 40 orders a minute around the clock. About 20 minutes, no planned downtime.",
+  "scope": {
+    "in": [
+      "New card payments go through the new gateway",
+      "The shop hears about payment results from the new gateway"
+    ],
+    "out": [
+      "Refunds on orders paid through the old gateway keep going to the old gateway",
+      "Saved cards are not moved; customers enter their card again on the next purchase",
+      "Apple Pay and bank transfer are untouched"
+    ]
+  },
+  "decisions": [
+    {
+      "id": "D1",
+      "decision": "Staff accounts pay through the new gateway first, everyone else follows in the same session",
+      "why": "A real payment by our own people proves the whole path before a customer depends on it.",
+      "details": "Two flags read by checkout-service: `PAY_GATEWAY_STAFF` and `PAY_GATEWAY`, both `legacy` by default.",
+      "status": "decided"
+    },
+    {
+      "id": "D2",
+      "decision": "The old gateway stays connected until its contract ends",
+      "why": "Refunds on older orders need it, and it is our way back.",
+      "status": "decided"
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "U1",
+      "question": "Can the new gateway refund a payment the old one took?",
+      "status": "answered",
+      "answer": "No. A refund has to go to the gateway that took the payment.",
+      "evidence": "New gateway API reference, Refunds: an unknown charge returns 404. `refund-service/router.py:58` picks the gateway from the order."
+    }
+  ],
+  "risks": [
+    {
+      "id": "R1",
+      "risk": "Customers cannot pay",
+      "impact": "Checkout fails for everyone; about 40 lost orders a minute.",
+      "severity": "critical",
+      "mitigation": "Staff pay through the new gateway first. Customers move only after that works.",
+      "status": "mitigated"
+    },
+    {
+      "id": "R2",
+      "risk": "Customers pay but their order stays unpaid",
+      "impact": "Money is taken and nothing ships. Support has to fix every order by hand.",
+      "severity": "critical",
+      "mitigation": "The shop listens to the new gateway, and that is tested, before any payment goes there.",
+      "status": "mitigated"
+    },
+    {
+      "id": "R3",
+      "risk": "Refunds on older orders stop working",
+      "impact": "Customers waiting for money back do not get it; about 60 refunds a day.",
+      "severity": "high",
+      "mitigation": "Each refund goes to the gateway that took the payment (P3). Checked right after the switch.",
+      "status": "mitigated"
+    },
+    {
+      "id": "R4",
+      "risk": "No confirmation email after a payment",
+      "impact": "Customers are unsure whether the order went through and contact support.",
+      "severity": "medium",
+      "mitigation": "The email is sent from the order, not from the gateway. Checked after the switch.",
+      "status": "mitigated"
+    },
+    {
+      "id": "R5",
+      "risk": "Checkout gets slower",
+      "impact": "More people give up before paying.",
+      "severity": "medium",
+      "mitigation": "Measured 1.4 s before the change. Watched after the switch.",
+      "status": "mitigated"
+    }
+  ],
+  "steps": [
+    {
+      "id": "E1",
+      "action": "The shop starts listening to the new gateway",
+      "details": "`bin/infra webhook register new-gateway payments-handler-v2`",
+      "verify": "`bin/infra webhook test new-gateway` shows the handler answering 200.",
+      "revert": "`bin/infra webhook unregister new-gateway`",
+      "status": "pending",
+      "by": "agent"
+    },
+    {
+      "id": "E2",
+      "action": "Staff accounts pay through the new gateway",
+      "details": "`bin/infra flag set PAY_GATEWAY_STAFF new`",
+      "verify": "`bin/infra gateway stats` shows staff payments on the new gateway and none on the old one.",
+      "revert": "`bin/infra flag set PAY_GATEWAY_STAFF legacy`",
+      "status": "pending",
+      "by": "agent"
+    },
+    {
+      "id": "E3",
+      "action": "All customers pay through the new gateway",
+      "details": "`bin/infra flag set PAY_GATEWAY new`",
+      "verify": "`bin/infra gateway stats` shows customer payments on the new gateway and none on the old one, in two readings.",
+      "revert": "`bin/infra flag set PAY_GATEWAY legacy`",
+      "status": "pending",
+      "by": "agent"
+    }
+  ],
+  "reversal": {
+    "possible": true,
+    "summary": "Send checkouts back to the old gateway, then stop listening to the new one. Payments the new gateway took in the meantime stay valid and can be refunded there.",
+    "window": "Until the old gateway's contract ends on 31 December.",
+    "applies_when": [
+      "The old gateway still takes payments",
+      "The old gateway's contract has not ended",
+      "Both flags can still be set, with no deploy"
+    ],
+    "steps": [
+      {
+        "id": "V1",
+        "action": "All customers pay through the old gateway again",
+        "details": "`bin/infra flag set PAY_GATEWAY legacy`",
+        "status": "pending",
+        "by": "agent"
+      },
+      {
+        "id": "V2",
+        "action": "Staff accounts pay through the old gateway again",
+        "details": "`bin/infra flag set PAY_GATEWAY_STAFF legacy`",
+        "status": "pending",
+        "by": "agent"
+      },
+      {
+        "id": "V3",
+        "action": "The shop stops listening to the new gateway",
+        "details": "`bin/infra webhook unregister new-gateway`",
+        "status": "pending",
+        "by": "agent"
+      }
+    ]
+  },
+  "prep": [
+    {
+      "id": "P1",
+      "item": "Checkout can send payments to either gateway, old one by default",
+      "status": "todo"
+    },
+    {
+      "id": "P2",
+      "item": "Handler for the new gateway's payment results",
+      "status": "todo"
+    },
+    {
+      "id": "P3",
+      "item": "Refunds go to the gateway that took the payment",
+      "status": "todo"
+    },
+    {
+      "id": "P4",
+      "item": "Smoke checks S1 to S4",
+      "status": "todo"
+    },
+    {
+      "id": "P5",
+      "item": "Live monitor for the smoke tests",
+      "status": "todo"
+    }
+  ],
+  "smoke": [
+    {
+      "id": "S1",
+      "check": "A customer can pay by card and the order shows as paid",
+      "mitigates": [
+        "R1",
+        "R2"
+      ],
+      "why": "The two worst outcomes in one observation: the payment is taken, and the shop hears about it.",
+      "how": "`bin/infra smoke card-payment`",
+      "expect": "PASS: payment authorised, order marked paid within 10 s",
+      "critical": true,
+      "status": "pending",
+      "by": "script"
+    },
+    {
+      "id": "S2",
+      "check": "A refund on an order paid before the change goes through",
+      "mitigates": [
+        "R3"
+      ],
+      "why": "Refunds are the one thing that must keep using the old gateway. A refund on a fresh order would pass even if old ones were broken.",
+      "how": "`bin/infra smoke legacy-refund`",
+      "expect": "PASS: refund accepted by the old gateway",
+      "critical": true,
+      "status": "pending",
+      "by": "script"
+    },
+    {
+      "id": "S3",
+      "check": "The confirmation email arrives after a payment",
+      "mitigates": [
+        "R4"
+      ],
+      "why": "Nothing else would show a missing email until customers write in.",
+      "how": "`bin/infra smoke confirmation-email`",
+      "expect": "PASS: email within 60 s",
+      "critical": false,
+      "status": "pending",
+      "by": "script"
+    },
+    {
+      "id": "S4",
+      "check": "Checkout is as fast as before",
+      "mitigates": [
+        "R5"
+      ],
+      "why": "The gateway call is inside every checkout, so a slower gateway slows every order.",
+      "how": "`bin/infra smoke checkout-latency`",
+      "expect": "PASS: p95 within 20% of 1.4 s",
+      "critical": false,
+      "status": "pending",
+      "by": "script",
+      "continuous": true
+    },
+    {
+      "id": "S5",
+      "check": "Pay for an order in a real browser with the test card",
+      "mitigates": [
+        "R1"
+      ],
+      "why": "The scripted checks call the API; this confirms the card form customers actually use.",
+      "how": "On the production shop with the test card",
+      "expect": "Payment accepted, order page shows paid",
+      "critical": false,
+      "status": "pending",
+      "by": "human",
+      "who": "Robin Hale"
+    }
+  ],
+  "improvements": [
+    "Move saved cards to the new gateway",
+    "Remove the old gateway integration once its contract has ended"
+  ]
+}
