@@ -99,6 +99,17 @@ class Lifecycle(unittest.TestCase):
         self.edit(lambda d: [s.update(critical=False) for s in d["smoke"]])
         self.assertIn("nothing would trigger the reversal", self.refused("check"))
 
+    def test_a_reversal_says_when_it_applies(self):
+        self.edit(lambda d: d["reversal"].pop("applies_when"))
+        self.assertIn("reversal.applies_when: list what has to be true", self.refused("check"))
+
+    def test_changing_when_the_reversal_applies_voids_its_confirmation(self):
+        self.to_executed()
+        self.ok("set", "S1", "fail")
+        self.ok("approve", "revert", "--by", "Ada")
+        self.edit(lambda d: d["reversal"]["applies_when"].append("Something new"))
+        self.assertIn("changed after the user confirmed", self.refused("set", "V1", "done"))
+
     def test_irreversible_without_replacement_is_loud(self):
         self.edit(lambda d: d["reversal"].update(possible=False, steps=[]))
         self.assertIn("reversal (NOT ACCEPTED)", self.ok("check"))

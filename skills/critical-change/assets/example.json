@@ -102,6 +102,11 @@
     "possible": true,
     "summary": "Point reads back at the old box. It keeps receiving every write until dual write is switched off, so no session is lost on the way back.",
     "window": "Until dual write is switched off. That is a separate change, at least a week later.",
+    "applies_when": [
+      "Writing to both stores is still on, so the old box holds every session",
+      "No session exists only in the new store",
+      "The read switch still works without a deploy"
+    ],
     "steps": [
       {
         "id": "V1",

@@ -128,6 +128,8 @@ def errors(doc):
     elif r["possible"]:
         if not rev_steps(doc):
             e.append("reversal.steps: list the steps that take the system back")
+        if not isinstance(r.get("applies_when"), list) or not r["applies_when"]:
+            e.append("reversal.applies_when: list what has to be true for this reversal to apply, each checkable in a moment")
         for v in rev_steps(doc):
             need(v, ("action",))
 
@@ -201,7 +203,7 @@ def plan_hash(doc):
     core = {
         "scope": doc.get("scope"),
         "steps": [pick(s, ("id", "action", "details", "verify", "revert", "no_return", "by", "who")) for s in rows(doc, "steps")],
-        "reversal": [pick(rev(doc), ("possible", "summary", "instead")),
+        "reversal": [pick(rev(doc), ("possible", "summary", "instead", "applies_when")),
                      [pick(v, ("id", "action", "details", "by", "who")) for v in rev_steps(doc)]],
         "smoke": [pick(s, ("id", "check", "mitigates", "how", "expect", "critical", "by", "who", "continuous")) for s in rows(doc, "smoke")],
     }
@@ -210,7 +212,7 @@ def plan_hash(doc):
 
 def rev_hash(doc):
     """What the confirmation of a reversal covers: the reversal steps as they stood."""
-    core = [[v.get("id"), v.get("action"), v.get("details"), v.get("by"), v.get("who")] for v in rev_steps(doc)]
+    core = [rev(doc).get("applies_when")] + [[v.get("id"), v.get("action"), v.get("details"), v.get("by"), v.get("who")] for v in rev_steps(doc)]
     return hashlib.sha256(json.dumps(core, sort_keys=True).encode()).hexdigest()[:16]
 
 
@@ -308,8 +310,8 @@ def next_up(doc):
         left = [f"{v.get('id')} {v.get('action', '')}" for v in rev_steps(doc) if v.get("status") != "done"]
         if approved(doc, "revert"):
             return f"{what} The user confirmed the reversal. Steps left:", left
-        return (f"{what} Stop. Tell the user what broke, what it means for users and whether this "
-                "reversal still fits, then ask before running it:"), left
+        return (f"{what} Stop. Check that this is the case the reversal was planned for, tell the user "
+                "what broke and whether the plan applies as written, then ask before running it:"), left
     if current is None:
         return "Completed.", []
     if current == 0:
@@ -581,6 +583,8 @@ def page(doc):
 
     r = rev(doc)
     reversal = block(r.get("summary")) + line("Possible until", r.get("window")) + line("Instead of a way back", r.get("instead"))
+    if r.get("applies_when"):
+        reversal += '<p class="k">It applies as written while all of this is true:</p>' + block(r.get("applies_when"))
     reversal += listing([row(v.get("id"), f"<b>{fmt(v.get('action'))}</b>" + line("Done by", owner(v)) + block(v.get("note")) + fold(v.get("details")),
                              step_pill.get(v.get("status"), "")) for v in rev_steps(doc)])
     if r.get("possible") is False:

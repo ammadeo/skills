@@ -122,6 +122,14 @@ explicitly in the summary: what happens to data written after the switch if
 we go back. The reversal gets run under pressure, so write steps that need
 no judgment.
 
+`applies_when` lists what has to be true for this reversal to apply as
+written: the old path still works, nothing exists only on the new side,
+nothing in flight would be cut off by a step. Write each as something that
+can be checked on the live system in a moment and answered yes or no. When
+something fails, these are checked first; if they all hold, the reversal
+runs as planned with no further analysis. So what you leave out here is
+what nobody will look at under pressure.
+
 No way back (`possible: false`) is a critical risk in itself. It needs a
 replacement in `instead`: a restore from a backup that has really been
 restored somewhere, a rehearsal on a copy, a partial rollout that limits who

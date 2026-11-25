@@ -49,8 +49,8 @@ Show the user, in one message:
 - who runs each smoke test: a script, you, or them by name
 - the point of no return, if there is one
 - the critical smoke checks, and this sentence: "If one of these fails I
-  stop, find out what broke, and come back with a reversal for you to
-  confirm: <reversal summary>."
+  stop, check that we are in the case our reversal plan covers, and come
+  back for your yes before running it: <reversal summary>."
 - every accepted risk or unknown that still has no mitigation
 - anything that changed since they approved the plan
 - how long it takes and what users may notice meanwhile
@@ -123,40 +123,34 @@ line it prints. A failure gets a call of its own with what you saw:
 
 ## 6. When it fails
 
-The dashboard shows the stop the moment you record it, so the user does not
-need a fast message from you. They need a right one. Stop changing things,
-find out what happened, and come back once with the facts and one proposal.
-The reversal is their call.
+The plan already holds the answer to a failure: its reversal. So the first
+question is not "what went wrong" but "is this the case the reversal was
+planned for". If it is, propose the plan as written and run it on the user's
+yes. The dashboard shows the stop the moment you record it, so nobody is
+waiting on a fast message; the reversal is still their call.
 
 1. Record it: `set FILE S1 fail --note "<what you saw>"`, or the failed
    step, and pass on the line it prints.
-2. Find out, read-only, and keep it to a few minutes:
-   - what is broken and for whom, from the system and not from a guess
-   - how widely, since when, and whether it is getting worse
-   - where the system stands now: which steps took effect, what has been
-     written or started since the switch, what is still in flight
+2. Confirm the reversal case, read-only:
+   - every line of `reversal.applies_when` is true now
+   - the `window` is open and no point of no return was crossed
+   - the system is where the document says: the steps marked done took
+     effect, and nothing else has changed
+   - each reversal step, run now, still does what the plan meant, and would
+     cut off or lose nothing in the state the system is in
+3. All of it holds: this is the expected case. Tell the user in a few lines
+   what failed, expected against observed, what it means for users, and that
+   the reversal plan applies as written, with its steps. Ask: run it? Do not
+   look for the root cause first. Going back does not need it, and it
+   belongs to the report afterwards.
+4. Something does not hold: say which line and what you saw. Then find out
+   what you need, in a few minutes and without fixing anything, and propose
+   one adjusted reversal: the steps, what differs from the plan and why. Put
+   the adjusted steps into `reversal.steps`. If no safe reversal exists, say
+   so plainly with what the user can choose between.
 
-   Use a worker for part of it where you have one. Fix nothing, and do not
-   rerun the failed check hoping for a different answer. If users are being
-   hurt more with every minute, cut this short and go on with what you have.
-3. Walk `reversal.steps` against that state, one step at a time. Would this
-   step, run now, still do what the plan meant? Would it hurt anyone or lose
-   anything in the state the system is in? Is the `window` still open, and
-   was a point of no return crossed? The verdict is "applies as written",
-   "applies with this change" or "does not apply". A caveat is a change: if a
-   step would do harm as written, the reversal does not apply as written.
-   Adjust it and put the adjusted steps into `reversal.steps`.
-4. Tell the user, in one message:
-   - what broke: the check, expected against observed, and what you found
-   - what it means for users right now
-   - the reversal you propose, step by step, with what differs from the
-     plan and why
-   - the question: reverse now?
-
-   Ask for one decision, not a menu: propose the reversal you would stand
-   behind. If there is a real alternative, name it in a sentence and say why
-   you are not proposing it. Fix forward only if the user asks for exactly
-   that, and then as a new step written into the document.
+Ask for one decision, not a menu. Fix forward only if the user asks for
+exactly that, and then as a new step written into the document.
 
 On the user's explicit yes: `approve FILE revert --by <their name>`. The
 script binds it to the reversal steps as they stand; editing them voids it.
