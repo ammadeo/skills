@@ -161,6 +161,7 @@ class Lifecycle(unittest.TestCase):
                          "Reversal confirmed by Ada. Reversing after critical smoke test S1 failed. 0 of 2 reversal steps done. "
                          "Next: V1 Move reads back to the old box, done by the agent.")
         self.ok("set", "V1", "done")
+        self.assertIn("its smoke results stay as recorded", self.refused("set", "S1", "pass"))      # a rerun must not erase the failure
         self.edit(lambda d: d["reversal"]["steps"][1].update(action="Something else"))
         self.assertIn("changed after the user confirmed", self.refused("set", "V2", "done"))
         self.ok("approve", "revert", "--by", "Ada")

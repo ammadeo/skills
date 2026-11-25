@@ -146,8 +146,8 @@ That observation is a check.
   that reads and never writes, and is safe to repeat every few seconds. A
   test that writes something, like a test order, runs once.
 - `critical`: true when a failure means users are being hurt now or data is
-  at risk. A critical failure stops the change and puts the reversal to
-  the user at once. False when the
+  at risk. A critical failure stops the change, and the reversal goes to
+  the user to confirm. False when the
   failure can wait for a follow-up. Decide it here, calmly; nobody decides
   this well mid-change.
 - `by`: who runs it. Aim for `script`: a command decides, the monitor runs

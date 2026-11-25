@@ -49,8 +49,8 @@ Show the user, in one message:
 - who runs each smoke test: a script, you, or them by name
 - the point of no return, if there is one
 - the critical smoke checks, and this sentence: "If one of these fails I
-  stop, tell you what broke and whether the planned reversal still fits,
-  and reverse on your word: <reversal summary>."
+  stop, find out what broke, and come back with a reversal for you to
+  confirm: <reversal summary>."
 - every accepted risk or unknown that still has no mitigation
 - anything that changed since they approved the plan
 - how long it takes and what users may notice meanwhile
@@ -123,36 +123,40 @@ line it prints. A failure gets a call of its own with what you saw:
 
 ## 6. When it fails
 
-The user is watching and the reversal is their call. Your job is to put the
-facts in front of them within the first minute and keep the reversal ready.
+The dashboard shows the stop the moment you record it, so the user does not
+need a fast message from you. They need a right one. Stop changing things,
+find out what happened, and come back once with the facts and one proposal.
+The reversal is their call.
 
 1. Record it: `set FILE S1 fail --note "<what you saw>"`, or the failed
-   step.
-2. In the same message, start one read-only diagnostics worker in the
-   background and do not wait for it. Its brief: the check that failed with
-   expected and observed, the steps run so far, where to look (logs,
-   metrics, the state of everything those steps touched), the remaining
-   read-only smoke checks to run, and a few minutes at most. It returns
-   what is broken, how widely and since when, whether it is getting worse,
-   and anything in the current state that would make a reversal step fail
-   or lose data. It changes nothing.
-3. Tell the user at once, in a few lines:
-   - what broke: the check, expected against observed
-   - what that means for users right now, taken from the risk the check
-     covers
-   - whether the planned reversal applies. Walk `reversal.steps` against
-     where the system really is: which steps ran, whether the `window` is
-     still open, what was written since the switch, whether a point of no
-     return was crossed. Answer "applies as written", "applies with this
-     change: ..." or "does not apply because ...".
+   step, and pass on the line it prints.
+2. Find out, read-only, and keep it to a few minutes:
+   - what is broken and for whom, from the system and not from a guess
+   - how widely, since when, and whether it is getting worse
+   - where the system stands now: which steps took effect, what has been
+     written or started since the switch, what is still in flight
+
+   Use a worker for part of it where you have one. Fix nothing, and do not
+   rerun the failed check hoping for a different answer. If users are being
+   hurt more with every minute, cut this short and go on with what you have.
+3. Walk `reversal.steps` against that state, one step at a time. Would this
+   step, run now, still do what the plan meant? Would it hurt anyone or lose
+   anything in the state the system is in? Is the `window` still open, and
+   was a point of no return crossed? The verdict is "applies as written",
+   "applies with this change" or "does not apply". A caveat is a change: if a
+   step would do harm as written, the reversal does not apply as written.
+   Adjust it and put the adjusted steps into `reversal.steps`.
+4. Tell the user, in one message:
+   - what broke: the check, expected against observed, and what you found
+   - what it means for users right now
+   - the reversal you propose, step by step, with what differs from the
+     plan and why
    - the question: reverse now?
-4. Work through the reversal with the user while the worker runs. When it
-   reports, relay it in two or three lines, starting with anything that
-   changes the answer on the reversal. Going back does not need the root
-   cause: if the user says go before the worker is done, go.
-5. If the reversal needs adjusting, edit `reversal.steps` in the document
-   and show the new steps before asking. Fix forward only if the user asks
-   for exactly that, and then as a new step written into the document.
+
+   Ask for one decision, not a menu: propose the reversal you would stand
+   behind. If there is a real alternative, name it in a sentence and say why
+   you are not proposing it. Fix forward only if the user asks for exactly
+   that, and then as a new step written into the document.
 
 On the user's explicit yes: `approve FILE revert --by <their name>`. The
 script binds it to the reversal steps as they stand; editing them voids it.
@@ -163,8 +167,11 @@ check passes or the change is reversed.
 ## 7. Reversal
 
 Run `reversal.steps` in order and `set FILE V1 done` after each. Then run
-the smoke checks again: the restored system has to match the baseline.
-`finish FILE reverted --note "<why>"`, and publish the page once with that state.
+the smoke checks again: the restored system has to match the baseline. The
+change's own results stay as recorded, including the failure that caused
+the reversal, and the script refuses to overwrite them; what the reruns
+showed goes into the note: `finish FILE reverted --note "<why, and what the
+reruns showed>"`. Publish the page once with that state.
 
 Report what failed (what was observed, not a theory), that the system is
 back and how you know, what was or was not lost, and what is still in place

@@ -728,6 +728,9 @@ def cmd_set(a):
             if kind == "S":
                 if any(s.get("status") != "done" for s in rows(doc, "steps")):
                     sys.exit("error: the change has not run yet. A result from before it is a baseline: add --baseline")
+                if (doc.get("approvals") or {}).get("revert"):
+                    sys.exit("error: the change is being reversed, so its smoke results stay as recorded. "
+                             f"Say what a rerun shows in the note of finish ({id_} not changed)")
             elif gate and status != "pending":
                 b = blockers(doc, gate)
                 if b:
