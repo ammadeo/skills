@@ -10,7 +10,9 @@
 CONFIG is monitor.json, next to change.json. The monitor only watches: it runs
 the checks, shows them, takes a person's Pass or Fail on the tests that are
 theirs, and never writes to the change document. The page is
-assets/dashboard/index.html, served as it is. --demo runs no command at all
+assets/dashboard/index.html, served as it is. Commands the monitor runs get
+CRITICAL_CHANGE_MONITOR=1 in their environment, so a command or its logs can
+tell an unattended run from one somebody started. --demo runs no command at all
 and draws invented readings, to look at the page.
 """
 import argparse
@@ -148,7 +150,8 @@ class Monitor:
                 ok, text = False, "made to fail by the demo"
         else:
             try:
-                p = subprocess.run(c["cmd"], shell=True, cwd=str(self.cwd), capture_output=True, text=True, timeout=c.get("timeout", 20))
+                p = subprocess.run(c["cmd"], shell=True, cwd=str(self.cwd), capture_output=True, text=True, timeout=c.get("timeout", 20),
+                                   env={**os.environ, "CRITICAL_CHANGE_MONITOR": "1"})
                 out = (p.stdout.strip() or p.stderr.strip())
                 ok, text = p.returncode == 0, (out.splitlines() or [""])[-1][:200]
                 if c["kind"] == "chart":
@@ -206,14 +209,19 @@ class Monitor:
                         threading.Thread(target=self.run, args=(c,), daemon=True).start()
             if now - last_write >= 2:
                 last_write = now
-                state, text = self.verdict()
-                idle = [c["id"] for c in self.cfg["checks"] if c.get("on_demand") and self.state[c["id"]]["status"] == "waiting"]
-                tmp = change.monitor_state_file(self.path).with_suffix(".tmp")
-                tmp.write_text(json.dumps({"updated": now, "url": self.url, "pid": os.getpid(), "state": state, "text": text,
-                                           "not_run": idle, "demo": bool(self.demo),
-                                           "marked": {i: [v["result"], v["by"]] for i, v in self.human.items()}}))
-                tmp.replace(change.monitor_state_file(self.path))
+                self.report()
             time.sleep(0.25)
+
+    def report(self):
+        """Write the state file that status, run and the first-step gate read. Also called right after a run or a verdict."""
+        state, text = self.verdict()
+        idle = [c["id"] for c in self.cfg["checks"] if c.get("on_demand") and self.state[c["id"]]["status"] == "waiting"]
+        with self.lock:
+            marked = {i: [v["result"], v["by"]] for i, v in self.human.items()}
+            tmp = change.monitor_state_file(self.path).with_suffix(f".{threading.get_ident()}.tmp")
+            tmp.write_text(json.dumps({"updated": time.time(), "url": self.url, "pid": os.getpid(), "state": state, "text": text,
+                                       "not_run": idle, "demo": bool(self.demo), "marked": marked}))
+            tmp.replace(change.monitor_state_file(self.path))
 
     def mark(self, id_, result):
         """A person's verdict on a smoke test that is theirs. Returns an error text, or None."""
@@ -328,6 +336,7 @@ def handler(mon):
                 return self.send(400, {"error": "the body must be JSON"})
             if self.path == "/verdict":
                 err = mon.mark(str((body or {}).get("id")), (body or {}).get("result")) if isinstance(body, dict) else "the body must be an object"
+                mon.report()
                 return self.send(400, {"error": err}) if err else self.send(200, {"ok": True})
             if self.path != "/run" or not isinstance(body, list):
                 return self.send(404, {"error": "not found"})
@@ -341,6 +350,7 @@ def handler(mon):
             for i in ids:
                 st = mon.run(by_id[i], by="agent")
                 out.append({"id": i, "label": by_id[i]["label"], "critical": by_id[i].get("critical"), "status": st["status"], "text": st["text"]})
+            mon.report()
             self.send(200, out)
 
         def log_message(self, *args):
