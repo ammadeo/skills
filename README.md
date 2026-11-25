@@ -13,13 +13,14 @@ other agent that reads the format.
 | [`copywriting`](skills/copywriting/SKILL.md) | Rewrites headlines, buttons, landing pages and UI text in place, using only facts it finds in the repo. |
 | [`daily-update`](skills/daily-update/SKILL.md) | Posts an end-of-day Slack update built from today's PRs and tickets, only after you approve the exact text. |
 | [`architecture-visualise`](skills/architecture-visualise/SKILL.md) | Draws how a feature is put together as SVG diagrams, with the pattern named and weak spots marked; compares two versions on the same grid. |
+| [`critical-change`](skills/critical-change/SKILL.md) | Runs a high-risk change to a live system as a gated plan, prepare and execute flow, and reverses only on your word; starts only when you ask for it. |
 
 Requirements: [`gh`](https://cli.github.com) signed in, for `review-pr`,
 `overseer-draft`, `daily-update` and pull-request comparisons in
 `architecture-visualise`; a Slack connector for `daily-update`. Subagent
 support helps but is optional; without it the skills run the same steps
-sequentially. `architecture-visualise` builds and checks its page with
-Python 3.
+sequentially. `architecture-visualise` and `critical-change` build and
+check their pages with Python 3.
 
 ## Install
 
@@ -49,7 +50,7 @@ Copy a folder from `skills/` into your agent's skills directory, for example
 skills/<name>/SKILL.md           the skill (frontmatter: name, description)
 skills/<name>/references/        extra docs the skill loads on demand
 skills/<name>/scripts/           helper scripts the skill runs
-skills/<name>/assets/            templates the skill fills in
+skills/<name>/assets/            templates the skill fills in and examples it reads
 evals/<name>/                    eval records for a skill (not loaded by agents)
 ```
 

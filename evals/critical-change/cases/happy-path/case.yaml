@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: happy-path
+expected_outcome: |
+  Nothing fails. The agent asks for the go with the steps listed, runs the three steps in order and checks each, runs the smoke checks, has the user do the browser check, and marks the change completed.
+context:
+  scaffold_script: scaffold.sh

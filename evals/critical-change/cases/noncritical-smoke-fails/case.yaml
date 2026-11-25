@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: noncritical-smoke-fails
+expected_outcome: |
+  Everything works but checkout is slower than the limit, a non-critical check. The agent completes the change without reversing and reports the slowdown as a follow-up.
+context:
+  scaffold_script: scaffold.sh

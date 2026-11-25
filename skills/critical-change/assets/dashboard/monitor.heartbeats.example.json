@@ -1,0 +1,101 @@
+{
+  "change": "../example.json",
+  "port": 4173,
+  "checks": [
+    {
+      "id": "H1",
+      "label": "The API answers",
+      "kind": "ping",
+      "cmd": "curl -fsS --max-time 3 https://api.example.com/health",
+      "every": 5,
+      "critical": true,
+      "covers": [
+        "R1"
+      ]
+    },
+    {
+      "id": "H2",
+      "label": "Share of API requests that fail",
+      "kind": "chart",
+      "cmd": "scripts/metric.sh api_error_rate_percent",
+      "unit": "%",
+      "max": 1,
+      "every": 5,
+      "critical": true,
+      "covers": [
+        "R1"
+      ]
+    },
+    {
+      "id": "H3",
+      "label": "Sessions held by the new store",
+      "kind": "chart",
+      "cmd": "scripts/metric.sh managed_redis_session_keys",
+      "unit": "keys",
+      "min": 10000,
+      "every": 10,
+      "critical": false,
+      "covers": [
+        "R1"
+      ]
+    },
+    {
+      "id": "H4",
+      "label": "Time to load a signed-in page (p95)",
+      "kind": "chart",
+      "cmd": "scripts/metric.sh me_p95_ms",
+      "unit": "ms",
+      "max": 320,
+      "every": 10,
+      "critical": false,
+      "covers": [
+        "R3"
+      ]
+    },
+    {
+      "id": "H5",
+      "label": "The old store still receives every write",
+      "kind": "ping",
+      "cmd": "scripts/smoke.sh legacy-still-written",
+      "every": 10,
+      "critical": true,
+      "covers": [
+        "R1"
+      ]
+    },
+    {
+      "id": "S1",
+      "label": "Someone signed in before the change is still signed in",
+      "kind": "ping",
+      "cmd": "scripts/smoke.sh existing-session",
+      "critical": true,
+      "covers": [
+        "R1"
+      ],
+      "every": 10
+    },
+    {
+      "id": "S2",
+      "label": "A new login works and survives the next request",
+      "kind": "ping",
+      "cmd": "scripts/smoke.sh fresh-login",
+      "on_demand": true,
+      "critical": true,
+      "covers": [
+        "R1",
+        "U2"
+      ]
+    },
+    {
+      "id": "S4",
+      "label": "Pages are as fast as before",
+      "kind": "ping",
+      "cmd": "scripts/smoke.sh latency",
+      "critical": false,
+      "covers": [
+        "R3"
+      ],
+      "every": 15
+    }
+  ]
+}

@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Change dashboard</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: the stage on top; live checks in a two-column grid on the left two thirds; on the right third the smoke
+   tests, then the log. With no live checks, the default, it is just the smoke tests and the log. Only the checks
+   are boxed: they are the things being watched. Green is the quiet default, so a label appears only when something
+   is not fine. No state is told by colour alone: every one also has a shape, a word or a size. Same tokens as the
+   change page (scripts/change.py). Do not restyle per change. */
+:root{--bg:#f3f5f8;--surface:#fff;--ink:#16202b;--muted:#5a6776;--line:#d2d9e1;--accent:#2457a6;--accent-soft:#2457a61f;
+--ok:#007a5a;--ok-bg:#dff1e6;--warn:#8f5600;--warn-bg:#fbeed3;--crit:#b3261e;--crit-bg:#fbe4e1;
+--meta:.75rem;--small:.875rem;--body:1rem;--lead:1.125rem;--title:1.25rem;--value:1.75rem;
+--sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#0e141a;--surface:#172029;--ink:#dee5ec;--muted:#96a3b0;--line:#2c3844;--accent:#8ab4f8;--accent-soft:#8ab4f826;--ok:#62d9ac;--ok-bg:#17342a;--warn:#f0b354;--warn-bg:#3a2c12;--crit:#ff9466;--crit-bg:#42201d;color-scheme:dark}}
+*{box-sizing:border-box}
+html{scrollbar-color:var(--line) transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:var(--small)/1.5 var(--sans);font-variant-numeric:tabular-nums;
+padding:1.5rem max(16px,env(safe-area-inset-right,0px)) 2rem max(16px,env(safe-area-inset-left,0px))}
+::selection{background:var(--accent-soft)}
+.page{display:grid;gap:1.5rem;max-width:88rem;margin-inline:auto}
+h1,h2,h3,p,ol{margin:0;padding:0}
+ol{list-style:none}
+svg{display:block}
+[hidden]{display:none!important}
+
+/* stage on top */
+.top{display:grid;gap:1rem}
+.head{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center;justify-content:space-between}
+h1{font-size:var(--title);line-height:1.2;font-weight:600;text-wrap:balance}
+.right{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center}
+.clock{color:var(--muted)}
+.verdict{display:inline-flex;align-items:center;gap:.5rem;font-weight:600;padding:.25rem .75rem;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.verdict.ok{color:var(--ok);background:var(--ok-bg);border-color:transparent}
+.verdict.warn{color:var(--warn);background:var(--warn-bg);border-color:transparent}
+.verdict.bad{color:var(--crit);background:var(--crit-bg);border-color:var(--crit)}
+.tag{font:600 var(--meta) var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);white-space:nowrap;flex:none}
+.tag.demo{color:var(--warn)}
+.stages{display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
+.stages li{display:grid;justify-items:center;gap:.25rem;position:relative;font-weight:500;color:var(--muted);text-align:center}
+.stages li::before{content:"";position:absolute;top:13px;left:calc(-50% + 22px);right:calc(50% + 22px);height:2px;border-radius:1px;background:var(--line)}
+.stages li:first-child::before{display:none}
+.stages li.done::before,.stages li.now::before{background:var(--ok)}
+.mark{position:relative;width:28px;height:28px;border-radius:50%;border:2px solid var(--line);background:var(--bg);display:grid;place-items:center;color:var(--bg)}
+.done .mark{background:var(--ok);border-color:var(--ok)}
+.bad .mark{background:var(--crit);border-color:var(--crit)}
+.now .mark{border-color:var(--accent);border-width:3px}
+.now .mark::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.stages li.done,.stages li.now{color:var(--ink)}
+.stages li.now{font-weight:600}
+.stages li.bad{color:var(--crit);font-weight:600}
+.line{font-size:var(--lead);font-weight:500}
+
+.lost{display:none;background:var(--crit);color:var(--bg);font-weight:600;padding:.75rem 1rem;border-radius:8px}
+body.lost .lost{display:block}
+
+/* checks left; smoke tests and log right */
+.main{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:2rem;align-items:start}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.tile{display:grid;grid-template-rows:auto auto 1fr auto;gap:.5rem;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:1rem;min-width:0}
+.tile>*{min-width:0}
+.tile.fail{border-color:var(--crit);background:var(--crit-bg)}
+.tile header{display:flex;align-items:baseline;gap:.5rem}
+.id{font:600 var(--meta) var(--mono);color:var(--muted)}
+h3{font-size:var(--body);font-weight:600;line-height:1.3;flex:1;min-width:0}
+.read{display:flex;flex-wrap:wrap;align-items:center;gap:.25rem .5rem}
+.val{font-size:var(--value);font-weight:600;line-height:1.1}
+.ping .val{font-size:var(--title)}
+.unit{color:var(--muted);align-self:flex-end}
+.state{margin-left:auto;display:inline-flex;align-items:center;gap:.25rem;font-weight:600;color:var(--muted)}
+.fail .state{color:var(--crit)}
+.plot{height:64px;align-self:end}
+.plot svg{width:100%;height:64px;overflow:visible}
+.lim{stroke:var(--muted);stroke-width:1;stroke-dasharray:4 4}
+.area{fill:var(--accent-soft)}
+.ln{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.end{fill:var(--accent);stroke:var(--surface);stroke-width:2}
+.tile.fail .end{stroke:var(--crit-bg)}
+.halo{fill:var(--accent);opacity:0;transform-box:fill-box;transform-origin:center}
+.cross{stroke:var(--muted);stroke-width:1}
+.ticks{display:flex;align-items:flex-end;justify-content:flex-end;gap:3px;height:64px;overflow:hidden}
+.ticks span{flex:none;width:6px;height:14px;border-radius:2px;background:var(--ok);transform-origin:bottom}
+.ticks span.no{height:40px;background:var(--crit)}
+.ticks span.new{animation:arrive .5s cubic-bezier(.16,1,.3,1)}
+@keyframes arrive{from{transform:scaleY(.1) translateX(9px)}}
+.tile footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:0 1rem;font-size:var(--meta);color:var(--muted)}
+.tile footer span{min-width:0;overflow-wrap:anywhere}
+.tile.fail .note{color:var(--crit)}
+
+/* the soft animation means: this value is being watched right now */
+.beat{position:relative;width:.75rem;height:.75rem;flex:none;display:inline-block}
+.beat::before,.beat::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--muted)}
+.ok .beat::before,.ok .beat::after{background:var(--ok)}
+.fail .beat::before,.fail .beat::after{background:var(--crit)}
+.beat::after{opacity:0}
+.waiting .beat::before{background:none;border:2px solid var(--muted)}
+.lamp{display:inline-flex;align-items:center;color:var(--crit)}
+@keyframes breathe{0%{transform:scale(1);opacity:.5}70%,100%{transform:scale(2.6);opacity:0}}
+.live .beat::after,.live .halo,.running .beat::after{animation:breathe 2.6s cubic-bezier(.16,1,.3,1) infinite}
+.running .beat::after{animation-duration:.9s}
+body.lost .beat::after,body.lost .halo{animation:none}
+body.lost .tiles{opacity:.55}
+@media (prefers-reduced-motion:reduce){.live .beat::after,.live .halo,.running .beat::after,.ticks span.new,.trail i.new{animation:none}}
+
+.side{display:grid;gap:1.5rem;position:sticky;top:1.5rem;max-height:calc(100vh - 3rem);grid-template-rows:auto minmax(8rem,1fr)}
+.side section{display:grid;gap:.5rem;min-height:0;align-content:start}
+.side .log{grid-template-rows:auto minmax(0,1fr)}
+h2{font-size:var(--body);font-weight:600;display:flex;justify-content:space-between;gap:1rem;align-items:baseline}
+h2 span{font-weight:500;font-size:var(--small);color:var(--muted)}
+h2 span.bad{color:var(--crit);font-weight:600}
+.side li{padding:.5rem 0;border-top:1px solid var(--line)}
+#smoke li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 1rem;align-items:baseline}
+#smoke .what b{font:600 var(--meta) var(--mono);color:var(--muted);margin-right:.5rem}
+#smoke .now{display:inline-flex;align-items:center;gap:.75rem}
+#smoke .res{display:inline-flex;align-items:center;gap:.5rem;font-weight:600;color:var(--muted);white-space:nowrap}
+.trail{display:inline-flex;align-items:flex-end;gap:2px;height:16px}
+.trail i{width:4px;height:8px;border-radius:1px;background:var(--ok);transform-origin:bottom}
+.trail i.no{height:16px;background:var(--crit)}
+.trail i.new{animation:arrive .5s cubic-bezier(.16,1,.3,1)}
+#smoke li.ok .res{color:var(--ok)}
+#smoke li.fail .res,#smoke li.fail .what{color:var(--crit)}
+#smoke li.fail .what{font-weight:600}
+#smoke .res button{display:inline-flex;align-items:center;gap:.25rem;font:600 var(--small) var(--sans);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:.375rem .75rem;min-height:2rem;cursor:pointer}
+#smoke .res button:hover{border-color:var(--muted)}
+#smoke .res button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#smoke .res button[aria-pressed="true"][data-result="pass"]{color:var(--bg);background:var(--ok);border-color:var(--ok)}
+#smoke .res button[aria-pressed="true"][data-result="fail"]{color:var(--bg);background:var(--crit);border-color:var(--crit)}
+#smoke .sub{grid-column:1/-1;font-size:var(--meta);color:var(--muted)}
+#smoke .sub:empty{display:none}
+#log{overflow-y:auto;scrollbar-width:thin}
+#log li{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:0 .5rem;align-items:baseline}
+#log time{font:var(--meta) var(--mono);color:var(--muted)}
+.src{font:600 var(--meta) var(--sans);letter-spacing:.05em;text-transform:uppercase;padding:0 .375rem;border-radius:4px;white-space:nowrap;justify-self:start}
+.src.monitor{color:var(--accent);border:1px solid var(--accent)}
+.src.agent{color:var(--bg);background:var(--ink);border:1px solid var(--ink)}
+.src.human{color:var(--ink);border:1px dashed var(--ink)}
+#log p{grid-column:1/-1;overflow-wrap:anywhere}
+#log li.bad p{color:var(--crit);font-weight:600}
+#log p svg{display:inline;vertical-align:-2px;margin-right:.375rem}
+.side li.empty{color:var(--muted)}
+
+.main.solo{grid-template-columns:minmax(0,1fr)}
+.solo .tiles{display:none}
+.solo .side{position:static;max-height:none;grid-template-rows:none;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:2rem;align-items:start}
+.solo #log{max-height:calc(100vh - 16rem)}
+@media (max-width:60rem){.solo .side{grid-template-columns:minmax(0,1fr)}.main{grid-template-columns:minmax(0,1fr)}.side{position:static;max-height:none}#log{max-height:28rem}}
+@media (max-width:36rem){.tiles{grid-template-columns:minmax(0,1fr)}.stages li{font-size:var(--meta)}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="lost" role="alert">No signal from the monitor for <span id="gap">0</span> s. What is shown below may be out of date.</div>
+
+  <section class="top" aria-label="Where the change stands">
+    <div class="head">
+      <h1 id="title">Connecting to the monitor</h1>
+      <div class="right">
+        <span class="tag demo" id="demo" hidden>Demo, invented readings</span>
+        <span class="verdict" id="verdict"></span>
+        <span class="clock" id="clock"></span>
+      </div>
+    </div>
+    <ol class="stages" id="stages"></ol>
+    <p class="line" id="line"></p>
+  </section>
+
+  <div class="main" id="main">
+    <section class="tiles" id="tiles" aria-label="Live checks"></section>
+    <div class="side">
+      <section aria-label="Smoke tests">
+        <h2>Smoke tests <span id="smokeSum"></span></h2>
+        <ol id="smoke"></ol>
+      </section>
+      <section class="log" aria-label="Log">
+        <h2>Log</h2>
+        <ol id="log"><li class="empty">Nothing yet.</li></ol>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+const CHECK = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5l3 3 6-7"/></svg>';
+const CROSS = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 3l8 8M11 3l-8 8"/></svg>';
+const SLOTS = 60, TICKS = 30, TRAIL = 12, H = 64, PAD = 7, NS = "http://www.w3.org/2000/svg";
+let lastOk = 0, skew = 0, tiles = {}, rows = {}, hover = {}, logKey = "";
+
+const fmt = v => v == null ? "" : Math.abs(v) >= 1000 ? Math.round(v).toLocaleString("en-US") : Math.abs(v) >= 10 ? v.toFixed(0) : v.toFixed(2);
+const clock = at => new Date(at * 1000).toLocaleTimeString([], {hour12: false});
+const ago = (at, now) => at == null ? "" : Math.max(0, Math.round(now - at)) + " s ago";
+const limitText = c => "limit " + ["min", "max"].filter(k => c[k] != null).map(k => `${k} ${fmt(c[k])} ${c.unit || ""}`.trim()).join(", ");
+
+function header(s, liveCount) {
+  const ch = s.change, v = s.verdict;
+  $("verdict").hidden = !liveCount && v.state === "ok";       // nothing live and nothing red: nothing to announce
+  document.title = ch.title ? ch.title + ": live" : "Change dashboard";
+  $("title").textContent = ch.title || "Change dashboard";
+  $("line").textContent = ch.line || "";
+  $("demo").hidden = !s.demo;
+  $("verdict").className = "verdict " + v.state;
+  $("verdict").innerHTML = (v.state === "ok" ? CHECK : v.state === "bad" || v.state === "warn" ? CROSS : "") + esc(v.text);
+  $("stages").innerHTML = ch.stages.map(st =>
+    `<li class="${st.state}"><span class="mark">${st.state === "done" ? CHECK : st.state === "bad" ? CROSS : ""}</span>${esc(st.name)}</li>`).join("");
+}
+
+function makeTile(c) {
+  const el = document.createElement("article"), chart = c.kind === "chart";
+  el.innerHTML = `<header><span class="id">${esc(c.id)}</span><h3>${esc(c.label)}</h3>${c.critical ? '<span class="tag">critical</span>' : ""}</header>
+    <div class="read">${chart ? "" : '<span class="lamp"></span>'}<span class="val"></span>${chart ? `<span class="unit">${esc(c.unit || "")}</span>` : ""}<span class="state"></span></div>
+    <div class="plot">${chart ? "" : '<div class="ticks"></div>'}</div><footer><span class="note"></span><span class="age"></span></footer>`;
+  if (chart) {
+    const svg = document.createElementNS(NS, "svg");
+    svg.innerHTML = '<line class="lim"/><path class="area"/><path class="ln"/><line class="cross" visibility="hidden"/><circle class="halo" r="5"/><circle class="end" r="4"/>';
+    svg.addEventListener("mousemove", e => { const r = svg.getBoundingClientRect(); hover[c.id] = (e.clientX - r.left) / r.width; draw(c.id); });
+    svg.addEventListener("mouseleave", () => { delete hover[c.id]; draw(c.id); });
+    el.querySelector(".plot").append(svg);
+  }
+  $("tiles").append(el);
+  return {el, c};
+}
+
+function draw(id) {
+  const {el, c} = tiles[id];
+  const pts = c.history.filter(p => p[1] != null);
+  const svg = el.querySelector(".plot svg"), w = Math.max(120, Math.round(el.querySelector(".plot").getBoundingClientRect().width));
+  const note = el.querySelector(".note");
+  svg.setAttribute("viewBox", `0 0 ${w} ${H}`);
+  note.textContent = limitText(c);
+  if (!pts.length) return;
+  const limits = ["min", "max"].map(k => c[k]).filter(v => v != null);
+  let lo = Math.min(...pts.map(p => p[1]), ...limits), hi = Math.max(...pts.map(p => p[1]), ...limits);
+  const span = (hi - lo) || 1; lo -= span * 0.12; hi += span * 0.12;
+  const step = (w - 2 * PAD) / (SLOTS - 1);
+  const x = i => PAD + (i + SLOTS - pts.length) * step;
+  const y = v => H - PAD - (v - lo) / (hi - lo) * (H - 2 * PAD);
+  const path = pts.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(p[1]).toFixed(1)}`).join("");
+  const lx = x(pts.length - 1), ly = y(pts[pts.length - 1][1]);
+  const set = (sel, attrs) => { const n = svg.querySelector(sel); for (const k in attrs) n.setAttribute(k, attrs[k]); };
+  set(".ln", {d: path});
+  set(".area", {d: `${path}L${lx.toFixed(1)} ${H}L${x(0).toFixed(1)} ${H}Z`});
+  const limY = y(c.max != null ? c.max : c.min);
+  set(".lim", {x1: 0, x2: w, y1: limY, y2: limY});
+  set(".end", {cx: lx, cy: ly}); set(".halo", {cx: lx, cy: ly});
+  if (hover[id] != null) {
+    const i = Math.max(0, Math.min(pts.length - 1, Math.round((hover[id] * w - PAD) / step - (SLOTS - pts.length))));
+    set(".cross", {x1: x(i), x2: x(i), y1: 0, y2: H, visibility: "visible"});
+    note.textContent = `${clock(pts[i][0])}: ${fmt(pts[i][1])} ${c.unit || ""}`;
+  } else set(".cross", {visibility: "hidden"});
+}
+
+// Live checks. Green says nothing beyond its value; a label appears only when a check is waiting or red.
+function checks(list, now) {
+  for (const c of list) {
+    const t = tiles[c.id] || (tiles[c.id] = makeTile(c));
+    const changed = t.status !== c.status, fresh = t.at !== c.at;
+    Object.assign(t, {c, status: c.status, at: c.at});
+    const el = t.el, bad = c.status === "fail";
+    el.className = `tile ${c.kind} ${c.status} live${c.running ? " running" : ""}`;
+    if (c.kind === "chart") {
+      el.querySelector(".val").textContent = fmt(c.value) || "–";
+      el.querySelector(".state").innerHTML = bad ? CROSS + "Past the limit" : c.status === "waiting" ? "Waiting" : "";
+      draw(c.id);
+    } else {
+      el.querySelector(".val").textContent = c.status === "waiting" ? "Waiting" : bad ? "Down" : "Up";
+      if (changed) el.querySelector(".lamp").innerHTML = bad ? CROSS : '<span class="beat"></span>';   // only on a change, so the breathing never restarts
+      if (fresh) {                              // one tick per reading; the newest arrives from the right, older ones fade
+        const h = c.history.slice(-TICKS);
+        el.querySelector(".ticks").innerHTML = h.map((p, i) =>
+          `<span class="${p[1] ? "" : "no"}${i === h.length - 1 ? " new" : ""}" style="opacity:${(0.25 + 0.75 * (i + 1) / h.length).toFixed(2)}" title="${clock(p[0])}: ${p[1] ? "passed" : "failed"}"></span>`).join("");
+      }
+      el.querySelector(".note").textContent = bad ? c.text || "" : "";
+    }
+    el.querySelector(".age").textContent = ago(c.at, now);
+  }
+}
+
+// Smoke tests: one row each, always naming who runs it. A continuous test shows its latest reading and a trail of
+// recent ones; the others show the result once they have run. A person's test carries Pass and Fail buttons.
+function smoke(list, all, now, atSmoke) {
+  const mon = Object.fromEntries(all.map(c => [c.id, c]));
+  const said = {pass: "ok", fail: "fail"};
+  let passed = 0, critFail = false;
+  for (const s of list) {
+    let r = rows[s.id];
+    if (!r) {
+      r = rows[s.id] = document.createElement("li");
+      r.innerHTML = `<span class="what"><b>${esc(s.id)}</b>${esc(s.check)}</span><span class="now"><span class="trail"></span><span class="res"></span></span><span class="sub"></span>`;
+      $("smoke").append(r);
+    }
+    const m = mon[s.id], running = m && m.running, live = !!(m && m.every);
+    const seen = m && m.status !== "waiting" ? m.status : said[s.marked] || null;      // a script's reading, or a person's click
+    const result = (live ? seen || said[s.recorded] : said[s.recorded] || seen) || "waiting";   // a live test reports now; otherwise the record speaks
+    if (result === "ok") passed++;
+    if (result === "fail" && s.critical) critFail = true;
+    r.className = result + (live ? " live" : running ? " running" : "");
+    const theirs = s.by === "human" && !s.recorded;                                    // a person answers with a button
+    const html = theirs ? ["pass", "fail"].map(v =>
+        `<button type="button" data-id="${esc(s.id)}" data-result="${v}" aria-pressed="${s.marked === v}">${s.marked === v ? (v === "pass" ? CHECK : CROSS) : ""}${v === "pass" ? "Pass" : "Fail"}</button>`).join("")
+      : live ? (result === "fail" ? CROSS + "Failing" : '<span class="beat"></span>' + (result === "ok" ? "Passing" : "Waiting for " + esc(s.owner)))
+      : running ? '<span class="beat"></span>Running'
+      : (result === "ok" ? CHECK + "Passed" : result === "fail" ? CROSS + "Failed" : "Waiting for " + esc(s.owner));
+    if (r.dataset.html !== html) { r.dataset.html = html; r.querySelector(".res").innerHTML = html; }   // never rebuilt under a cursor
+    if (live && r.dataset.at !== String(m.at)) {                                       // one tick per reading, newest on the right
+      r.dataset.at = String(m.at);
+      const h = m.history.slice(-TRAIL);
+      r.querySelector(".trail").innerHTML = h.map((p, i) =>
+        `<i class="${p[1] ? "" : "no"}${i === h.length - 1 ? " new" : ""}" style="opacity:${(0.25 + 0.75 * (i + 1) / h.length).toFixed(2)}"></i>`).join("");
+    }
+    const unrecorded = seen && !s.recorded && (!live || atSmoke);                      // a live test is recorded once the steps are done
+    r.querySelector(".sub").textContent = [
+      live ? `Checked every ${m.every} s by ${s.owner}` : "Run by " + s.owner, s.critical ? "critical" : "",
+      live && m.at != null ? "last " + ago(m.at, now) : "", theirs && !s.marked ? "waiting for " + s.owner : "",
+      unrecorded ? "not recorded yet" : ""].filter(Boolean).join(" · ");
+  }
+  $("smokeSum").textContent = list.length ? (critFail ? "Critical failing · " : "") + `${passed} of ${list.length} OK` : "";
+  $("smokeSum").className = critFail ? "bad" : "";
+}
+
+function log(entries) {
+  const key = entries.length + ":" + (entries.length ? entries[entries.length - 1].at : 0);
+  if (key === logKey) return;
+  logKey = key;
+  $("log").innerHTML = entries.length ? entries.slice().reverse().map(e =>
+    `<li class="${e.level}"><time>${clock(e.at)}</time><span class="src ${e.source}">${{agent: "Agent", human: "Person"}[e.source] || "Monitor"}</span><span></span><p>${e.level === "bad" ? CROSS : ""}${esc(e.text)}</p></li>`).join("")
+    : '<li class="empty">Nothing yet.</li>';
+}
+
+function signal() {
+  const gap = lastOk ? Math.round((Date.now() - lastOk) / 1000) : 0;
+  const lost = lastOk > 0 && gap > 4;
+  document.body.classList.toggle("lost", lost);
+  $("gap").textContent = gap;
+  $("clock").textContent = !lastOk ? "Connecting" : lost ? "" : clock((Date.now() + skew) / 1000);
+}
+
+async function tick() {
+  try {
+    const s = await (await fetch("/state", {cache: "no-store"})).json();
+    lastOk = Date.now(); skew = s.now * 1000 - Date.now();
+    const stages = s.change.stages || [];
+    smoke(s.change.smoke || [], s.checks, s.now, !!stages[3] && stages[3].state !== "todo");
+    const live = s.checks.filter(c => !rows[c.id]);          // smoke tests have their own place
+    header(s, s.checks.filter(c => c.every).length); checks(live, s.now); log(s.log);
+    $("main").classList.toggle("solo", !live.length);
+  } catch (e) { if (!(e instanceof TypeError && /fetch/i.test(e.message))) console.error(e); }   // a lost connection is the banner's job
+  signal();
+}
+tick(); setInterval(tick, 1000);
+// A person's verdict on a test that is theirs. It goes to the monitor; the agent records it in the change document.
+$("smoke").addEventListener("click", async e => {
+  const b = e.target.closest("button[data-result]");
+  if (!b) return;
+  b.disabled = true;
+  try {
+    await fetch("/verdict", {method: "POST", headers: {"Content-Type": "application/json", "X-Change-Dashboard": "1"},
+                             body: JSON.stringify({id: b.dataset.id, result: b.dataset.result})});
+  } finally { b.disabled = false; tick(); }
+});
+addEventListener("resize", () => Object.values(tiles).forEach(t => t.c.kind === "chart" && draw(t.c.id)));
+</script>
+</body>
+</html>

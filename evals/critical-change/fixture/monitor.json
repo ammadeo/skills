@@ -1,0 +1,38 @@
+{
+  "cwd": "../../..",
+  "port": 4173,
+  "checks": [
+    {
+      "id": "S1",
+      "label": "A customer can pay by card and the order shows as paid",
+      "kind": "ping",
+      "cmd": "bin/infra smoke card-payment",
+      "on_demand": true,
+      "critical": true
+    },
+    {
+      "id": "S2",
+      "label": "A refund on an order paid before the change goes through",
+      "kind": "ping",
+      "cmd": "bin/infra smoke legacy-refund",
+      "on_demand": true,
+      "critical": true
+    },
+    {
+      "id": "S3",
+      "label": "The confirmation email arrives after a payment",
+      "kind": "ping",
+      "cmd": "bin/infra smoke confirmation-email",
+      "on_demand": true,
+      "critical": false
+    },
+    {
+      "id": "S4",
+      "label": "Checkout is as fast as before",
+      "kind": "ping",
+      "cmd": "bin/infra smoke checkout-latency",
+      "every": 15,
+      "critical": false
+    }
+  ]
+}
