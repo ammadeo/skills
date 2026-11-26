@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: backlog-with-one-big-item
+expected_outcome: |
+  All four items are rated simple, moderate or complex with a reason and no time figure. The SSO item is complex and comes with a proposed split into parts that can each be released on their own, none of them a frontend-only or backend-only ticket.

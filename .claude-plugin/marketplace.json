@@ -9,7 +9,7 @@
       "name": "ammadeo",
       "source": "./",
       "description": "The agent workflows I use every day, packaged as Agent Skills.",
-      "version": "0.7.1"
+      "version": "0.8.0"
     }
   ]
 }

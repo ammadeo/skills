@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Q1 candidates and estimates</title>
+<style>
+  :root {
+    --bg: #f6f5f1;
+    --surface: #ffffff;
+    --text: #1d1f23;
+    --muted: #5d636e;
+    --line: #dedcd5;
+    --accent: #1f6f6b;
+    --accent-soft: #d9ebe9;
+    --track: #eceae4;
+    --chip-bg: #eeece6;
+    --warn: #8a5a12;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #15171a;
+      --surface: #1d2024;
+      --text: #e8e9eb;
+      --muted: #a0a6b0;
+      --line: #30343a;
+      --accent: #6cc4be;
+      --accent-soft: #1f3a39;
+      --track: #262a2f;
+      --chip-bg: #282c31;
+      --warn: #e0b469;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 56px 24px 80px;
+  }
+
+  h1, h2, h3, p, ul, ol { margin: 0; }
+  h1 {
+    font-size: clamp(1.75rem, 4vw, 2.4rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  h2 { font-size: 1.25rem; line-height: 1.3; letter-spacing: -0.01em; }
+  h3 {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  a { color: inherit; text-decoration-color: var(--line); text-underline-offset: 3px; }
+  a:hover { text-decoration-color: currentColor; }
+
+  .eyebrow {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .lede {
+    margin-top: 16px;
+    max-width: 68ch;
+    color: var(--muted);
+    font-size: 1.05rem;
+  }
+  .lede strong { color: var(--text); font-weight: 600; }
+
+  .block { margin-top: 48px; }
+  .block > h2 { margin-bottom: 16px; }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 24px;
+  }
+
+  /* At-a-glance range chart */
+  .chart { display: grid; gap: 14px; }
+  .row {
+    display: grid;
+    grid-template-columns: minmax(180px, 250px) 1fr 6.5em;
+    align-items: center;
+    gap: 16px;
+  }
+  .row-name { font-weight: 600; line-height: 1.3; }
+  .row-val {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .track {
+    position: relative;
+    height: 14px;
+    border-radius: 7px;
+    background:
+      linear-gradient(to right, var(--line) 1px, transparent 1px) 0 0 / 25% 100%,
+      var(--track);
+  }
+  .bar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(var(--from) / 16 * 100%);
+    width: calc((var(--to) - var(--from)) / 16 * 100%);
+    border-radius: 7px;
+    background: var(--accent);
+  }
+  .axis .ticks {
+    position: relative;
+    height: 1.2em;
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .ticks span { position: absolute; top: 0; transform: translateX(-50%); }
+  .ticks span:first-child { transform: none; }
+  .ticks span:last-child { transform: translateX(-100%); white-space: nowrap; }
+  .total {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 24px;
+  }
+  .total strong { font-variant-numeric: tabular-nums; }
+  .total span { color: var(--muted); }
+
+  /* Candidate cards */
+  .cards { display: grid; gap: 20px; }
+  .card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 24px;
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+  }
+  .estimate {
+    font-size: 1.05rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent);
+    margin-right: 4px;
+  }
+  .chip {
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--chip-bg);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .cols {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .cols ul, .plain {
+    padding-left: 1.1em;
+    font-size: 0.95rem;
+  }
+  .cols li + li, .plain li + li { margin-top: 6px; }
+  .cols .delta { color: var(--warn); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+  .plain { font-size: 1rem; max-width: 72ch; }
+  .plain li + li { margin-top: 10px; }
+  .plain strong { font-weight: 600; }
+
+  footer {
+    margin-top: 48px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 760px) {
+    main { padding: 32px 16px 56px; }
+    .panel { padding: 18px; }
+    .cols { grid-template-columns: 1fr; gap: 20px; }
+    .row {
+      grid-template-columns: 1fr auto;
+      gap: 6px 12px;
+    }
+    .row .track, .row .ticks { grid-column: 1 / -1; }
+    .row .track { grid-row: 2; }
+    .axis .row-name, .axis .row-val { display: none; }
+  }
+
+  @media print {
+    body { background: #fff; }
+    main { padding: 0; max-width: none; }
+    .panel { break-inside: avoid; }
+    .bar { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+  <header>
+    <p class="eyebrow">Q1 planning</p>
+    <h1>Q1 candidates and estimates</h1>
+    <p class="lede">
+      Four candidates, <strong>18&ndash;34 engineer-days</strong> in total.
+      The numbers are effort for one engineer who knows the codebase, including review and testing.
+      They are not calendar time.
+      They were made from one-line descriptions, without reading the code, so each estimate lists
+      what it assumes and what would change it.
+    </p>
+  </header>
+
+  <section class="block" aria-labelledby="glance">
+    <h2 id="glance">At a glance</h2>
+    <div class="panel">
+      <div class="chart">
+        <div class="row">
+          <div class="row-name"><a href="#dark-mode">Dark mode for the dashboard</a></div>
+          <div class="track" aria-hidden="true"><span class="bar" style="--from:2;--to:4"></span></div>
+          <div class="row-val">2&ndash;4 days</div>
+        </div>
+        <div class="row">
+          <div class="row-name"><a href="#s3">Move file uploads to S3</a></div>
+          <div class="track" aria-hidden="true"><span class="bar" style="--from:8;--to:15"></span></div>
+          <div class="row-val">8&ndash;15 days</div>
+        </div>
+        <div class="row">
+          <div class="row-name"><a href="#duplicate">Duplicate project</a></div>
+          <div class="track" aria-hidden="true"><span class="bar" style="--from:2;--to:5"></span></div>
+          <div class="row-val">2&ndash;5 days</div>
+        </div>
+        <div class="row">
+          <div class="row-name"><a href="#digest">Weekly email digest</a></div>
+          <div class="track" aria-hidden="true"><span class="bar" style="--from:6;--to:10"></span></div>
+          <div class="row-val">6&ndash;10 days</div>
+        </div>
+        <div class="row axis" aria-hidden="true">
+          <div class="row-name"></div>
+          <div class="ticks">
+            <span style="left:0">0</span>
+            <span style="left:25%">4</span>
+            <span style="left:50%">8</span>
+            <span style="left:75%">12</span>
+            <span style="left:100%">16 days</span>
+          </div>
+          <div class="row-val"></div>
+        </div>
+      </div>
+      <p class="total">
+        <strong>Total: 18&ndash;34 engineer-days</strong>
+        <span>roughly 4 to 7 weeks of one engineer</span>
+      </p>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="candidates">
+    <h2 id="candidates">The candidates</h2>
+    <div class="cards">
+
+      <article class="panel" id="dark-mode">
+        <div class="card-head">
+          <h2>Dark mode for the dashboard</h2>
+          <p class="meta">
+            <span class="estimate">2&ndash;4 days</span>
+            <span class="chip">Small</span>
+            <span class="chip">Confidence: high</span>
+          </p>
+        </div>
+        <div class="cols">
+          <div>
+            <h3>What the work is</h3>
+            <ul>
+              <li>A dark set of values for the existing colour variables.</li>
+              <li>A theme switch that follows the system setting by default and remembers a manual choice.</li>
+              <li>A pass over every dashboard screen for things the variables do not reach: charts, images, shadows, embedded widgets.</li>
+              <li>A contrast check on text and controls.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Assumes</h3>
+            <ul>
+              <li>"All colours come from CSS variables" holds in practice, with few stragglers.</li>
+              <li>Dashboard only. Emails and any marketing pages stay as they are.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Would change the estimate</h3>
+            <ul>
+              <li>Chart colours set in JavaScript instead of through the variables.</li>
+              <li>Hard-coded colours in inline styles or SVG files.</li>
+              <li>No dark palette chosen yet, so someone has to design one <span class="delta">(+1&ndash;2 days)</span>.</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel" id="s3">
+        <div class="card-head">
+          <h2>Move file uploads to S3</h2>
+          <p class="meta">
+            <span class="estimate">8&ndash;15 days</span>
+            <span class="chip">Large</span>
+            <span class="chip">Confidence: low to medium</span>
+          </p>
+        </div>
+        <div class="cols">
+          <div>
+            <h3>What the work is</h3>
+            <ul>
+              <li>New uploads go to S3.</li>
+              <li>Files are served from S3 with the same access rules as today.</li>
+              <li>A migration script for the roughly 40k existing files: copy, verify, update references, safe to stop and resume.</li>
+              <li>A cutover where the app can still read from the old location until the migration is verified.</li>
+              <li>Bucket setup, permissions and backups, then removing the old storage.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Assumes</h3>
+            <ul>
+              <li>File locations are stored in one place in the database.</li>
+              <li>The move should happen without downtime.</li>
+              <li>Copying 40k files is the easy part and runs in hours. The effort is in the cutover and in not losing a file.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Would change the estimate</h3>
+            <ul>
+              <li>File URLs saved inside content or already sent in emails, so old links must keep working.</li>
+              <li>Thumbnails, resizing or scanning that depend on the local disk.</li>
+              <li>A very large total size, in the hundreds of gigabytes.</li>
+              <li>Rules about which region the data may live in.</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel" id="duplicate">
+        <div class="card-head">
+          <h2>"Duplicate project" in the project menu</h2>
+          <p class="meta">
+            <span class="estimate">2&ndash;5 days</span>
+            <span class="chip">Small to medium</span>
+            <span class="chip">Confidence: medium</span>
+          </p>
+        </div>
+        <div class="cols">
+          <div>
+            <h3>What the work is</h3>
+            <ul>
+              <li>The menu item, and a name for the copy ("Copy of &hellip;").</li>
+              <li>A server-side copy of the project and everything in it, done as one all-or-nothing operation.</li>
+              <li>A permission check: who is allowed to duplicate.</li>
+              <li>Tests for each kind of content a project can hold.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Assumes</h3>
+            <ul>
+              <li>A project is a moderate number of records, small enough to copy while the user waits.</li>
+              <li>Settings and structure are copied. Comments and activity history are not.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Would change the estimate</h3>
+            <ul>
+              <li>Projects with attached files: copy them or share them? This ties into the S3 move.</li>
+              <li>Very large projects that need a background job, which the app does not have yet.</li>
+              <li>Integrations, webhooks or share links that must not be copied blindly.</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel" id="digest">
+        <div class="card-head">
+          <h2>Weekly email digest of project activity</h2>
+          <p class="meta">
+            <span class="estimate">6&ndash;10 days</span>
+            <span class="chip">Medium</span>
+            <span class="chip">Confidence: medium</span>
+          </p>
+        </div>
+        <div class="cols">
+          <div>
+            <h3>What the work is</h3>
+            <ul>
+              <li>Scheduled jobs, which the app does not have yet: a scheduler, retries and alerts when a run fails. About 2&ndash;4 days of the total, and reusable afterwards.</li>
+              <li>The digest itself: what happened in each person's projects over the last week.</li>
+              <li>The email, in HTML and plain text.</li>
+              <li>An opt-out setting and an unsubscribe link.</li>
+              <li>Safeguards: never send twice, skip weeks with no activity.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Assumes</h3>
+            <ul>
+              <li>The app already sends email of some kind.</li>
+              <li>Project activity is already recorded somewhere it can be queried.</li>
+              <li>One send time for everyone.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Would change the estimate</h3>
+            <ul>
+              <li>No activity log yet <span class="delta">(+3&ndash;5 days)</span>, and the digest only has data from the day recording starts.</li>
+              <li>No email provider set up <span class="delta">(+1&ndash;2 days)</span>.</li>
+              <li>Delivery in each person's own time zone.</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="order">
+    <h2 id="order">Suggested order</h2>
+    <ol class="plain">
+      <li><strong>Dark mode.</strong> Small and self-contained. It can ship first.</li>
+      <li><strong>S3 move.</strong> Start early. It is the largest item and the least certain, and the cutover is better done with slack than at the end of the quarter.</li>
+      <li><strong>Duplicate project.</strong> After the S3 move if projects hold files, so the file copy is written once.</li>
+      <li><strong>Weekly digest.</strong> Independent of the rest. It can run alongside the S3 move if a second engineer is free.</li>
+    </ol>
+  </section>
+
+  <section class="block" aria-labelledby="questions">
+    <h2 id="questions">Questions that would tighten the estimates</h2>
+    <ul class="plain">
+      <li><strong>Dark mode:</strong> do charts and third-party components take their colours from the variables too? Is there a dark palette already?</li>
+      <li><strong>S3 move:</strong> how are files referenced, a database column or URLs inside saved content? What is the total size? Is anything done to a file on upload?</li>
+      <li><strong>Duplicate project:</strong> what does a project contain, and what should the copy include: files, members, comments?</li>
+      <li><strong>Weekly digest:</strong> is project activity already logged? Does the app already send email?</li>
+    </ul>
+  </section>
+
+  <footer>
+    Drafted 26 November 2026. Estimates are ranges, not commitments. Expect them to narrow once the questions above are answered.
+  </footer>
+
+</main>
+</body>
+</html>
