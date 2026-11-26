@@ -68,8 +68,9 @@ that is red today is broken or has found a problem. Stop it again.
 
 ## Working
 
-Several repos or blocks: load `orchestrate`, one worker per block with
-disjoint files, the limits above in every brief word for word. Review each
+Several repos or blocks: load the `orchestrate` skill and follow it, one
+worker per block with disjoint files, the limits above in every brief word
+for word. Review each
 diff against the plan yourself: it does what its prep item says and nothing
 else.
 
