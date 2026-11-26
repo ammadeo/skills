@@ -154,9 +154,14 @@ nothing while executing.
   line it prints. The user is following along and has to see at a glance
   that things are fine; paragraphs are for when something is off, so that
   they stand out when they come.
-- **Several areas at once: orchestrate.** Load the `orchestrate` skill for
-  research across systems and for building blocks across repos. The limits
-  of the current phase go into every worker's brief word for word.
+- **Every worker goes through `orchestrate`.** Before a phase hands anything
+  to a subagent (research and the review of the plan, building blocks in
+  prepare, a look into a failure in execute), load the `orchestrate` skill
+  and set the worker up as it says: the strongest available model at high
+  effort, in the background, from a self-contained brief. That holds for a
+  single worker too; research on a change like this is no place for a
+  smaller model. The limits of the current phase go into every brief word
+  for word. If `orchestrate` is not installed, apply those points yourself.
 
 ## Status
 
@@ -184,9 +189,9 @@ is completed or reverted; in a later session pass the stored link so the
 same page updates. Start the monitor through the preview tooling, so the
 dashboard opens beside the conversation. The page already follows the artifact
 page contract, both themes included, so it needs no page-design guidance and
-no preview. Workers go through `orchestrate`; plan-phase workers are
-read-only (`Explore`, or `general-purpose` with the read-only rule in the
-brief). Use `gh` for PRs and the session's browser tools for smoke
-checks.
+no preview. Workers are set up the way `orchestrate` describes for Claude
+Code, which means Opus at high effort; plan-phase workers are read-only,
+with that rule in the brief. Use `gh` for PRs and the session's browser
+tools for smoke checks.
 
 In an agent without artifacts, give the user the path of `change.html`.

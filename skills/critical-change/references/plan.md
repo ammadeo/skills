@@ -66,9 +66,11 @@ many. `medium`: degraded but working. `low`: only the team notices.
 
 ## 4. Research
 
-Each unknown ends answered with evidence or declared open. Load
-`orchestrate` and give one read-only worker per independent area (a repo, a
-system, a cluster of questions). The brief carries the questions, where to
+Each unknown ends answered with evidence or declared open. Load the
+`orchestrate` skill now and set the workers up as it says: the strongest
+model at high effort, also when there is only one. Give one read-only worker
+per independent area (a repo, a system, a cluster of questions). The brief
+carries the questions, where to
 look, the read-only rule from the top of this file in full, and the return
 format: answer, evidence, confidence, anything new it ran into. Check the
 answers the plan hinges on yourself.
@@ -181,8 +183,8 @@ one, or say in the risk's `mitigation` why none can exist.
 
 ## 8. Attack the plan
 
-Before presenting, hand the document to one fresh read-only worker with this
-brief: "This plan will be executed on a live system. Find what it missed: a
+Before presenting, hand the document to one fresh read-only worker, set up
+through `orchestrate` like the research workers, with this brief: "This plan will be executed on a live system. Find what it missed: a
 consumer that is not listed, a step that fails silently, a smoke test that
 would pass while users are broken, a reversal that loses data, an assumption
 without evidence. Findings only, most severe first." Fold in what holds up

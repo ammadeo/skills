@@ -144,8 +144,9 @@ waiting on a fast message; the reversal is still their call.
    look for the root cause first. Going back does not need it, and it
    belongs to the report afterwards.
 4. Something does not hold: say which line and what you saw. Then find out
-   what you need, in a few minutes and without fixing anything, and propose
-   one adjusted reversal: the steps, what differs from the plan and why. Put
+   what you need, in a few minutes and without fixing anything (a worker for
+   part of it is set up through `orchestrate`, read-only), and propose one
+   adjusted reversal: the steps, what differs from the plan and why. Put
    the adjusted steps into `reversal.steps`. If no safe reversal exists, say
    so plainly with what the user can choose between.
 

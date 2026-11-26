@@ -1,6 +1,6 @@
 {
   "name": "ammadeo",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "The agent workflows I use every day, packaged as Agent Skills.",
   "author": { "name": "ammadeo", "url": "https://github.com/ammadeo" },
   "homepage": "https://github.com/ammadeo/skills",
