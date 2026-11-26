@@ -14,6 +14,7 @@ other agent that reads the format.
 | [`daily-update`](skills/daily-update/SKILL.md) | Posts an end-of-day Slack update built from today's PRs and tickets, only after you approve the exact text. |
 | [`architecture-visualise`](skills/architecture-visualise/SKILL.md) | Draws how a feature is put together as SVG diagrams, with the pattern named and weak spots marked; compares two versions on the same grid. |
 | [`critical-change`](skills/critical-change/SKILL.md) | Runs a high-risk change to a live system as a gated plan, prepare and execute flow, and reverses only on your word; starts only when you ask for it. |
+| [`estimate`](skills/estimate/SKILL.md) | Estimates work as simple, moderate or complex instead of in time, colours the levels so they read for colour-blind people, and proposes a split into vertical slices when something is complex. |
 
 Requirements: [`gh`](https://cli.github.com) signed in, for `review-pr`,
 `overseer-draft`, `daily-update` and pull-request comparisons in

@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Q1 candidates: complexity estimates</title>
+<style>
+  :root {
+    /* Level fills: fixed, the same in light and dark. Do not adjust. */
+    --simple-fill: #90FAA8;
+    --simple-text: #111111;
+    --moderate-fill: #DBB800;
+    --moderate-text: #111111;
+    --complex-fill: #B00C15;
+    --complex-text: #FFFFFF;
+
+    --bg: #F7F6F3;
+    --surface: #FFFFFF;
+    --text: #1B1C1E;
+    --muted: #5C6066;
+    --rule: #DFDDD7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141517;
+      --surface: #1D1F22;
+      --text: #ECEBE8;
+      --muted: #A3A7AD;
+      --rule: #33363B;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  main {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 48px 16px 64px;
+  }
+
+  h1 {
+    font-size: clamp(1.75rem, 4vw, 2.4rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px;
+    text-wrap: balance;
+  }
+  h2 {
+    font-size: 1.25rem;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    margin: 48px 0 8px;
+  }
+  p { margin: 0 0 12px; max-width: 68ch; }
+  .lead { font-size: 1.0625rem; }
+  .muted { color: var(--muted); }
+
+  /* Level badge: always a fill with the word on it, never colour alone. */
+  .lvl {
+    display: inline-block;
+    padding: 2px 12px;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 650;
+    line-height: 1.6;
+    white-space: nowrap;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .lvl-simple   { background: var(--simple-fill);   color: var(--simple-text); }
+  .lvl-moderate { background: var(--moderate-fill); color: var(--moderate-text); }
+  .lvl-complex  { background: var(--complex-fill);  color: var(--complex-text); }
+
+  .tally {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    margin: 24px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .tally li { display: flex; align-items: center; gap: 8px; }
+  .tally b { font-variant-numeric: tabular-nums; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    margin-top: 16px;
+    overflow: hidden;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+  th, td {
+    text-align: left;
+    vertical-align: top;
+    padding: 16px;
+    border-bottom: 1px solid var(--rule);
+  }
+  tr:last-child > td { border-bottom: 0; }
+  thead th {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--muted);
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+  td.item { font-weight: 600; width: 30%; }
+  td.level { width: 1%; }
+  td.why a { color: inherit; }
+
+  ol.split {
+    list-style: none;
+    counter-reset: slice;
+    margin: 0;
+    padding: 0;
+  }
+  ol.split > li {
+    counter-increment: slice;
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: 4px 8px;
+    padding: 16px;
+    border-bottom: 1px solid var(--rule);
+  }
+  ol.split > li:last-child { border-bottom: 0; }
+  ol.split > li::before {
+    content: counter(slice) ".";
+    font-weight: 600;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .slice-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px 12px;
+  }
+  .slice-name { font-weight: 600; }
+  .slice-body { grid-column: 2; }
+  .slice-body p { margin: 4px 0 0; }
+  .dep { color: var(--muted); font-size: 0.9375rem; }
+
+  dl.scale { margin: 0; }
+  dl.scale > div {
+    display: grid;
+    grid-template-columns: 7.5rem 1fr;
+    gap: 12px;
+    align-items: baseline;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--rule);
+  }
+  dl.scale > div:last-child { border-bottom: 0; }
+  dl.scale dt, dl.scale dd { margin: 0; }
+
+  @media (max-width: 640px) {
+    main { padding-top: 32px; }
+    thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    table, tbody, tr, td { display: block; width: auto; }
+    tr { padding: 16px; border-bottom: 1px solid var(--rule); }
+    tr:last-child { border-bottom: 0; }
+    td, td.item, td.level { padding: 0; border: 0; width: auto; }
+    td.level { margin: 8px 0; }
+    dl.scale > div { grid-template-columns: 1fr; gap: 4px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Q1 candidates: complexity estimates</h1>
+    <p class="lead">Each candidate is sized by complexity, not time: how much is unknown, how much has to move together, and how it releases. There are three levels and no hours, days or points behind them.</p>
+    <p class="muted">Judged from the one-line descriptions, without reading the code. A look at the code may move a level.</p>
+    <ul class="tally" aria-label="Candidates per level">
+      <li><span class="lvl lvl-simple">simple</span> <b>1</b></li>
+      <li><span class="lvl lvl-moderate">moderate</span> <b>2</b></li>
+      <li><span class="lvl lvl-complex">complex</span> <b>1</b></li>
+    </ul>
+  </header>
+
+  <section aria-labelledby="candidates">
+    <h2 id="candidates">The candidates</h2>
+    <div class="card">
+      <table>
+        <thead>
+          <tr><th scope="col">Item</th><th scope="col">Complexity</th><th scope="col">Why</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="item">Dark mode for the dashboard</td>
+            <td class="level"><span class="lvl lvl-simple">simple</span></td>
+            <td class="why">Every colour already comes from a CSS variable, so this is a second set of values and a switch. One system changes and it goes out as an ordinary release.</td>
+          </tr>
+          <tr>
+            <td class="item">Move file uploads from our own server to S3, including the roughly 40k existing files</td>
+            <td class="level"><span class="lvl lvl-complex">complex</span></td>
+            <td class="why">Uploading, storing and downloading all change, old and new storage have to run side by side while the existing files are copied, and it is not yet known how stored file links and access rules carry over. <a href="#split">Proposed split below.</a></td>
+          </tr>
+          <tr>
+            <td class="item">A "duplicate project" action in the project menu</td>
+            <td class="level"><span class="lvl lvl-moderate">moderate</span></td>
+            <td class="why">Known goal in one system. The moving parts are everything a project owns: the copy has to cover each of them, and what happens to files, members and history is one decision still to make. If files are copied too, keep this clear of the S3 move.</td>
+          </tr>
+          <tr>
+            <td class="item">Weekly email digest of project activity</td>
+            <td class="level"><span class="lvl lvl-moderate">moderate</span></td>
+            <td class="why">The digest itself is ordinary work, but it brings the app's first scheduled job: one new piece that needs somewhere to run, a guard against sending twice and an opt-out. Assumes the app already sends email.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="split">
+    <h2 id="split">Proposed split: move file uploads to S3</h2>
+    <p>Cut by release step, so every slice goes through upload, storage and download and can be released and checked on its own. This is a proposal; no tickets change until the team agrees.</p>
+    <div class="card">
+      <ol class="split">
+        <li>
+          <div class="slice-head">
+            <span class="slice-name">Uploads in one internal project are stored in and served from S3, behind a flag</span>
+            <span class="lvl lvl-moderate">moderate</span>
+          </div>
+          <div class="slice-body">
+            <p>Answers the open question of how file links and access rules work on S3, while both storages run side by side.</p>
+            <p class="dep">Depends on nothing.</p>
+          </div>
+        </li>
+        <li>
+          <div class="slice-head">
+            <span class="slice-name">Every new upload goes to S3</span>
+            <span class="lvl lvl-simple">simple</span>
+          </div>
+          <div class="slice-body">
+            <p>The flag from slice 1 opens to everyone. Existing files are still served from our own server.</p>
+            <p class="dep">After 1.</p>
+          </div>
+        </li>
+        <li>
+          <div class="slice-head">
+            <span class="slice-name">The roughly 40k existing files are moved to S3 in batches</span>
+            <span class="lvl lvl-moderate">moderate</span>
+          </div>
+          <div class="slice-body">
+            <p>Each batch is copied, checked and switched over, with a way back per batch.</p>
+            <p class="dep">After 2.</p>
+          </div>
+        </li>
+        <li>
+          <div class="slice-head">
+            <span class="slice-name">The old upload storage and its code path are removed</span>
+            <span class="lvl lvl-simple">simple</span>
+          </div>
+          <div class="slice-body">
+            <p>Nothing reads from our own server any more, so this is a deletion in one system.</p>
+            <p class="dep">After 3.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section aria-labelledby="scale">
+    <h2 id="scale">How to read the levels</h2>
+    <div class="card">
+      <dl class="scale">
+        <div>
+          <dt><span class="lvl lvl-simple">simple</span></dt>
+          <dd>Known goal, no moving parts, one system changes, ordinary release.</dd>
+        </div>
+        <div>
+          <dt><span class="lvl lvl-moderate">moderate</span></dt>
+          <dd>Known goal, a few risks at most, some moving parts. The size of a typical ticket.</dd>
+        </div>
+        <div>
+          <dt><span class="lvl lvl-complex">complex</span></dt>
+          <dd>Known unknowns, a coordinated release, several systems affected. Usually it should be split.</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+</main>
+</body>
+</html>
